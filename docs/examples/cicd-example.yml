@@ -1,0 +1,384 @@
+# ============================================
+# EJEMPLO COMPLETO: GitHub Actions CI/CD
+#
+# Este archivo muestra cómo implementar:
+# 1. Tests automáticos en cada PR
+# 2. Deploy automático a producción
+# 3. Scraping diario con cron job
+# 4. Security audit semanal
+#
+# NOTA: Copiar estos workflows a .github/workflows/ durante implementación.
+# ============================================
+
+# ============================================
+# WORKFLOW 1: Tests y Linting (En cada PR)
+# ============================================
+
+# Archivo: .github/workflows/test.yml
+
+name: Tests
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test -- --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/coverage-final.json
+          flags: unittests
+          name: codecov-umbrella
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: file:./test.db
+          TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
+          ADMIN_API_KEY: test-admin-key-32-characters-long
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+# ============================================
+# WORKFLOW 2: Deploy Automático (Merge a main)
+# ============================================
+
+# Archivo: .github/workflows/deploy.yml
+
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Deployment successful to https://envivo.vercel.app"
+
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed - check logs"
+
+# ============================================
+# WORKFLOW 3: Scraping Diario (Cron Job)
+# ============================================
+
+# Archivo: .github/workflows/daily-scraper.yml
+
+name: Daily Scraper
+
+on:
+  schedule:
+    # Ejecutar todos los días a las 2 AM UTC
+    - cron: '0 2 * * *'
+
+  # Permitir trigger manual
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Trigger scraping endpoint
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST ${{ secrets.APP_URL }}/api/scraper/sync \
+            -H "x-api-key: ${{ secrets.ADMIN_API_KEY }}" \
+            -H "Content-Type: application/json")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+
+          echo "Response: $BODY"
+          echo "HTTP Code: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Scraping failed with HTTP code $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "✅ Scraping completed successfully"
+
+      - name: Parse scraping results
+        if: success()
+        run: |
+          # Aquí podrías parsear el JSON response y extraer métricas
+          echo "📊 Scraping metrics would be logged here"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Scraping failed - check logs at ${{ secrets.APP_URL }}/api/scraper/status"
+
+# ============================================
+# WORKFLOW 4: Security Audit (Semanal)
+# ============================================
+
+# Archivo: .github/workflows/security.yml
+
+name: Security Audit
+
+on:
+  schedule:
+    # Ejecutar cada domingo a medianoche UTC
+    - cron: '0 0 * * 0'
+
+  # Permitir trigger manual
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check for outdated dependencies
+        run: npm outdated || true
+
+      - name: Run security scan with Snyk (opcional)
+        if: env.SNYK_TOKEN
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: --severity-threshold=high
+
+# ============================================
+# WORKFLOW 5: Preview Deployment (Para PRs)
+# ============================================
+
+# Archivo: .github/workflows/preview.yml
+
+name: Preview Deployment
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel Preview
+        uses: amondnet/vercel-action@v25
+        id: vercel-deploy
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--no-wait'
+
+      - name: Comment PR with preview URL
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 Preview deployment ready!\n\n📎 URL: ${{ steps.vercel-deploy.outputs.preview-url }}`
+            })
+
+# ============================================
+# CONFIGURACIÓN DE SECRETS EN GITHUB
+# ============================================
+
+# En GitHub: Settings → Secrets and variables → Actions
+#
+# Secrets requeridos:
+#
+# VERCEL_TOKEN              - Token de Vercel (desde vercel.com/account/tokens)
+# VERCEL_ORG_ID             - ID de organización (desde .vercel/project.json)
+# VERCEL_PROJECT_ID         - ID de proyecto (desde .vercel/project.json)
+# TICKETMASTER_API_KEY      - API key de Ticketmaster
+# EVENTBRITE_API_KEY        - API key de Eventbrite (opcional)
+# ADMIN_API_KEY             - Admin key para scraping (generar con openssl rand -hex 32)
+# APP_URL                   - URL de producción (ej: https://envivo.vercel.app)
+# SNYK_TOKEN                - Token de Snyk (opcional, para security scan)
+
+# ============================================
+# VERCEL CONFIGURATION
+# ============================================
+
+# Archivo: vercel.json
+
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "env": {
+    "DATABASE_URL": "@database-url",
+    "TICKETMASTER_API_KEY": "@ticketmaster-api-key",
+    "EVENTBRITE_API_KEY": "@eventbrite-api-key",
+    "ADMIN_API_KEY": "@admin-api-key"
+  },
+  "crons": [
+    {
+      "path": "/api/scraper/sync",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}
+
+# ============================================
+# CÓMO CONFIGURAR VERCEL CRON
+# ============================================
+
+# 1. Instalar Vercel CLI:
+# $ npm i -g vercel
+
+# 2. Link proyecto:
+# $ vercel link
+
+# 3. Agregar secretos:
+# $ vercel env add DATABASE_URL production
+# $ vercel env add TICKETMASTER_API_KEY production
+# $ vercel env add ADMIN_API_KEY production
+
+# 4. Deploy:
+# $ vercel --prod
+
+# 5. Verificar cron:
+# Ver logs en Vercel Dashboard → Deployments → Functions
+
+# ============================================
+# COMANDOS ÚTILES
+# ============================================
+
+# Trigger manual de scraping (local):
+# $ curl -X POST http://localhost:3000/api/scraper/sync \
+#   -H "x-api-key: your-admin-key"
+
+# Trigger manual de scraping (producción):
+# $ curl -X POST https://envivo.vercel.app/api/scraper/sync \
+#   -H "x-api-key: $ADMIN_API_KEY"
+
+# Ver logs del cron job:
+# Vercel Dashboard → Project → Deployments → [Latest] → Functions
+
+# Trigger manual de GitHub Action:
+# GitHub → Actions → Daily Scraper → Run workflow
+
+# ============================================
+# MONITOREO DE CRON JOBS
+# ============================================
+
+# Endpoint para verificar estado de scraping
+# Archivo: app/api/scraper/status/route.ts
+
+export async function GET() {
+  // Retornar últimos logs de scraping
+  const lastRun = {
+    timestamp: new Date(),
+    successful: 4,
+    failed: 1,
+    totalEvents: 150,
+    duration: 4200,
+    errors: [
+      {
+        source: 'local-venue-1',
+        error: 'Timeout after 15000ms'
+      }
+    ]
+  };
+
+  return Response.json(lastRun);
+}
+
+# Ver estado:
+# $ curl https://envivo.vercel.app/api/scraper/status

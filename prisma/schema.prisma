@@ -1,0 +1,157 @@
+// Prisma Schema - EnVivo
+// Database: SQLite (MVP) → PostgreSQL (Production)
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// PREFERENCIAS GLOBALES (NUEVO)
+// ============================================================================
+
+model GlobalPreferences {
+  id String @id @default("singleton")
+
+  // Ubicación
+  allowedCountries String[] // ["AR", "UY", "CL", "BR"]
+  allowedCities    String[] // ["Buenos Aires", "Montevideo"]
+
+  // Géneros musicales
+  allowedGenres String[] // ["Rock", "Pop", "Jazz", "Metal"]
+  blockedGenres String[] // ["Trap"] - lista negra opcional
+
+  // Categorías de eventos
+  allowedCategories String[] // ["Concierto", "Festival", "Teatro"]
+
+  // Capacidad de venues
+  allowedVenueSizes   String[] // ["small", "medium", "large"]
+  venueSizeThresholds String   @default("{\"small\":500,\"medium\":2000,\"large\":5000}") // JSON string
+
+  // Control de estado
+  needsRescraping Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+  updatedBy       String? // Para auditoría (opcional)
+
+  @@map("global_preferences")
+}
+
+// ============================================================================
+// EVENTOS
+// ============================================================================
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  endDate     DateTime?
+
+  // Ubicación
+  venueId String?
+  venue   Venue?  @relation(fields: [venueId], references: [id])
+  city    String
+  country String
+
+  // Categorización
+  category String  // "Concierto", "Festival", "Teatro"
+  genre    String? // "Rock", "Pop", "Jazz"
+
+  // Artistas (relación many-to-many)
+  artists EventArtist[]
+
+  // Información adicional
+  imageUrl  String?
+  ticketUrl String?
+  price     Float?
+  priceMax  Float?
+  currency  String  @default("ARS")
+
+  // Metadatos
+  source     String // "ticketmaster", "eventbrite", "scraper_local"
+  externalId String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([date])
+  @@index([city])
+  @@index([category])
+  @@index([country])
+  @@fulltext([title, description]) // FTS5 para búsqueda
+  @@map("events")
+}
+
+// ============================================================================
+// VENUES
+// ============================================================================
+
+model Venue {
+  id       String  @id @default(cuid())
+  name     String
+  address  String?
+  city     String
+  country  String
+  latitude Float?
+  longitude Float?
+  capacity Int? // NUEVO: Capacidad del venue (nullable porque no siempre está disponible)
+  events   Event[]
+
+  @@index([city])
+  @@index([name, city]) // Para búsqueda rápida por nombre y ciudad
+  @@map("venues")
+}
+
+// ============================================================================
+// ARTISTAS
+// ============================================================================
+
+model Artist {
+  id       String        @id @default(cuid())
+  name     String        @unique
+  genre    String?
+  imageUrl String?
+  events   EventArtist[]
+
+  @@map("artists")
+}
+
+// ============================================================================
+// RELACIÓN MANY-TO-MANY: EVENT ↔ ARTIST
+// ============================================================================
+
+model EventArtist {
+  eventId  String
+  artistId String
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, artistId])
+  @@map("event_artists")
+}
+
+// ============================================================================
+// VENUE METADATA (Opcional - para enrichment de capacidad)
+// ============================================================================
+// Esta tabla permite guardar metadata adicional de venues que no viene
+// en las APIs/scrapers, como capacidad estimada o verificada manualmente
+
+model VenueMetadata {
+  id       String   @id @default(cuid())
+  name     String
+  city     String
+  country  String
+  capacity Int?
+  source   String // "manual", "api", "estimated"
+  verified Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, city, country])
+  @@index([name, city])
+  @@map("venue_metadata")
+}
