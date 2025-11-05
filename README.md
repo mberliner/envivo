@@ -88,13 +88,15 @@ envivo/
 
 ## 🎯 Features del MVP
 
-- ✅ Búsqueda por texto (título, artista, venue)
-- ✅ Filtros por ciudad, fecha, categoría
-- ✅ Detalle completo de eventos
-- ✅ Scraping asíncrono de múltiples fuentes
-- ✅ Integración con Ticketmaster API
-- ✅ Validación y deduplicación automática
-- ✅ Búsqueda geográfica ("eventos cerca de mí")
+- ⏳ Búsqueda por texto (título, artista, venue)
+- ⏳ Filtros por ciudad, fecha, categoría
+- ⏳ Detalle completo de eventos
+- ⏳ Scraping asíncrono de múltiples fuentes
+- ⏳ Integración con Ticketmaster API
+- ⏳ Validación y deduplicación automática
+- ⏳ Búsqueda geográfica ("eventos cerca de mí")
+
+**Estado**: En fase de implementación - Ver sección [Estado del Proyecto](#-estado-del-proyecto)
 
 ## 📚 Documentación
 
@@ -174,6 +176,38 @@ La primera vez que se ejecuta scraping, se crean automáticamente estas preferen
 - **Tamaños de venue**: Todos (small, medium, large)
 
 Para modificar preferencias, actualizar vía endpoint `/api/admin/preferences` (ver [PRODUCT.md](docs/PRODUCT.md) - US1.4).
+
+## 🚀 Estado del Proyecto
+
+### Fase Actual: Fase 0 - Setup & Configuración
+
+**Estrategia de Implementación**: Vertical Slices (features end-to-end)
+
+El proyecto sigue un enfoque de **vertical slices** en lugar de implementación horizontal por capas. Esto significa que cada fase implementa una feature completa desde el backend hasta la UI, proveyendo valor inmediato.
+
+### Roadmap de Implementación
+
+| Fase | Duración | Objetivo | Estado |
+|------|----------|----------|--------|
+| **Fase 0** | 4-6 horas | Setup inicial + estructura base | 🚧 En progreso |
+| **Fase 1** | 1-2 días | Ticketmaster → BD → UI (primer valor) | ⏳ Pendiente |
+| **Fase 2** | 1 día | Business Rules + Deduplicación | ⏳ Pendiente |
+| **Fase 3** | 1-2 días | Búsqueda + Filtros | ⏳ Pendiente |
+| **Fase 4** | 1 día | Orchestrator asíncrono | ⏳ Pendiente |
+| **Fase 5** | 1 día | Segunda fuente + Detalle | ⏳ Pendiente |
+| **Fase 6** | 1 día | Scraping automático + Deploy | ⏳ Pendiente |
+| **Fase 7** | 1 día | Tests E2E + Pulido | ⏳ Pendiente |
+
+**Ver roadmap completo**: [docs/PRODUCT.md (líneas 360-587)](docs/PRODUCT.md#roadmap-de-implementaci%C3%B3n)
+
+### Git Workflow
+
+Durante el MVP, seguimos **trunk-based development**:
+- Commit y push directo a `main` después de cada fase completada
+- Convención: `feat: [descripción de la fase]`
+- Ejemplo: `git commit -m "feat: first vertical slice - Ticketmaster to UI"`
+
+---
 
 ## 🤝 Contribuir
 

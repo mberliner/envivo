@@ -359,120 +359,231 @@ curl -X POST http://localhost:3000/api/admin/scraper/sync \
 
 ## Roadmap de Implementación
 
-### Fase 1: Setup Inicial (Día 1)
+### Enfoque: Vertical Slices (Features End-to-End)
 
-**Objetivo**: Proyecto configurado y funcionando localmente.
+En lugar de implementar horizontalmente por capas (toda la capa de datos, luego lógica, luego UI), este roadmap sigue **vertical slices** - implementar features completas end-to-end que proveen valor inmediato.
 
-**Tareas**:
-1. Inicializar Next.js 14 con TypeScript
-2. Configurar Prisma + SQLite
-3. Setup Tailwind CSS + shadcn/ui
-4. Crear estructura de carpetas (Clean Architecture)
-5. Configurar ESLint + Prettier
-6. Setup Git + GitHub repo
-7. Configurar variables de entorno
+**Ventajas**:
+- ✅ Valor inmediato: algo funcional en 1-2 días (no 10 días)
+- ✅ Feedback rápido: UI con datos reales desde la primera fase
+- ✅ Menos overhead: no implementar infraestructura compleja hasta que sea necesaria
+- ✅ Deployable: cada fase puede ir a producción
+- ✅ Testeable: cada slice incluye sus tests
 
-**Entregable**: `npm run dev` funciona, estructura de carpetas creada.
+**Git Workflow**: Commit y push al trunk (`main`) después de completar cada fase.
 
 ---
 
-### Fase 2: Capa de Datos (Días 2-3)
+### Fase 0: Setup & Configuración (4-6 horas)
 
-**Objetivo**: Sistema de scraping asíncrono funcionando.
+**Objetivo**: Proyecto corriendo con infraestructura básica.
 
 **Tareas**:
-1. Crear interfaces base (`IDataSource`, `IEventRepository`)
-2. Implementar `DataSourceOrchestrator` con async scraping
-3. Implementar `TicketmasterSource` (API client)
-4. Crear mappers (`TicketmasterMapper`)
-5. Implementar `EventRepository` con Prisma
-6. Implementar `EventBusinessRules` (validación, deduplicación)
-7. Tests unitarios de orchestrator y business rules
+1. Inicializar Next.js 14 con TypeScript, Tailwind, App Router
+2. Instalar dependencias core: Prisma, Zod, Vitest
+3. Setup Prisma + SQLite
+4. Configurar variables de entorno (.env.example → .env.local)
+5. Crear estructura de carpetas según Clean Architecture
+6. Configurar ESLint + Prettier
+7. Configurar Vitest para tests unitarios
 
-**Entregable**: Scraping funciona, eventos se guardan en SQLite.
+**Entregable**:
+- ✅ `npm run dev` funciona
+- ✅ Estructura de carpetas creada
+- ✅ Prisma configurado
+- ✅ ESLint + Prettier funcionando
+
+**Git**: `git commit -m "feat: initial setup" && git push`
 
 ---
 
-### Fase 3: Búsqueda (Día 4)
+### Fase 1: Primer Vertical Slice - "Mostrar Eventos de Ticketmaster" (1-2 días)
 
-**Objetivo**: Motor de búsqueda funcionando.
+**Objetivo**: Desde scraping hasta UI, un flujo completo funcionando.
 
-**Tareas**:
-1. Configurar SQLite FTS5 en Prisma
-2. Implementar `SearchService` (búsqueda por texto)
-3. Implementar filtros (ciudad, fecha, categoría)
-4. Tests de búsqueda
+**Orden de implementación**:
 
-**Entregable**: API `/api/eventos?q=Metallica&city=Buenos Aires` funciona.
+1. **Schema de BD mínimo**
+   - Solo `Event` model (sin artistas, sin venues separados por ahora)
+   - Campos: id, title, date, venue, city, country, imageUrl, ticketUrl, source
 
----
+2. **Interfaces del Domain**
+   - `IDataSource` (interface mínima)
+   - `IEventRepository`
 
-### Fase 4: API Routes (Día 5)
+3. **TicketmasterSource + Mapper** (capa Data)
+   - `TicketmasterSource` implementa `IDataSource`
+   - `TicketmasterMapper` mapea de API a entidad `Event`
 
-**Objetivo**: Endpoints REST funcionando.
+4. **Repository con Prisma**
+   - `PrismaEventRepository` implementa `IEventRepository`
+   - Métodos: `findAll()`, `upsertMany()`
 
-**Tareas**:
-1. GET `/api/eventos` (búsqueda con filtros)
-2. GET `/api/eventos/[id]` (detalle)
-3. POST `/api/scraper/sync` (trigger scraping manual)
-4. GET `/api/scraper/status` (estado de scraping)
-5. Validación de query params con Zod
-6. Rate limiting básico
-7. Error handling
+5. **API Route para scraping manual**
+   - `POST /api/admin/scraper/sync`
+   - Validar API key
+   - Ejecutar TicketmasterSource.fetch()
+   - Guardar en BD con repository
+   - Retornar resumen JSON
 
-**Entregable**: API REST completa y documentada.
+6. **UI básica - Lista de eventos**
+   - Server Component en `app/page.tsx`
+   - Componente `EventCard` simple
+   - Mostrar eventos ordenados por fecha
 
----
+**Tests mínimos**:
+- Unit test de `TicketmasterMapper`
+- Integration test de `PrismaEventRepository`
 
-### Fase 5: UI/UX (Días 6-8)
+**Entregable**:
+🎉 **Puedes ejecutar scraping manual y ver eventos en la UI**
 
-**Objetivo**: Interfaz de usuario completa.
-
-**Tareas**:
-1. Página home con buscador
-2. Componente `EventCard` (lista)
-3. Componente `EventFilters` (sidebar)
-4. Página detalle de evento
-5. Componente `SearchBar` con debounce
-6. Loading states y error states
-7. Responsive design (mobile-first)
-8. Optimización de imágenes (Next.js Image)
-
-**Entregable**: UI completa y funcional.
+**Git**: `git commit -m "feat: first vertical slice - Ticketmaster to UI" && git push`
 
 ---
 
-### Fase 6: Automatización (Día 9)
+### Fase 2: Business Rules + Deduplicación (1 día)
 
-**Objetivo**: Scraping automático y monitoring.
+**Objetivo**: Validación centralizada y sin duplicados.
 
 **Tareas**:
-1. GitHub Action para scraping diario (cron)
-2. GitHub Action para tests en CI
-3. Setup logging con Pino
-4. Error handling global
-5. Sentry integration (opcional)
-6. Vercel deployment config
+1. Crear `EventBusinessRules` en capa Domain
+2. Implementar validación básica (fechas, campos requeridos, ubicación)
+3. Implementar deduplicación con fuzzy matching (`string-similarity`)
+4. Crear archivo de configuración `config/business-rules.json`
+5. Integrar business rules en flujo de scraping (entre mapper y repository)
+6. Tests unitarios de business rules (>80% coverage)
+7. Tests de deduplicación con casos edge
 
-**Entregable**: Scraping automático funcionando, logs estructurados.
+**Entregable**:
+- ✅ Eventos inválidos se rechazan con logs claros
+- ✅ No hay duplicados en BD
+
+**Git**: `git commit -m "feat: business rules and deduplication" && git push`
 
 ---
 
-### Fase 7: Testing & Deploy (Día 10)
+### Fase 3: Búsqueda + Filtros (1-2 días)
 
-**Objetivo**: Proyecto testeado y en producción.
+**Objetivo**: US1.1 (Búsqueda por texto) y US1.2 (Filtros) completos.
 
 **Tareas**:
+1. Agregar SQLite FTS5 a schema (`@@fulltext([title, description])`)
+2. Crear `SearchService` en capa Domain
+3. Implementar API Route `GET /api/eventos?q=...&city=...&date=...`
+4. Validación de query params con Zod
+5. Implementar `SearchBar` component con debounce
+6. Implementar `EventFilters` component (ciudad, fecha, categoría)
+7. Actualizar `EventList` para aceptar filtros
+8. Persistir filtros en URL query params
+9. Tests de SearchService
+10. Tests de integración de API route
 
-1. Tests unitarios de business rules (>80% coverage)
-2. Tests E2E con Playwright (flujos críticos)
-3. Performance testing (búsqueda <500ms)
-4. Security audit (`npm audit`)
+**Entregable**:
+- ✅ Buscador funcional por texto
+- ✅ Filtros combinables (ciudad + fecha + categoría)
+- ✅ Resultados en <500ms
+
+**Git**: `git commit -m "feat: search and filters" && git push`
+
+---
+
+### Fase 4: Orchestrator + Scraping Paralelo (1 día)
+
+**Objetivo**: Preparar arquitectura para múltiples fuentes.
+
+**Tareas**:
+1. Crear `DataSourceOrchestrator` con `Promise.allSettled()`
+2. Implementar límite de concurrencia con `p-limit`
+3. Implementar retry logic con `p-retry`
+4. Agregar timeout handling por fuente
+5. Crear archivo de configuración `config/scrapers.json`
+6. Refactorizar scraping endpoint para usar orchestrator
+7. Tests unitarios de orchestrator (con mocks de data sources)
+
+**Nota**: Por ahora solo hay 1 fuente (Ticketmaster), pero arquitectura lista para escalar.
+
+**Entregable**:
+- ✅ Orchestrator funciona con 1 fuente
+- ✅ Listo para agregar más fuentes fácilmente
+
+**Git**: `git commit -m "feat: data source orchestrator with async scraping" && git push`
+
+---
+
+### Fase 5: Segunda Fuente + Detalle de Evento (1 día)
+
+**Objetivo**: Validar que orchestrator funciona con múltiples fuentes + US2.1 (Detalle).
+
+**Tareas**:
+1. Implementar segunda fuente (Eventbrite API o scraper local simple)
+2. Crear mapper correspondiente
+3. Registrar en orchestrator
+4. Verificar deduplicación entre fuentes funciona
+5. Crear página de detalle `/eventos/[id]/page.tsx`
+6. Crear componente `EventDetail`
+7. Agregar link "Volver a resultados" que preserva query params
+8. Tests de nueva fuente
+9. Tests E2E básicos (navegar home → detalle)
+
+**Entregable**:
+- ✅ Scraping de 2+ fuentes en paralelo
+- ✅ Página de detalle completa
+
+**Git**: `git commit -m "feat: second data source and event detail page" && git push`
+
+---
+
+### Fase 6: Scraping Automático + Deploy (1 día)
+
+**Objetivo**: Automatización y producción.
+
+**Tareas**:
+1. Crear GitHub Action con cron diario (2 AM UTC)
+2. Implementar logging estructurado con Pino
+3. Configurar redacción de secretos en logs
+4. Crear `GET /api/scraper/status` endpoint
 5. Deploy a Vercel
 6. Configurar variables de entorno en Vercel
-7. Verificar scraping diario funciona
+7. Configurar variable `ADMIN_API_KEY` en GitHub Secrets
+8. Verificar scraping automático ejecuta correctamente
+9. Tests de integración del cron job (local)
 
-**Entregable**: Proyecto en producción en Vercel.
+**Entregable**:
+- ✅ Scraping automático diario funcionando
+- ✅ App en producción en Vercel
+- ✅ Logs estructurados visibles
+
+**Git**: `git commit -m "feat: automated scraping and production deployment" && git push`
+
+---
+
+### Fase 7: Pulido + Testing E2E (1 día)
+
+**Objetivo**: Calidad y lanzamiento del MVP.
+
+**Tareas**:
+1. Setup Playwright para E2E
+2. Tests E2E de flujos críticos:
+   - Búsqueda por texto
+   - Aplicar filtros
+   - Ver detalle de evento
+   - Scraping manual (admin)
+3. Implementar Error boundaries
+4. Mejorar loading states (skeletons)
+5. Responsive design (mobile + tablet)
+6. Optimización de imágenes (Next.js Image)
+7. Performance audit con Lighthouse (>90)
+8. Security audit (`npm audit`)
+9. Verificar coverage de tests (>80% domain, >60% total)
+
+**Entregable**:
+- ✅ MVP completo y testeado
+- ✅ Lighthouse score >90
+- ✅ Tests E2E pasan
+- ✅ Listo para usuarios reales
+
+**Git**: `git commit -m "feat: E2E tests and production polish" && git push`
 
 ---
 

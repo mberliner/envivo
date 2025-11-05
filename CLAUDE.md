@@ -179,39 +179,33 @@ import { env } from '@/shared/infrastructure/config/env';
 
 ## Git Workflow
 
-### Enfoque Híbrido
+### Trunk-Based Development
 
-**Commits directos a `main`** (para cambios menores):
-- Bug fixes pequeños (<100 líneas)
-- Tests nuevos
-- Refactoring menor
-- Docs y configs
-
-**Feature branches + PR** (para cambios mayores):
-- Features nuevas (>100 líneas)
-- Cambios arquitectónicos
-- Nuevas integraciones (APIs, scrapers)
-- Cambios en schema de BD
+**Durante implementación del MVP**: Commits directos a `main` después de cada fase completada.
 
 ```bash
-# Para cambios mayores: crear feature branch
-git checkout -b feature/nueva-funcionalidad
+# Después de completar cada fase del roadmap
+git add .
+git commit -m "feat: [descripción de la fase]"
+git push origin main
 
-# Commits pequeños con convenciones
-git commit -m "feat: add nueva funcionalidad"
-git commit -m "test: add tests para nueva funcionalidad"
-
-# Push y PR
-git push origin feature/nueva-funcionalidad
+# Ejemplos:
+git commit -m "feat: initial setup with Next.js, Prisma, and Clean Architecture folders"
+git commit -m "feat: first vertical slice - Ticketmaster to UI"
+git commit -m "feat: business rules and deduplication"
 ```
 
 **Commit conventions**:
-- `feat:` nueva funcionalidad
+- `feat:` nueva funcionalidad (cada fase del roadmap)
 - `fix:` bug fix
 - `refactor:` refactoring sin cambio funcional
 - `test:` agregar/mejorar tests
 - `docs:` documentación
 - `chore:` cambios menores (deps, config)
+
+**Post-MVP** (cuando hay usuarios en producción):
+- Cambios pequeños: commit directo a `main`
+- Features grandes: feature branches + PR para code review
 
 ---
 
@@ -252,13 +246,33 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="..."  # Opcional
 - Plan completo del proyecto
 - Arquitectura definida (Clean Architecture + SOLID)
 - Decisiones técnicas documentadas
-- User stories y roadmap
+- User stories y roadmap con enfoque de vertical slices
 - Testing strategy, security guidelines, CI/CD workflows
 
 ### 🚧 En Progreso
-- Ninguna implementación iniciada
+- Fase 0: Setup & Configuración (próximo paso)
 
-**Ver `docs/PRODUCT.md` (líneas 250-365) para roadmap detallado de implementación (Días 1-10).**
+### Estrategia de Implementación
+
+**Enfoque**: **Vertical Slices** (features end-to-end) en lugar de horizontal (capas completas)
+
+**Ventajas**:
+- ✅ Valor inmediato: algo funcional en 1-2 días
+- ✅ Feedback rápido: UI con datos reales desde Fase 1
+- ✅ Deploy temprano y continuo (Fase 6)
+- ✅ Commit y push al trunk (`main`) después de cada fase completada
+
+**Roadmap**: Ver `docs/PRODUCT.md` (líneas 360-587) para roadmap detallado con 8 fases incrementales.
+
+**Prioridad de Fases**:
+1. **Fase 0** (4-6h): Setup inicial → `npm run dev` funciona
+2. **Fase 1** (1-2 días): Ticketmaster → BD → UI → **PRIMER VALOR** 🎉
+3. **Fase 2** (1 día): Business Rules + Deduplicación
+4. **Fase 3** (1-2 días): Búsqueda + Filtros (US1.1, US1.2)
+5. **Fase 4** (1 día): Orchestrator asíncrono
+6. **Fase 5** (1 día): Segunda fuente + Detalle (US2.1)
+7. **Fase 6** (1 día): Scraping automático + Deploy
+8. **Fase 7** (1 día): Tests E2E + Pulido final
 
 ---
 
