@@ -2,8 +2,7 @@
 // Database: SQLite (MVP) → PostgreSQL (Production)
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -82,7 +81,7 @@ model Event {
   @@index([city])
   @@index([category])
   @@index([country])
-  @@fulltext([title, description]) // FTS5 para búsqueda
+  // FTS5 se configurará directamente en SQLite en fases posteriores
   @@map("events")
 }
 
