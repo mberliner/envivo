@@ -9,9 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@prisma/adapter-libsql": "^6.19.0",
     "@prisma/client": "^6.19.0",
     "axios": "^1.13.2",
     "cheerio": "^1.1.2",
+    "libsql": "^0.5.22",
     "next": "16.0.1",
     "p-limit": "^7.2.0",
     "p-retry": "^7.1.0",
