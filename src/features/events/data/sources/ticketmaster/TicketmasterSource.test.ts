@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import axios from 'axios';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import axios, { type AxiosResponse } from 'axios';
 
 // Mock env module BEFORE importing TicketmasterSource
 vi.mock('@/shared/infrastructure/config/env', () => ({
@@ -12,19 +12,18 @@ vi.mock('@/shared/infrastructure/config/env', () => ({
   },
 }));
 
-// Mock axios
-vi.mock('axios');
-const mockedAxios = vi.mocked(axios);
-
-// Import AFTER mocking
+// Import AFTER mocking env
 import { TicketmasterSource } from './TicketmasterSource';
 
 describe('TicketmasterSource', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
     // Mock console.warn y console.log para tests limpios
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'log').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('constructor', () => {
@@ -43,6 +42,7 @@ describe('TicketmasterSource', () => {
 
   describe('fetch', () => {
     it('should fetch and map events successfully', async () => {
+      const axiosGetSpy = vi.spyOn(axios, 'get');
       const source = new TicketmasterSource({ apiKey: 'test-api-key' });
 
       const mockApiResponse = {
@@ -96,11 +96,11 @@ describe('TicketmasterSource', () => {
         },
       };
 
-      mockedAxios.get.mockResolvedValueOnce(mockApiResponse);
+      axiosGetSpy.mockResolvedValueOnce(mockApiResponse as any);
 
       const events = await source.fetch();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith(
+      expect(axiosGetSpy).toHaveBeenCalledWith(
         'https://app.ticketmaster.com/discovery/v2/events.json',
         expect.objectContaining({
           params: expect.objectContaining({
@@ -118,13 +118,14 @@ describe('TicketmasterSource', () => {
     });
 
     it('should return empty array if no events found', async () => {
+      const axiosGetSpy = vi.spyOn(axios, 'get');
       const source = new TicketmasterSource({ apiKey: 'test-api-key' });
 
-      mockedAxios.get.mockResolvedValueOnce({
+      axiosGetSpy.mockResolvedValueOnce({
         data: {
           _embedded: undefined,
         },
-      });
+      } as any);
 
       const events = await source.fetch();
 
@@ -135,10 +136,12 @@ describe('TicketmasterSource', () => {
     });
 
     it('should handle 401 unauthorized error', async () => {
+      const axiosGetSpy = vi.spyOn(axios, 'get');
+      const isAxiosErrorSpy = vi.spyOn(axios, 'isAxiosError');
       const source = new TicketmasterSource({ apiKey: 'invalid-key' });
 
-      mockedAxios.isAxiosError.mockReturnValue(true);
-      mockedAxios.get.mockRejectedValueOnce({
+      isAxiosErrorSpy.mockReturnValue(true);
+      axiosGetSpy.mockRejectedValueOnce({
         response: { status: 401 },
         message: 'Unauthorized',
       });
@@ -147,10 +150,12 @@ describe('TicketmasterSource', () => {
     });
 
     it('should handle 429 rate limit error', async () => {
+      const axiosGetSpy = vi.spyOn(axios, 'get');
+      const isAxiosErrorSpy = vi.spyOn(axios, 'isAxiosError');
       const source = new TicketmasterSource({ apiKey: 'test-api-key' });
 
-      mockedAxios.isAxiosError.mockReturnValue(true);
-      mockedAxios.get.mockRejectedValueOnce({
+      isAxiosErrorSpy.mockReturnValue(true);
+      axiosGetSpy.mockRejectedValueOnce({
         response: { status: 429 },
         message: 'Too Many Requests',
       });
@@ -159,10 +164,12 @@ describe('TicketmasterSource', () => {
     });
 
     it('should handle timeout error', async () => {
+      const axiosGetSpy = vi.spyOn(axios, 'get');
+      const isAxiosErrorSpy = vi.spyOn(axios, 'isAxiosError');
       const source = new TicketmasterSource({ apiKey: 'test-api-key', timeout: 5000 });
 
-      mockedAxios.isAxiosError.mockReturnValue(true);
-      mockedAxios.get.mockRejectedValueOnce({
+      isAxiosErrorSpy.mockReturnValue(true);
+      axiosGetSpy.mockRejectedValueOnce({
         code: 'ECONNABORTED',
         message: 'timeout of 5000ms exceeded',
       });
@@ -171,17 +178,18 @@ describe('TicketmasterSource', () => {
     });
 
     it('should use custom params when provided', async () => {
+      const axiosGetSpy = vi.spyOn(axios, 'get');
       const source = new TicketmasterSource({ apiKey: 'test-api-key' });
 
-      mockedAxios.get.mockResolvedValueOnce({
+      axiosGetSpy.mockResolvedValueOnce({
         data: {
           _embedded: { events: [] },
         },
-      });
+      } as any);
 
       await source.fetch({ city: 'Cordoba', country: 'AR' });
 
-      expect(mockedAxios.get).toHaveBeenCalledWith(
+      expect(axiosGetSpy).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
           params: expect.objectContaining({
