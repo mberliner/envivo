@@ -84,12 +84,12 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
     const created = await this.prisma.globalPreferences.create({
       data: {
         id: this.SINGLETON_ID,
-        allowedCountries: DEFAULT_PREFERENCES.allowedCountries,
-        allowedCities: DEFAULT_PREFERENCES.allowedCities,
-        allowedGenres: DEFAULT_PREFERENCES.allowedGenres,
-        blockedGenres: DEFAULT_PREFERENCES.blockedGenres,
-        allowedCategories: DEFAULT_PREFERENCES.allowedCategories,
-        allowedVenueSizes: DEFAULT_PREFERENCES.allowedVenueSizes,
+        allowedCountries: JSON.stringify(DEFAULT_PREFERENCES.allowedCountries),
+        allowedCities: JSON.stringify(DEFAULT_PREFERENCES.allowedCities),
+        allowedGenres: JSON.stringify(DEFAULT_PREFERENCES.allowedGenres),
+        blockedGenres: JSON.stringify(DEFAULT_PREFERENCES.blockedGenres),
+        allowedCategories: JSON.stringify(DEFAULT_PREFERENCES.allowedCategories),
+        allowedVenueSizes: JSON.stringify(DEFAULT_PREFERENCES.allowedVenueSizes),
         venueSizeThresholds: JSON.stringify(
           DEFAULT_PREFERENCES.venueSizeThresholds
         ),
@@ -104,6 +104,15 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
    * Convierte de modelo Prisma a entidad de dominio
    */
   private toDomain(prismaPrefs: any): GlobalPreferences {
+    // Helper para parsear JSON arrays con fallback
+    const parseArray = (value: any, fallback: any[] = []): any[] => {
+      try {
+        return typeof value === 'string' ? JSON.parse(value) : value;
+      } catch {
+        return fallback;
+      }
+    };
+
     // Parse venueSizeThresholds de JSON string a objeto
     let thresholds: VenueSizeThresholds;
     try {
@@ -118,12 +127,12 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
 
     return {
       id: prismaPrefs.id,
-      allowedCountries: prismaPrefs.allowedCountries || [],
-      allowedCities: prismaPrefs.allowedCities || [],
-      allowedGenres: prismaPrefs.allowedGenres || [],
-      blockedGenres: prismaPrefs.blockedGenres || [],
-      allowedCategories: prismaPrefs.allowedCategories || [],
-      allowedVenueSizes: prismaPrefs.allowedVenueSizes || [],
+      allowedCountries: parseArray(prismaPrefs.allowedCountries, []),
+      allowedCities: parseArray(prismaPrefs.allowedCities, []),
+      allowedGenres: parseArray(prismaPrefs.allowedGenres, []),
+      blockedGenres: parseArray(prismaPrefs.blockedGenres, []),
+      allowedCategories: parseArray(prismaPrefs.allowedCategories, []),
+      allowedVenueSizes: parseArray(prismaPrefs.allowedVenueSizes, []),
       venueSizeThresholds: thresholds,
       needsRescraping: prismaPrefs.needsRescraping || false,
       updatedAt: prismaPrefs.updatedAt,
@@ -138,22 +147,22 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
     const data: any = {};
 
     if (preferences.allowedCountries !== undefined) {
-      data.allowedCountries = preferences.allowedCountries;
+      data.allowedCountries = JSON.stringify(preferences.allowedCountries);
     }
     if (preferences.allowedCities !== undefined) {
-      data.allowedCities = preferences.allowedCities;
+      data.allowedCities = JSON.stringify(preferences.allowedCities);
     }
     if (preferences.allowedGenres !== undefined) {
-      data.allowedGenres = preferences.allowedGenres;
+      data.allowedGenres = JSON.stringify(preferences.allowedGenres);
     }
     if (preferences.blockedGenres !== undefined) {
-      data.blockedGenres = preferences.blockedGenres;
+      data.blockedGenres = JSON.stringify(preferences.blockedGenres);
     }
     if (preferences.allowedCategories !== undefined) {
-      data.allowedCategories = preferences.allowedCategories;
+      data.allowedCategories = JSON.stringify(preferences.allowedCategories);
     }
     if (preferences.allowedVenueSizes !== undefined) {
-      data.allowedVenueSizes = preferences.allowedVenueSizes;
+      data.allowedVenueSizes = JSON.stringify(preferences.allowedVenueSizes);
     }
     if (preferences.venueSizeThresholds !== undefined) {
       data.venueSizeThresholds = JSON.stringify(

@@ -3,7 +3,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -18,20 +17,20 @@ datasource db {
 model GlobalPreferences {
   id String @id @default("singleton")
 
-  // Ubicación
-  allowedCountries String[] // ["AR", "UY", "CL", "BR"]
-  allowedCities    String[] // ["Buenos Aires", "Montevideo"]
+  // Ubicación - JSON strings para compatibilidad con SQLite
+  allowedCountries String @default("[\"AR\",\"UY\",\"CL\",\"BR\"]") // JSON: ["AR", "UY", "CL", "BR"]
+  allowedCities    String @default("[\"Buenos Aires\",\"Montevideo\"]") // JSON: ["Buenos Aires", "Montevideo"]
 
-  // Géneros musicales
-  allowedGenres String[] // ["Rock", "Pop", "Jazz", "Metal"]
-  blockedGenres String[] // ["Trap"] - lista negra opcional
+  // Géneros musicales - JSON strings
+  allowedGenres String @default("[\"Rock\",\"Pop\",\"Jazz\",\"Metal\"]") // JSON: ["Rock", "Pop", "Jazz", "Metal"]
+  blockedGenres String @default("[]") // JSON: [] - lista negra opcional
 
-  // Categorías de eventos
-  allowedCategories String[] // ["Concierto", "Festival", "Teatro"]
+  // Categorías de eventos - JSON string
+  allowedCategories String @default("[\"Concierto\",\"Festival\",\"Teatro\"]") // JSON: ["Concierto", "Festival", "Teatro"]
 
-  // Capacidad de venues
-  allowedVenueSizes   String[] // ["small", "medium", "large"]
-  venueSizeThresholds String   @default("{\"small\":500,\"medium\":2000,\"large\":5000}") // JSON string
+  // Capacidad de venues - JSON strings
+  allowedVenueSizes   String @default("[\"small\",\"medium\",\"large\"]") // JSON: ["small", "medium", "large"]
+  venueSizeThresholds String @default("{\"small\":500,\"medium\":2000,\"large\":5000}") // JSON object
 
   // Control de estado
   needsRescraping Boolean  @default(false)
