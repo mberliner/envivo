@@ -18,8 +18,8 @@ model GlobalPreferences {
   id String @id @default("singleton")
 
   // Ubicación - JSON strings para compatibilidad con SQLite
-  allowedCountries String @default("[\"AR\",\"UY\",\"CL\",\"BR\"]") // JSON: ["AR", "UY", "CL", "BR"]
-  allowedCities    String @default("[\"Buenos Aires\",\"Montevideo\"]") // JSON: ["Buenos Aires", "Montevideo"]
+  allowedCountries String @default("[\"AR\"]") // JSON: ["AR"] - MVP: Solo Argentina
+  allowedCities    String @default("[\"Buenos Aires\",\"Ciudad de Buenos Aires\",\"CABA\"]") // JSON: ["Buenos Aires", "Ciudad de Buenos Aires", "CABA"]
 
   // Géneros musicales - JSON strings
   allowedGenres String @default("[\"Rock\",\"Pop\",\"Jazz\",\"Metal\"]") // JSON: ["Rock", "Pop", "Jazz", "Metal"]
