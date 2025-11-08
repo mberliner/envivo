@@ -14,6 +14,177 @@
 
 ---
 
+## Mapa de Documentación del Proyecto
+
+### 📘 Documentos de Usuario Final
+
+#### **README.md** - Punto de Entrada
+**Ubicación**: `/README.md`
+**Audiencia**: Usuarios finales, nuevos desarrolladores
+**Propósito**: Resumen ejecutivo del proyecto + quick start
+**Contenido**:
+- ¿Qué es EnVivo?
+- Quick Start (instalación en 3 pasos)
+- Estructura del proyecto (vista general)
+- Features del MVP (qué hace, no cómo)
+- Comandos básicos
+- Links a documentación detallada
+
+**Cuándo consultar**: Primera visita al proyecto, setup inicial
+
+---
+
+### 📗 Documentos de Producto
+
+#### **docs/PRODUCT.md** - Roadmap y Valor de Usuario
+**Ubicación**: `/docs/PRODUCT.md`
+**Audiencia**: Product owners, stakeholders, desarrolladores
+**Propósito**: Definir QUÉ construir y POR QUÉ (valor para usuarios)
+**Contenido**:
+- Features del MVP (desde perspectiva de usuario)
+- Estrategia de Vertical Slices
+- Épicas y User Stories (enfoque en valor)
+- Roadmap de implementación (fases con valor entregado)
+- Métricas de éxito
+- Checklist pre-launch
+
+**Cuándo consultar**: Planificar features, entender roadmap, escribir user stories
+
+**⚠️ NO contiene**: Detalles técnicos, código, arquitectura, tracking de progreso
+
+---
+
+### 📙 Documentos Técnicos (Desarrollo)
+
+#### **CLAUDE.md** - Contexto para IAs (Este Archivo)
+**Ubicación**: `/CLAUDE.md`
+**Audiencia**: Claude Code y otras IAs de desarrollo
+**Propósito**: Contexto rápido + convenciones para generar código consistente
+**Contenido**:
+- Mapa de documentación (esta sección)
+- Resumen ejecutivo del proyecto
+- Arquitectura (resumen + links a detalles)
+- Naming conventions
+- Testing requirements (tabla resumen)
+- Estrategia de implementación
+- Workflows comunes
+- Preguntas frecuentes
+
+**Cuándo consultar**: Al inicio de cada sesión de IA, antes de generar código
+
+**⚠️ NO contiene**: Detalles de implementación (ver docs específicos), tracking de progreso
+
+---
+
+#### **docs/ARCHITECTURE.md** - Decisiones Arquitectónicas
+**Ubicación**: `/docs/ARCHITECTURE.md`
+**Audiencia**: Desarrolladores, arquitectos, tech leads
+**Propósito**: Documentar decisiones arquitectónicas y patrones
+**Contenido**:
+- Clean Architecture (3 capas, diagrama)
+- Scraping asíncrono (Orchestrator, Promise.allSettled)
+- Data Mappers (patrón, ejemplos)
+- Interface Segregation Principle (ISP)
+- Business Rules (diseño)
+- Database Schema (decisiones de diseño)
+- SOLID Principles (implementación en el proyecto)
+- ADRs (Architecture Decision Records)
+- Migración a Go (futuro)
+
+**Cuándo consultar**: Diseñar nuevas features, entender patrones, tomar decisiones arquitectónicas
+
+---
+
+#### **docs/DEVELOPMENT.md** - Guías Prácticas de Desarrollo
+**Ubicación**: `/docs/DEVELOPMENT.md`
+**Audiencia**: Desarrolladores activos en el proyecto
+**Propósito**: Guías prácticas para desarrollar y mantener el código
+**Contenido**:
+- Setup local (requisitos, instalación)
+- TypeScript best practices (strict mode, type guards)
+- React/Next.js best practices (server components, hooks)
+- Comandos útiles (npm scripts, Prisma)
+- Testing (stack, comandos, coverage, AAA pattern, organización)
+- Estructura del proyecto (carpetas, naming conventions)
+- Environment variables (setup, validación Zod)
+- Database setup (Prisma + SQLite)
+- Debugging (VSCode, React DevTools)
+- Performance tips (lazy loading, memoization)
+
+**Cuándo consultar**: Desarrollar features, escribir tests, configurar entorno
+
+---
+
+#### **docs/CONTRIBUTING.md** - Workflow y Convenciones
+**Ubicación**: `/docs/CONTRIBUTING.md`
+**Audiencia**: Contribuidores, nuevos desarrolladores
+**Propósito**: Definir workflow de contribución y convenciones
+**Contenido**:
+- SSOT Registry (Single Source of Truth - qué va dónde)
+- Git workflow (trunk-based híbrido)
+- Testing requirements
+- Commit conventions
+- Pull Request process
+- Code review guidelines
+
+**Cuándo consultar**: Hacer commits, crear PRs, resolver conflictos de documentación
+
+---
+
+#### **docs/SECURITY.md** - Prácticas de Seguridad
+**Ubicación**: `/docs/SECURITY.md`
+**Audiencia**: Desarrolladores, security reviewers
+**Propósito**: Guías de seguridad obligatorias
+**Contenido**:
+- Security best practices
+- Attack vectors y defensa
+- Validación de inputs (Zod)
+- Sanitización (DOMPurify)
+- Environment variables (secretos)
+- Rate limiting
+- Headers de seguridad
+
+**Cuándo consultar**: Manejar inputs externos, configurar APIs, implementar autenticación
+
+---
+
+### 📔 Tracking Interno (NO Documentación)
+
+#### **roadmap_imple.md** - Tracking de Progreso
+**Ubicación**: `/roadmap_imple.md`
+**Audiencia**: Equipo de desarrollo (interno)
+**Propósito**: Seguimiento de avance de implementación
+**Contenido**:
+- Estado actual (Fase X completada)
+- Commits por fase
+- Tests pasando
+- Checklist de tareas por fase
+
+**Cuándo consultar**: Verificar progreso interno
+
+**⚠️ IMPORTANTE**: Este archivo NO debe ser referenciado en documentación de usuario (README, PRODUCT, CLAUDE). Es solo para tracking interno.
+
+---
+
+### 🗂️ Ejemplos de Código
+
+#### **docs/examples/** - Código de Referencia
+**Ubicación**: `/docs/examples/`
+**Audiencia**: Desarrolladores
+**Propósito**: Ejemplos completos de implementación
+**Archivos**:
+- `scraper-example.ts` - DataSourceOrchestrator, TicketmasterSource
+- `business-rules-example.ts` - EventBusinessRules, fuzzy matching
+- `testing-example.ts` - Tests unitarios, integración, E2E
+- `security-example.ts` - Validación Zod, sanitización
+- `error-handling-example.ts` - AppError classes, Pino logging
+- `env-example.ts` - Validación de variables de entorno
+- `cicd-example.yml` - GitHub Actions workflows
+
+**Cuándo consultar**: Implementar nuevas features, ver ejemplos concretos
+
+---
+
 ## Resumen Ejecutivo
 
 **Proyecto**: EnVivo - Buscador de Espectáculos Musicales
