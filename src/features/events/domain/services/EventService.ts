@@ -1,0 +1,199 @@
+/**
+ * EventService
+ *
+ * Servicio de dominio que orquesta la lógica de negocio para eventos:
+ * - Validación de eventos entrantes
+ * - Normalización de datos
+ * - Deduplicación con fuzzy matching
+ * - Decisión de insertar vs actualizar
+ *
+ * @module Domain/Services
+ */
+
+import { Event, RawEvent } from '../entities/Event';
+import { IEventRepository } from '../interfaces/IEventRepository';
+import { EventBusinessRules } from './EventBusinessRules';
+
+export interface ProcessEventsResult {
+  accepted: number;
+  rejected: number;
+  duplicates: number;
+  updated: number;
+  errors: Array<{ event: RawEvent; reason: string }>;
+}
+
+/**
+ * Servicio principal para gestión de eventos
+ */
+export class EventService {
+  constructor(
+    private readonly repository: IEventRepository,
+    private readonly businessRules: EventBusinessRules
+  ) {}
+
+  /**
+   * Procesa eventos entrantes aplicando reglas de negocio:
+   * 1. Validación (campos requeridos, fechas, ubicación)
+   * 2. Normalización (ciudad, país, categoría)
+   * 3. Deduplicación (fuzzy matching con eventos existentes)
+   * 4. Inserción o actualización
+   *
+   * @param rawEvents - Eventos crudos de fuentes externas
+   * @returns Resumen del procesamiento
+   */
+  async processEvents(rawEvents: RawEvent[]): Promise<ProcessEventsResult> {
+    const result: ProcessEventsResult = {
+      accepted: 0,
+      rejected: 0,
+      duplicates: 0,
+      updated: 0,
+      errors: [],
+    };
+
+    const eventsToUpsert: RawEvent[] = [];
+
+    for (const rawEvent of rawEvents) {
+      try {
+        // Convertir RawEvent a Event para validación
+        const event = this.rawEventToEvent(rawEvent);
+
+        // 1. Validar con business rules
+        const validation = await this.businessRules.isAcceptable(event);
+        if (!validation.valid) {
+          result.rejected++;
+          result.errors.push({
+            event: rawEvent,
+            reason: validation.reason || 'Validación fallida',
+          });
+          continue;
+        }
+
+        // 2. Normalizar datos
+        const normalizedEvent = this.businessRules.normalize(event);
+
+        // 3. Buscar duplicados en BD (fuzzy matching)
+        const duplicate = await this.findDuplicate(normalizedEvent);
+
+        if (duplicate) {
+          result.duplicates++;
+
+          // Decidir si actualizar
+          if (this.businessRules.shouldUpdate(normalizedEvent, duplicate)) {
+            eventsToUpsert.push(this.eventToRawEvent(normalizedEvent));
+            result.updated++;
+          }
+          // Si no debe actualizar, ignorar
+        } else {
+          // Evento nuevo, agregar para inserción
+          eventsToUpsert.push(this.eventToRawEvent(normalizedEvent));
+          result.accepted++;
+        }
+      } catch (error) {
+        result.errors.push({
+          event: rawEvent,
+          reason: error instanceof Error ? error.message : 'Error desconocido',
+        });
+      }
+    }
+
+    // 4. Guardar en BD (batch)
+    if (eventsToUpsert.length > 0) {
+      await this.repository.upsertMany(eventsToUpsert);
+    }
+
+    return result;
+  }
+
+  /**
+   * Busca un evento duplicado en la base de datos usando fuzzy matching
+   *
+   * Estrategia:
+   * 1. Buscar eventos cercanos en fecha (±24 horas)
+   * 2. Aplicar fuzzy matching en título y venue
+   *
+   * @param event - Evento a buscar
+   * @returns Evento duplicado si existe, null si no
+   */
+  private async findDuplicate(event: Event): Promise<Event | null> {
+    // Buscar eventos en rango de fecha (±24 horas)
+    const dateFrom = new Date(event.date);
+    dateFrom.setHours(dateFrom.getHours() - 24);
+
+    const dateTo = new Date(event.date);
+    dateTo.setHours(dateTo.getHours() + 24);
+
+    const candidates = await this.repository.findByFilters({
+      dateFrom,
+      dateTo,
+    });
+
+    // Aplicar fuzzy matching a candidatos
+    for (const candidate of candidates) {
+      if (this.businessRules.isDuplicate(event, candidate)) {
+        return candidate;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Convierte RawEvent a Event (agrega campos faltantes)
+   */
+  private rawEventToEvent(rawEvent: RawEvent): Event {
+    return {
+      ...rawEvent,
+      id: rawEvent.externalId || `temp-${Date.now()}`,
+      venueName: rawEvent.venueName || 'Unknown',
+      venueAddress: rawEvent.venueAddress,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as Event;
+  }
+
+  /**
+   * Convierte Event a RawEvent (para guardar en BD)
+   */
+  private eventToRawEvent(event: Event): RawEvent {
+    return {
+      title: event.title,
+      description: event.description,
+      date: event.date,
+      endDate: event.endDate,
+      venueName: event.venueName,
+      venueAddress: event.venueAddress,
+      city: event.city,
+      country: event.country,
+      category: event.category,
+      genre: event.genre,
+      imageUrl: event.imageUrl,
+      ticketUrl: event.ticketUrl,
+      price: event.price,
+      priceMax: event.priceMax,
+      currency: event.currency,
+      source: event.source,
+      externalId: event.externalId,
+    };
+  }
+
+  /**
+   * Busca eventos aplicando filtros (pasa directo al repository)
+   */
+  async findByFilters(filters: any): Promise<Event[]> {
+    return this.repository.findByFilters(filters);
+  }
+
+  /**
+   * Busca todos los eventos (pasa directo al repository)
+   */
+  async findAll(): Promise<Event[]> {
+    return this.repository.findAll();
+  }
+
+  /**
+   * Busca un evento por ID (pasa directo al repository)
+   */
+  async findById(id: string): Promise<Event | null> {
+    return this.repository.findById(id);
+  }
+}

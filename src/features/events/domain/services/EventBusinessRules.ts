@@ -15,6 +15,7 @@
  * @module Domain/Services
  */
 
+import { compareTwoStrings } from 'string-similarity';
 import { Event, EventCategory } from '../entities/Event';
 import { PreferencesService, ValidationResult } from './PreferencesService';
 
@@ -238,6 +239,7 @@ export class EventBusinessRules {
     if (!city) return '';
 
     return city
+      .trim() // Eliminar espacios al principio y final
       .split(' ')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
@@ -358,53 +360,14 @@ export class EventBusinessRules {
   }
 
   /**
-   * Calcula similaridad entre dos strings usando algoritmo de Jaro-Winkler
-   * (versión simplificada)
+   * Calcula similaridad entre dos strings usando string-similarity library
+   * (algoritmo Dice Coefficient)
    *
    * @returns Valor entre 0 y 1 (1 = idénticos, 0 = totalmente diferentes)
    */
   private calculateStringSimilarity(str1: string, str2: string): number {
-    // Implementación simple: Levenshtein distance normalizada
-    const longer = str1.length > str2.length ? str1 : str2;
-    const shorter = str1.length > str2.length ? str2 : str1;
-
-    if (longer.length === 0) {
-      return 1.0;
-    }
-
-    const distance = this.levenshteinDistance(longer, shorter);
-    return (longer.length - distance) / longer.length;
-  }
-
-  /**
-   * Calcula la distancia de Levenshtein entre dos strings
-   */
-  private levenshteinDistance(str1: string, str2: string): number {
-    const matrix: number[][] = [];
-
-    for (let i = 0; i <= str2.length; i++) {
-      matrix[i] = [i];
-    }
-
-    for (let j = 0; j <= str1.length; j++) {
-      matrix[0][j] = j;
-    }
-
-    for (let i = 1; i <= str2.length; i++) {
-      for (let j = 1; j <= str1.length; j++) {
-        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-          matrix[i][j] = matrix[i - 1][j - 1];
-        } else {
-          matrix[i][j] = Math.min(
-            matrix[i - 1][j - 1] + 1, // substitution
-            matrix[i][j - 1] + 1, // insertion
-            matrix[i - 1][j] + 1 // deletion
-          );
-        }
-      }
-    }
-
-    return matrix[str2.length][str1.length];
+    if (!str1 || !str2) return 0;
+    return compareTwoStrings(str1, str2);
   }
 
   /**
