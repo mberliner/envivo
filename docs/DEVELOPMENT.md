@@ -135,6 +135,260 @@ export function SearchBar() {
 
 ---
 
+## Testing
+
+### Stack de Testing
+
+- **Vitest**: Tests unitarios e integración
+- **React Testing Library**: Tests de componentes
+- **Playwright** (planificado Fase 7): Tests E2E
+
+### Comandos de Testing
+
+```bash
+# Tests unitarios
+npm test
+
+# Tests en modo watch (desarrollo)
+npm run test:watch
+
+# Tests con UI interactiva
+npm run test:ui
+
+# Coverage report
+npm run test:coverage
+
+# Type checking
+npm run type-check
+```
+
+### Objetivos de Cobertura
+
+| Capa | Cobertura Objetivo | Estado Actual | Prioridad |
+|------|-------------------|---------------|-----------|
+| **Domain** (Business Rules) | >80% | 0% (Fase 2) | 🔴 CRÍTICO |
+| **Data** (Repositories) | >70% | 100% (Fase 1 ✅) | 🟡 IMPORTANTE |
+| **Data** (Scrapers) | >60% | 100% (Fase 1 ✅) | 🟡 IMPORTANTE |
+| **UI** (Componentes) | >60% | 0% (Fase 3+) | 🟢 DESEABLE |
+| **E2E** (Flujos críticos) | 100% happy paths | 0% (Fase 7) | 🔴 CRÍTICO |
+
+### Organización de Tests
+
+```
+tests/
+├── unit/                       # Tests unitarios
+│   ├── domain/
+│   │   ├── entities/
+│   │   │   └── Event.test.ts
+│   │   └── services/
+│   │       └── EventService.test.ts
+│   └── data/
+│       ├── mappers/
+│       │   └── TicketmasterMapper.test.ts
+│       └── sources/
+│           └── TicketmasterSource.test.ts
+└── integration/                # Tests de integración
+    └── repositories/
+        └── PrismaEventRepository.test.ts
+```
+
+### Buenas Prácticas de Testing
+
+**Naming Convention:**
+```typescript
+// Formato: describe('Componente/Función', () => { test('debe ...', () => {}) })
+describe('TicketmasterMapper', () => {
+  describe('toRawEvent', () => {
+    test('debe mapear evento completo de Ticketmaster a RawEvent', () => {})
+    test('debe manejar evento sin imagen con placeholder', () => {})
+    test('debe rechazar evento sin ID', () => {})
+  })
+})
+```
+
+**AAA Pattern** (Arrange, Act, Assert):
+```typescript
+test('debe crear evento válido', () => {
+  // Arrange
+  const data = { title: 'Concierto', date: new Date() };
+
+  // Act
+  const event = Event.create(data);
+
+  // Assert
+  expect(event.title).toBe('Concierto');
+});
+```
+
+**Mocks vs Real Implementations:**
+```typescript
+// ✅ Bueno: Mock solo dependencias externas (APIs, DB)
+const mockFetch = vi.fn().mockResolvedValue(mockApiResponse);
+
+// ❌ Malo: Mockear lógica de negocio
+const mockEventService = vi.fn(); // Testear la implementación real
+```
+
+---
+
+## Estructura del Proyecto
+
+### Arquitectura de Carpetas
+
+```
+src/
+├── app/                        # Next.js App Router
+│   ├── page.tsx               # Página principal (listado eventos)
+│   ├── layout.tsx
+│   └── api/
+│       └── admin/
+│           └── scraper/
+│               └── sync/
+│                   └── route.ts
+├── features/                   # Features organizadas por dominio
+│   └── events/
+│       ├── domain/            # Lógica de negocio (pura)
+│       │   ├── entities/      # Event, Venue (clases/tipos)
+│       │   ├── interfaces/    # IDataSource, IEventRepository
+│       │   └── services/      # EventService (planificado Fase 2+)
+│       ├── data/              # Implementaciones I/O
+│       │   ├── sources/       # TicketmasterSource, EventbriteSource
+│       │   ├── mappers/       # TicketmasterMapper (API → Domain)
+│       │   ├── repositories/  # PrismaEventRepository
+│       │   └── orchestrator/  # DataSourceOrchestrator (planificado Fase 4)
+│       └── ui/                # Componentes React
+│           └── components/    # EventCard, EventList
+├── shared/                     # Código compartido entre features
+│   ├── infrastructure/
+│   │   ├── database/          # prisma/schema.prisma, client
+│   │   └── config/            # env.ts (validación Zod)
+│   └── lib/                   # Utilidades generales
+└── tests/                     # Tests (ver sección Testing)
+```
+
+**Ver [../README.md#estructura-del-proyecto](../README.md#estructura-del-proyecto) para estructura completa.**
+
+### Naming Conventions
+
+| Tipo | Convención | Ejemplo |
+|------|------------|---------|
+| **Interfaces** | Prefijo `I` | `IDataSource`, `IEventRepository` |
+| **Implementations** | Nombre descriptivo | `TicketmasterSource`, `PrismaEventRepository` |
+| **Mappers** | Sufijo `Mapper`, sin interface | `TicketmasterMapper` (métodos estáticos) |
+| **Services** | Sufijo `Service` | `EventService` (planificado Fase 2+) |
+| **Business Rules** | Sufijo `Rules` | `EventBusinessRules` (planificado Fase 2) |
+| **Components** | PascalCase | `EventCard`, `SearchBar` |
+| **Hooks** | Prefijo `use` | `useEvents`, `useSearch` |
+
+**Ver [../CLAUDE.md#naming-conventions](../CLAUDE.md#naming-conventions) para convenciones completas.**
+
+---
+
+## Setup de Variables de Entorno
+
+### Archivos de Entorno
+
+```
+.env.local          # Desarrollo local (NO commitear - en .gitignore)
+.env.example        # Template (SÍ commitear)
+.env.test           # Testing (solo si difiere de .env.local)
+```
+
+### Variables Requeridas
+
+```bash
+# .env.local (mínimo)
+DATABASE_URL="file:./dev.db"
+TICKETMASTER_API_KEY="tu-api-key-aqui"
+ADMIN_API_KEY="min-32-caracteres-random-string"
+
+# Públicas (expuestas al cliente con NEXT_PUBLIC_)
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NEXT_PUBLIC_APP_NAME="EnVivo"
+```
+
+### Validación con Zod
+
+Las variables de entorno se validan automáticamente en `src/shared/infrastructure/config/env.ts`:
+
+```typescript
+import { z } from 'zod';
+
+const envSchema = z.object({
+  DATABASE_URL: z.string().min(1),
+  TICKETMASTER_API_KEY: z.string().min(1),
+  ADMIN_API_KEY: z.string().min(32),
+  // ...
+});
+
+export const env = envSchema.parse(process.env);
+```
+
+**Si una variable falta o es inválida, la app falla al iniciar con error claro.**
+
+**Ver [docs/examples/env-example.ts](examples/env-example.ts) para lista completa de variables.**
+
+---
+
+## Database Setup (Prisma + SQLite)
+
+### Setup Inicial
+
+```bash
+# 1. Instalar dependencias
+npm install
+
+# 2. Generar Prisma Client
+npx prisma generate
+
+# 3. Ejecutar migraciones
+npx prisma migrate dev
+
+# 4. (Opcional) Abrir Prisma Studio
+npx prisma studio
+```
+
+### Schema de Base de Datos
+
+Ver schema completo en `prisma/schema.prisma`.
+
+**Modelo principal (Fase 1)**:
+```prisma
+model Event {
+  id        String   @id @default(cuid())
+  title     String
+  date      DateTime
+  venue     String
+  city      String
+  country   String
+  imageUrl  String?
+  ticketUrl String?
+  source    String   // "ticketmaster", "eventbrite", etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
+
+### Comandos Prisma Útiles
+
+```bash
+# Crear nueva migración después de cambiar schema
+npx prisma migrate dev --name descripcion-cambio
+
+# Reset completo de la BD (CUIDADO: borra datos)
+npx prisma migrate reset
+
+# Ver BD en navegador
+npx prisma studio
+
+# Generar types de TypeScript
+npx prisma generate
+```
+
+**Ver [ARCHITECTURE.md#database-schema](ARCHITECTURE.md#database-schema) para detalles de arquitectura de datos.**
+
+---
+
 ## Debugging
 
 ### Console Logs vs Debugger

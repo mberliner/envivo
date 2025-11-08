@@ -27,23 +27,32 @@ La documentación de EnVivo sigue el principio **"Single Source of Truth"** para
 | Topic | Primary Location (SSOT) | Secondary References |
 |-------|-------------------------|----------------------|
 | **Architecture & Clean Architecture** | `ARCHITECTURE.md` | `CLAUDE.md` (summary) |
-| **SOLID Principles** | `ARCHITECTURE.md` (lines 697-751) | `CLAUDE.md` (reference) |
+| **SOLID Principles** | `ARCHITECTURE.md` | `CLAUDE.md` (reference) |
 | **ADRs (Decisiones Arquitectónicas)** | `ARCHITECTURE.md` | - |
-| **Code Conventions & Naming** | `CLAUDE.md` (lines 72-101) | - |
+| **Scraping Asíncrono & Orchestrator** | `ARCHITECTURE.md` | - |
+| **Data Mappers (patrón)** | `ARCHITECTURE.md` | `DEVELOPMENT.md` (naming) |
+| **Interface Segregation (ISP)** | `ARCHITECTURE.md` | - |
+| **Business Rules** | `ARCHITECTURE.md` | - |
+| **Code Conventions & Naming** | `DEVELOPMENT.md` | `CLAUDE.md` (summary) |
 | **Git Workflow & Commits** | `CONTRIBUTING.md` (this file) | `CLAUDE.md` (summary) |
-| **Testing Requirements & Coverage** | `CONTRIBUTING.md` (lines 46-73) | `CLAUDE.md` (table) |
-| **Security Best Practices** | `SECURITY.md` | `CLAUDE.md`, `PRODUCT.md` (refs) |
+| **Testing (stack, comandos, coverage)** | `DEVELOPMENT.md` | `CLAUDE.md` (table summary) |
+| **Testing Best Practices (AAA, mocks)** | `DEVELOPMENT.md` | - |
+| **Security Best Practices** | `SECURITY.md` | `CLAUDE.md` (refs) |
 | **Attack Vectors & Defense in Depth** | `SECURITY.md` | - |
 | **Product Features & Roadmap** | `PRODUCT.md` | `README.md` (link) |
 | **User Stories** | `PRODUCT.md` | - |
-| **Project Structure** | `README.md` (lines 50-87) | `CLAUDE.md` (summary) |
+| **Vertical Slices Strategy** | `PRODUCT.md` | `CLAUDE.md` (summary) |
+| **Project Structure (folders)** | `DEVELOPMENT.md` | `README.md`, `CLAUDE.md` (summary) |
 | **Development Setup & Install** | `README.md` Quick Start | `DEVELOPMENT.md` (reference) |
-| **TypeScript Best Practices** | `DEVELOPMENT.md` (lines 11-71) | - |
-| **React/Next.js Best Practices** | `DEVELOPMENT.md` (lines 74-116) | - |
-| **CLI Commands** | `DEVELOPMENT.md` (lines 119-135) | - |
-| **Debugging Guide** | `DEVELOPMENT.md` (lines 138-176) | - |
-| **Performance Tips** | `DEVELOPMENT.md` (lines 179-225) | - |
+| **TypeScript Best Practices** | `DEVELOPMENT.md` | - |
+| **React/Next.js Best Practices** | `DEVELOPMENT.md` | - |
+| **CLI Commands** | `DEVELOPMENT.md` | - |
+| **Environment Variables** | `DEVELOPMENT.md` | - |
+| **Database Setup (Prisma)** | `DEVELOPMENT.md` | `ARCHITECTURE.md` (schema design) |
+| **Debugging Guide** | `DEVELOPMENT.md` | - |
+| **Performance Tips** | `DEVELOPMENT.md` | - |
 | **Code Examples** | `docs/examples/` | `CLAUDE.md` (references) |
+| **Implementation Tracking** | `roadmap_imple.md` | NO REFERENCIAR EN DOCS |
 
 ### Cómo Actualizar Documentación
 
