@@ -206,7 +206,7 @@ El proyecto sigue un enfoque de **vertical slices** - cada fase implementa una f
 - API Route con autenticación
 - UI responsive con EventCard
 
-**Ver roadmap detallado**: [roadmap_imple.md](roadmap_imple.md) | [docs/PRODUCT.md](docs/PRODUCT.md#roadmap-de-implementaci%C3%B3n)
+**Ver roadmap detallado**: [docs/PRODUCT.md](docs/PRODUCT.md#roadmap-de-implementaci%C3%B3n)
 
 ### Git Workflow
 
