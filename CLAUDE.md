@@ -8,8 +8,8 @@
 
 - **Arquitectura detallada** → `docs/ARCHITECTURE.md`
 - **Product & Roadmap** → `docs/PRODUCT.md`
-- **Ejemplos de código** → `docs/examples/`
-- **Decisiones arquitectónicas** → `docs/BACKUP_CONCEPTS.md`
+- **Desarrollo y Testing** → `docs/DEVELOPMENT.md`
+- **Ejemplos de código** → `docs/examples/` (ver `docs/examples/README.md` para índice)
 - **Estructura proyecto** → `README.md`
 
 ---
@@ -173,6 +173,7 @@
 **Audiencia**: Desarrolladores
 **Propósito**: Ejemplos completos de implementación
 **Archivos**:
+- `README.md` - Índice de todos los ejemplos con descripción
 - `scraper-example.ts` - DataSourceOrchestrator, TicketmasterSource
 - `business-rules-example.ts` - EventBusinessRules, fuzzy matching
 - `testing-example.ts` - Tests unitarios, integración, E2E
@@ -182,6 +183,40 @@
 - `cicd-example.yml` - GitHub Actions workflows
 
 **Cuándo consultar**: Implementar nuevas features, ver ejemplos concretos
+
+**Nota**: Ver `docs/examples/README.md` para descripciones detalladas de cada archivo
+
+---
+
+### 📝 Documentos Temporales / Notas de Trabajo (NO Documentación Formal)
+
+Los siguientes archivos existen en el repositorio pero son **notas de trabajo internas** y **NO deben ser referenciados en documentación**:
+
+#### **IMPLEMENTACION_PREFERENCIAS.md**
+- **Tipo**: Notas de implementación técnica (temporal)
+- **Contenido**: Checklist de progreso de implementación de preferencias globales
+- **Estado**: Documento histórico de una fase anterior
+- **Acción recomendada**: Archivar o eliminar cuando no sea necesario
+
+#### **INCONSISTENCIAS_DOCUMENTACION.md**
+- **Tipo**: Reporte de audit de documentación (histórico)
+- **Contenido**: Análisis de inconsistencias encontradas post-Fase 1 (8 Nov 2025)
+- **Estado**: Ya aplicadas las correcciones - documento histórico
+- **Acción recomendada**: Puede archivarse o mantenerse como referencia histórica
+
+#### **MEJORAS.md**
+- **Tipo**: Notas personales de ideas futuras
+- **Contenido**: Ideas muy breves sobre mejoras generales (11 líneas)
+- **Estado**: Brainstorming personal
+- **Acción recomendada**: OK mantener sin referenciar
+
+**⚠️ IMPORTANTE**: Estos documentos NO deben mencionarse en:
+- README.md
+- CLAUDE.md (excepto esta sección explicativa)
+- docs/PRODUCT.md
+- docs/ARCHITECTURE.md
+- docs/DEVELOPMENT.md
+- docs/CONTRIBUTING.md
 
 ---
 
@@ -227,7 +262,7 @@ Validación en `EventBusinessRules`. Configuración externa en JSON.
 
 **4. SQLite vs PostgreSQL**
 MVP: SQLite (gratuito, FTS5 integrado) | Producción: PostgreSQL si escala
-**Ver**: `docs/ARCHITECTURE.md` ADR-003 (líneas 593-610) y `docs/BACKUP_CONCEPTS.md` (líneas 17-18)
+**Ver**: `docs/ARCHITECTURE.md` ADR-003
 
 ---
 
