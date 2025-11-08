@@ -188,35 +188,15 @@
 
 ---
 
-### 📝 Documentos Temporales / Notas de Trabajo (NO Documentación Formal)
-
-Los siguientes archivos existen en el repositorio pero son **notas de trabajo internas** y **NO deben ser referenciados en documentación**:
-
-#### **IMPLEMENTACION_PREFERENCIAS.md**
-- **Tipo**: Notas de implementación técnica (temporal)
-- **Contenido**: Checklist de progreso de implementación de preferencias globales
-- **Estado**: Documento histórico de una fase anterior
-- **Acción recomendada**: Archivar o eliminar cuando no sea necesario
-
-#### **INCONSISTENCIAS_DOCUMENTACION.md**
-- **Tipo**: Reporte de audit de documentación (histórico)
-- **Contenido**: Análisis de inconsistencias encontradas post-Fase 1 (8 Nov 2025)
-- **Estado**: Ya aplicadas las correcciones - documento histórico
-- **Acción recomendada**: Puede archivarse o mantenerse como referencia histórica
+### 📝 Notas Personales (NO Documentación Formal)
 
 #### **MEJORAS.md**
-- **Tipo**: Notas personales de ideas futuras
-- **Contenido**: Ideas muy breves sobre mejoras generales (11 líneas)
-- **Estado**: Brainstorming personal
-- **Acción recomendada**: OK mantener sin referenciar
+**Ubicación**: `/MEJORAS.md`
+**Tipo**: Notas personales de ideas futuras
+**Contenido**: Ideas muy breves sobre mejoras generales post-MVP (10 líneas)
+**Estado**: Brainstorming personal - puede actualizarse con nuevas ideas
 
-**⚠️ IMPORTANTE**: Estos documentos NO deben mencionarse en:
-- README.md
-- CLAUDE.md (excepto esta sección explicativa)
-- docs/PRODUCT.md
-- docs/ARCHITECTURE.md
-- docs/DEVELOPMENT.md
-- docs/CONTRIBUTING.md
+**⚠️ IMPORTANTE**: Este archivo es una nota personal y NO debe ser referenciado en documentación formal (README, PRODUCT, ARCHITECTURE, DEVELOPMENT, CONTRIBUTING)
 
 ---
 
