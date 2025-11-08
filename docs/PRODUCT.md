@@ -16,16 +16,16 @@
 
 ### ✅ Core Features (Must-Have)
 
-| Feature | Descripción | Prioridad |
-|---------|-------------|-----------|
-| **Búsqueda por texto** | Buscar eventos por título, artista o venue | 🔴 CRÍTICO |
-| **Filtros avanzados** | Filtrar por ciudad, fecha, categoría | 🔴 CRÍTICO |
-| **Detalle de evento** | Ver información completa del evento | 🔴 CRÍTICO |
-| **Scraping automático** | Actualización diaria de eventos | 🔴 CRÍTICO |
-| **Integración Ticketmaster** | API de Ticketmaster como fuente principal | 🔴 CRÍTICO |
-| **Scrapers locales** | Mínimo 2 sitios locales scrapeados | 🟡 IMPORTANTE |
-| **Validación de datos** | Reglas de negocio para calidad de datos | 🟡 IMPORTANTE |
-| **Deduplicación** | Detectar eventos duplicados automáticamente | 🟡 IMPORTANTE |
+| Feature | Descripción | Prioridad | Estado |
+|---------|-------------|-----------|--------|
+| **Búsqueda por texto** | Buscar eventos por título, artista o venue | 🔴 CRÍTICO | ⏳ Fase 3 |
+| **Filtros avanzados** | Filtrar por ciudad, fecha, categoría | 🔴 CRÍTICO | ⏳ Fase 3 |
+| **Detalle de evento** | Ver información completa del evento | 🔴 CRÍTICO | ⏳ Fase 5 |
+| **Scraping automático** | Actualización diaria de eventos | 🔴 CRÍTICO | ⏳ Fase 6 |
+| **Integración Ticketmaster** | API de Ticketmaster como fuente principal | 🔴 CRÍTICO | ✅ Fase 1 |
+| **Scrapers locales** | Mínimo 2 sitios locales scrapeados | 🟡 IMPORTANTE | ⏳ Fase 5+ |
+| **Validación de datos** | Reglas de negocio para calidad de datos | 🟡 IMPORTANTE | 🚧 Fase 2 |
+| **Deduplicación** | Detectar eventos duplicados automáticamente | 🟡 IMPORTANTE | 🚧 Fase 2 |
 
 ### 🚫 NO Incluir en MVP (Post-MVP)
 
@@ -79,7 +79,8 @@
 **Objetivo**: El sistema mantiene datos actualizados automáticamente.
 
 **User Stories**:
-- US3.0: Población inicial de base de datos (scraping manual)
+- US3.0a: Scraping manual básico (Fase 1 - Implementado)
+- US3.0b: Scraping manual completo con business rules (Fase 2)
 - US3.1: Scraping automático diario
 - US3.2: Validación de datos
 - US3.3: Deduplicación de eventos
@@ -94,7 +95,7 @@
 - Eventos rechazados por preferencias quedan registrados con razón
 - Preferencias se pueden configurar vía UI admin (Post-MVP)
 
-**Nota**: Scraping manual (`POST /api/admin/scraper/sync`) es **CRÍTICO** para MVP - permite poblar BD inicial y re-scraping bajo demanda.
+**Nota**: Scraping manual básico (US3.0a - `POST /api/admin/scraper/sync`) está **IMPLEMENTADO en Fase 1** - permite poblar BD inicial. Business rules y deduplicación se agregan en Fase 2 (US3.0b).
 
 ---
 
@@ -183,26 +184,77 @@ Aplica a todas las historias de usuario del MVP.
 
 ---
 
-### US3.0: Población Inicial de Base de Datos
+### US3.0a: Scraping Manual Básico (Fase 1 - Implementado)
 
 **Como** administrador del sistema
-**Quiero** ejecutar scraping manual para poblar la BD por primera vez
-**Para** tener datos iniciales antes de que inicie el scraping automático
+**Quiero** ejecutar scraping manual de Ticketmaster para poblar la BD
+**Para** tener datos iniciales y poder probar la UI
 
-**Contexto**: Al iniciar el proyecto, la BD está vacía. Este endpoint permite llenarla manualmente.
+**Contexto**: Al iniciar el proyecto, la BD está vacía. Este endpoint permite llenarla manualmente con datos de Ticketmaster.
 
 **Criterios de Aceptación**:
-- [ ] Endpoint `POST /api/admin/scraper/sync` disponible
-- [ ] Requiere autenticación con header `x-api-key` (mínimo 32 caracteres)
+- [x] Endpoint `POST /api/admin/scraper/sync` disponible
+- [x] Requiere autenticación con header `x-api-key` (mínimo 32 caracteres)
+- [x] Acepta parámetros opcionales en body JSON:
+  - `country`: string (default: 'AR')
+  - `city`: string (opcional)
+- [x] Ejecuta scraping de Ticketmaster API
+- [x] Guarda todos los eventos en BD (sin filtrado por business rules en Fase 1)
+- [x] Retorna resumen JSON: source, eventsScraped, eventsSaved, timestamp
+- [x] Manejo de errores con try/catch y respuesta 500 con mensaje de error
+
+**Definición de Terminado**: ✅ Completado en Fase 1
+
+**Prioridad**: 🔴 CRÍTICO
+
+**Ejemplo de uso**:
+```bash
+# Scraping básico (default: Argentina)
+curl -X POST http://localhost:3000/api/admin/scraper/sync \
+  -H "x-api-key: your-admin-key-min-32-chars"
+
+# Con parámetros opcionales
+curl -X POST http://localhost:3000/api/admin/scraper/sync \
+  -H "x-api-key: your-admin-key-min-32-chars" \
+  -H "Content-Type: application/json" \
+  -d '{"country": "AR", "city": "Buenos Aires"}'
+```
+
+**Respuesta actual (Fase 1)**:
+```json
+{
+  "success": true,
+  "source": "ticketmaster",
+  "eventsScraped": 150,
+  "eventsSaved": 150,
+  "timestamp": "2025-11-08T10:30:00.000Z"
+}
+```
+
+---
+
+### US3.0b: Scraping Manual Completo con Business Rules (Fase 2 - Planificado)
+
+**Como** administrador del sistema
+**Quiero** ejecutar scraping con validación, deduplicación y preferencias globales
+**Para** tener solo eventos relevantes y de calidad en la BD
+
+**Contexto**: Mejora sobre US3.0a agregando business rules, múltiples fuentes, deduplicación y gestión de preferencias.
+
+**Criterios de Aceptación**:
 - [ ] Carga preferencias por defecto si no existen (lazy initialization):
   - allowedCountries: `['AR']`
   - allowedCities: `['Buenos Aires', 'Ciudad de Buenos Aires', 'CABA']`
   - allowedCategories: `['Music', 'Concert', 'Festival']`
   - allowedVenueSizes: `['small', 'medium', 'large']`
-- [ ] Ejecuta scraping de todas las fuentes configuradas en paralelo
-- [ ] Aplica validación de business rules y filtrado por preferencias
-- [ ] Deduplica eventos antes de guardar
-- [ ] Retorna resumen JSON: total scrapeado, aceptados, rechazados, razones, duración
+- [ ] Ejecuta scraping de todas las fuentes configuradas en paralelo (Ticketmaster + futuras fuentes)
+- [ ] Aplica validación de business rules antes de guardar:
+  - Rechaza eventos sin título, fecha o venue
+  - Rechaza fechas pasadas >1 día
+  - Rechaza países/ciudades fuera de allowedCountries/allowedCities
+  - Valida títulos (mínimo 3 caracteres)
+- [ ] Deduplica eventos antes de guardar (fuzzy matching >85% similaridad)
+- [ ] Retorna resumen JSON: total scrapeado, aceptados, rechazados, razones de rechazo, duración
 - [ ] Marca `needsRescraping=false` al finalizar exitosamente
 - [ ] Rate limiting: máximo 10 requests cada 10 segundos
 - [ ] Timeout global: 5 minutos
@@ -210,18 +262,12 @@ Aplica a todas las historias de usuario del MVP.
 
 **Definición de Terminado**: Aplica DoD general.
 
-**Prioridad**: 🔴 CRÍTICO
+**Prioridad**: 🟡 IMPORTANTE (Fase 2)
 
-**Ejemplo de uso**:
-```bash
-curl -X POST http://localhost:3000/api/admin/scraper/sync \
-  -H "x-api-key: your-admin-key-min-32-chars"
-```
-
-**Respuesta esperada**:
+**Respuesta esperada (Fase 2)**:
 ```json
 {
-  "status": "success",
+  "success": true,
   "summary": {
     "totalScraped": 500,
     "accepted": 350,
@@ -231,7 +277,8 @@ curl -X POST http://localhost:3000/api/admin/scraper/sync \
   "rejectionReasons": {
     "COUNTRY_NOT_ALLOWED": 80,
     "INVALID_DATE_PAST": 70
-  }
+  },
+  "timestamp": "2025-11-08T10:30:00.000Z"
 }
 ```
 

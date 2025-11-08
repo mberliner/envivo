@@ -80,15 +80,20 @@ interface IEventRepository {}
 class TicketmasterSource implements IDataSource {}
 class PrismaEventRepository implements IEventRepository {}
 
-// Services: sufijo Service
+// Services: sufijo Service (Planificado Fase 2+)
 class EventService {}
 class SearchService {}
 
-// Mappers: sufijo Mapper
-class TicketmasterMapper implements IEventMapper {}
+// Mappers: sufijo Mapper (métodos estáticos, sin interface)
+class TicketmasterMapper {
+  static toRawEvent(apiEvent): RawEvent {}
+  static toRawEvents(apiEvents): RawEvent[] {}
+}
 
-// Business Rules: sufijo Rules
-class EventBusinessRules implements IEventBusinessRules {}
+// Business Rules: sufijo Rules (Planificado Fase 2)
+class EventBusinessRules {
+  isAcceptable(event: RawEvent): boolean {}
+}
 ```
 
 ### Estructura de Carpetas
@@ -115,17 +120,18 @@ import { env } from '@/shared/infrastructure/config/env';
 
 ## Testing Requirements
 
-### Cobertura Objetivo
+### Cobertura Objetivo (Metas Finales)
 
-| Capa | Cobertura | Prioridad |
-|------|-----------|-----------|
-| Domain (Business Rules) | >80% | 🔴 CRÍTICO |
-| Data (Repositories) | >70% | 🟡 IMPORTANTE |
-| Data (Scrapers) | >60% | 🟡 IMPORTANTE |
-| UI (Componentes) | >60% | 🟢 DESEABLE |
-| E2E (Flujos críticos) | 100% happy paths | 🔴 CRÍTICO |
+| Capa | Cobertura | Prioridad | Estado Actual |
+|------|-----------|-----------|---------------|
+| Domain (Business Rules) | >80% | 🔴 CRÍTICO | 🔴 0% (Fase 2) |
+| Data (Repositories) | >70% | 🟡 IMPORTANTE | ✅ 100% (Fase 1) |
+| Data (Scrapers) | >60% | 🟡 IMPORTANTE | ✅ 100% (Fase 1) |
+| UI (Componentes) | >60% | 🟢 DESEABLE | 🔴 0% (Fase 3+) |
+| E2E (Flujos críticos) | 100% happy paths | 🔴 CRÍTICO | 🔴 0% (Fase 7) |
 
-**Testing Stack**: Vitest (unitarios) + Playwright (E2E) + React Testing Library (UI) + MSW (mocking)
+**Testing Stack Actual**: Vitest (unitarios) + React Testing Library (UI)
+**Planificado**: Playwright (E2E en Fase 7)
 
 **Ver `docs/examples/testing-example.ts` para ejemplos completos.**
 

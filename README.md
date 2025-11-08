@@ -6,12 +6,13 @@ Agregador de eventos musicales en vivo con scraping asíncrono, Clean Architectu
 
 - **Framework**: Next.js 14+ con App Router
 - **Lenguaje**: TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui
+- **Styling**: Tailwind CSS
 - **Base de Datos**: SQLite con Prisma ORM (MVP) / PostgreSQL (producción)
-- **Búsqueda**: SQLite FTS5 (Full-Text Search)
-- **Testing**: Vitest + Playwright + React Testing Library
-- **Scraping**: Cheerio + Axios (async con p-limit)
-  - Playwright disponible para sitios dinámicos (JS-heavy)
+- **Búsqueda**: SQLite FTS5 (Full-Text Search) - Planificado Fase 3
+- **Testing**: Vitest + React Testing Library
+  - Playwright planificado para tests E2E (Fase 7)
+- **Scraping**: Axios (API clients)
+  - Cheerio planificado para scrapers HTML (Fase 5)
 - **Deploy**: Vercel (gratis)
 
 ## 🚀 Quick Start
@@ -86,17 +87,27 @@ envivo/
     └── schema.prisma
 ```
 
-## 🎯 Features del MVP
+## 🎯 Estado de Features del MVP
 
-- ⏳ Búsqueda por texto (título, artista, venue)
-- ⏳ Filtros por ciudad, fecha, categoría
-- ⏳ Detalle completo de eventos
-- ⏳ Scraping asíncrono de múltiples fuentes
-- ⏳ Integración con Ticketmaster API
-- ⏳ Validación y deduplicación automática
-- ⏳ Búsqueda geográfica ("eventos cerca de mí")
+### ✅ Implementado (Fase 1 Completada)
+- **Integración con Ticketmaster API** - Discovery API v2 funcional
+- **Scraping manual** - Endpoint `POST /api/admin/scraper/sync` con autenticación
+- **Listado de eventos** - UI responsive con EventCard components
+- **Persistencia en BD** - SQLite con Prisma ORM
 
-**Estado**: En fase de implementación - Ver sección [Estado del Proyecto](#-estado-del-proyecto)
+### 🚧 En Desarrollo
+- **Business Rules y Deduplicación** (Fase 2 - Próxima)
+- **Búsqueda por texto** (Fase 3)
+- **Filtros avanzados** (ciudad, fecha, categoría) (Fase 3)
+
+### ⏳ Planificado
+- **Orchestrator asíncrono** - Múltiples fuentes en paralelo (Fase 4)
+- **Detalle completo de eventos** (Fase 5)
+- **Scraping automático diario** (Fase 6)
+- **Tests E2E** (Fase 7)
+- **Búsqueda geográfica** (Post-MVP)
+
+**Ver roadmap completo**: [Estado del Proyecto](#-estado-del-proyecto)
 
 ## 📚 Documentación
 
@@ -107,18 +118,18 @@ envivo/
 ## 🧪 Testing
 
 ```bash
-# Tests unitarios
+# Tests unitarios (35 tests, 100% passing)
 npm run test
 
-# Tests con coverage
-npm run test:coverage
-
-# Tests E2E
-npm run test:e2e
+# Tests con UI interactiva
+npm run test:ui
 
 # Type checking
 npm run type-check
 ```
+
+**Cobertura actual**: Data layer (mappers, sources, repositories) - 28 tests
+**Planificado**: E2E tests con Playwright en Fase 7
 
 ## 🔒 Seguridad
 
@@ -154,51 +165,48 @@ npm run format
 npx prisma studio          # UI para base de datos
 npx prisma migrate dev     # Crear migración
 
-# Scraping manual
+# Scraping manual (endpoint disponible en Fase 1)
 curl -X POST http://localhost:3000/api/admin/scraper/sync \
-  -H "x-api-key: your-admin-key"
+  -H "x-api-key: YOUR_ADMIN_API_KEY"
 
-# Re-scraping con preferencias actualizadas
-curl -X POST "http://localhost:3000/api/admin/scraper/sync?applyNewPreferences=true" \
-  -H "x-api-key: your-admin-key"
-
-# Ver estado del scraping
-curl http://localhost:3000/api/scraper/status
+# Scraping con parámetros opcionales
+curl -X POST http://localhost:3000/api/admin/scraper/sync \
+  -H "x-api-key: YOUR_ADMIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"country": "AR", "city": "Buenos Aires"}'
 ```
 
-### Preferencias por Defecto (Primer Scraping)
-
-La primera vez que se ejecuta scraping, se crean automáticamente estas preferencias:
-
-- **Países**: Solo Argentina (`AR`)
-- **Ciudades**: Buenos Aires, Ciudad de Buenos Aires, CABA
-- **Categorías**: Music, Concert, Festival
-- **Tamaños de venue**: Todos (small, medium, large)
-
-Para modificar preferencias, actualizar vía endpoint `/api/admin/preferences` (ver [PRODUCT.md](docs/PRODUCT.md) - US1.4).
+**Nota**: La configuración de preferencias globales y re-scraping avanzado están planificados para Fase 2.
 
 ## 🚀 Estado del Proyecto
 
-### Fase Actual: Fase 0 - Setup & Configuración
+### ✅ Fase Actual: Fase 1 COMPLETADA
 
 **Estrategia de Implementación**: Vertical Slices (features end-to-end)
 
-El proyecto sigue un enfoque de **vertical slices** en lugar de implementación horizontal por capas. Esto significa que cada fase implementa una feature completa desde el backend hasta la UI, proveyendo valor inmediato.
+El proyecto sigue un enfoque de **vertical slices** - cada fase implementa una feature completa desde el backend hasta la UI, proveyendo valor inmediato.
 
 ### Roadmap de Implementación
 
 | Fase | Duración | Objetivo | Estado |
 |------|----------|----------|--------|
-| **Fase 0** | 4-6 horas | Setup inicial + estructura base | 🚧 En progreso |
-| **Fase 1** | 1-2 días | Ticketmaster → BD → UI (primer valor) | ⏳ Pendiente |
-| **Fase 2** | 1 día | Business Rules + Deduplicación | ⏳ Pendiente |
+| **Fase 0** | 4-6 horas | Setup inicial + estructura base | ✅ Completada |
+| **Fase 1** | 3.5 horas | Ticketmaster → BD → UI | ✅ Completada |
+| **Fase 2** | 1 día | Business Rules + Deduplicación | 🚧 Próxima |
 | **Fase 3** | 1-2 días | Búsqueda + Filtros | ⏳ Pendiente |
 | **Fase 4** | 1 día | Orchestrator asíncrono | ⏳ Pendiente |
 | **Fase 5** | 1 día | Segunda fuente + Detalle | ⏳ Pendiente |
 | **Fase 6** | 1 día | Scraping automático + Deploy | ⏳ Pendiente |
 | **Fase 7** | 1 día | Tests E2E + Pulido | ⏳ Pendiente |
 
-**Ver roadmap completo**: [docs/PRODUCT.md (líneas 360-587)](docs/PRODUCT.md#roadmap-de-implementaci%C3%B3n)
+### 🎉 Fase 1 - Logros
+- 35 tests unitarios pasando (100%)
+- TypeScript sin errores
+- TicketmasterMapper, TicketmasterSource, PrismaEventRepository
+- API Route con autenticación
+- UI responsive con EventCard
+
+**Ver roadmap detallado**: [roadmap_imple.md](roadmap_imple.md) | [docs/PRODUCT.md](docs/PRODUCT.md#roadmap-de-implementaci%C3%B3n)
 
 ### Git Workflow
 
@@ -231,4 +239,4 @@ Claudio
 
 ---
 
-**Última actualización**: Enero 2025
+**Última actualización**: 8 de Noviembre de 2025
