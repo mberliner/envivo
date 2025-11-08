@@ -14,18 +14,25 @@
 
 ## Features del MVP
 
-### ✅ Core Features (Must-Have)
+### Core Features (Must-Have)
 
-| Feature | Descripción | Prioridad | Estado |
-|---------|-------------|-----------|--------|
-| **Búsqueda por texto** | Buscar eventos por título, artista o venue | 🔴 CRÍTICO | ⏳ Fase 3 |
-| **Filtros avanzados** | Filtrar por ciudad, fecha, categoría | 🔴 CRÍTICO | ⏳ Fase 3 |
-| **Detalle de evento** | Ver información completa del evento | 🔴 CRÍTICO | ⏳ Fase 5 |
-| **Scraping automático** | Actualización diaria de eventos | 🔴 CRÍTICO | ⏳ Fase 6 |
-| **Integración Ticketmaster** | API de Ticketmaster como fuente principal | 🔴 CRÍTICO | ✅ Fase 1 |
-| **Scrapers locales** | Mínimo 2 sitios locales scrapeados | 🟡 IMPORTANTE | ⏳ Fase 5+ |
-| **Validación de datos** | Reglas de negocio para calidad de datos | 🟡 IMPORTANTE | 🚧 Fase 2 |
-| **Deduplicación** | Detectar eventos duplicados automáticamente | 🟡 IMPORTANTE | 🚧 Fase 2 |
+Ordenadas por criticidad desde perspectiva de **Vertical Slices** - fundamentos técnicos primero, UX después. La columna "Fase Planificada" indica el orden lógico de implementación en roadmap, NO el estado actual de desarrollo.
+
+| Feature | Descripción | Prioridad | Fase Planificada |
+|---------|-------------|-----------|------------------|
+| **Primera fuente de datos** | Integración con Ticketmaster API | 🔴 CRÍTICO | Fase 1 |
+| **UI básica de eventos** | Listado de eventos con información esencial (título, fecha, venue, ciudad, imagen) | 🔴 CRÍTICO | Fase 1 |
+| **Validación de datos** | Reglas de negocio para calidad (fechas válidas, ubicación, campos requeridos) | 🔴 CRÍTICO | Fase 2 |
+| **Deduplicación inteligente** | Detectar duplicados con fuzzy matching entre todas las fuentes | 🔴 CRÍTICO | Fase 2 |
+| **Búsqueda por texto** | Buscar eventos por título, artista o venue | 🔴 CRÍTICO | Fase 3 |
+| **Filtros combinables** | Filtrar por ciudad, fecha, categoría (combinables y persistentes en URL) | 🔴 CRÍTICO | Fase 3 |
+| **Múltiples fuentes** | Eventbrite + mínimo 2 sitios locales scrapeados | 🟡 IMPORTANTE | Fase 4 |
+| **Detalle de evento** | Página con información completa + link directo a compra de entradas | 🔴 CRÍTICO | Fase 5 |
+| **Actualización automática** | Scraping diario automático con cron job | 🔴 CRÍTICO | Fase 6 |
+| **Deploy en producción** | Vercel con CI/CD automático desde GitHub | 🔴 CRÍTICO | Fase 6 |
+| **Experiencia pulida** | Tests E2E, responsive design, loading states, optimización de performance | 🟡 IMPORTANTE | Fase 7 |
+
+> **Nota**: Ver `roadmap_imple.md` para tracking detallado del estado actual de implementación.
 
 ### 🚫 NO Incluir en MVP (Post-MVP)
 
@@ -62,206 +69,40 @@ Cada fase entrega **valor real** que se puede mostrar a usuarios.
 
 ---
 
-## Épicas y User Stories
+### Criticidad desde Enfoque Vertical
 
-Organizadas por valor entregado a usuarios. Cada fuente de datos es una user story independiente que agrega eventos al catálogo.
+En **vertical slices**, la criticidad no solo viene del valor inmediato al usuario, sino de **construir fundamentos sólidos** que permitan escalar sin reescribir todo.
 
----
+**Orden de Criticidad**:
 
-### Epic 1: Descubrir Eventos Musicales
+**🔴 Fase 1-2 (Fundamentos Técnicos - CRÍTICO)**
+- Primera fuente de datos + UI básica
+- Validación y deduplicación de datos
 
-**Objetivo**: Los usuarios pueden descubrir eventos musicales de múltiples fuentes y encontrar exactamente lo que buscan.
+**¿Por qué son críticas?**
+- ❌ **Sin validación**: Basura en BD (fechas inválidas, ubicaciones vacías, eventos sin información)
+- ❌ **Sin deduplicación**: Cuando agregues Eventbrite (Fase 4), usuarios verán duplicados
+- ✅ **Fundamentos primero**: Construir sobre base sólida = menos refactoring después
 
-#### US1.0: Ver Eventos de Ticketmaster ✅ (Fase 1 - Implementado)
+**🔴 Fase 3-6 (UX y Producción - CRÍTICO)**
+- Búsqueda + Filtros (encontrar eventos)
+- Detalle de evento (información completa)
+- Deploy + Scraping automático (MVP en producción)
 
-**Como** usuario
-**Quiero** ver eventos de conciertos y festivales de Ticketmaster Argentina
-**Para** descubrir shows internacionales y eventos en venues grandes
+**¿Por qué son críticas?**
+- Sin búsqueda/filtros → MVP no usable (scroll infinito)
+- Sin deploy → No hay producto
+- Sin scraping automático → Datos obsoletos en días
 
-**Valor**: Acceso a catálogo internacional de eventos musicales en Argentina
+**🟡 Fase 4 y 7 (Mejoras - IMPORTANTE)**
+- Múltiples fuentes (más eventos)
+- Pulido final (responsive, tests E2E, optimización)
 
-**Criterios de Aceptación**:
-- [x] Puedo ver lista de eventos de Ticketmaster en la página principal
-- [x] Cada evento muestra: título, fecha, venue, ciudad, imagen
-- [x] Los eventos están ordenados por fecha (próximos primero)
-- [x] Si hay imagen disponible, se muestra correctamente
-- [x] Puedo hacer clic en un evento para ver más detalles (básico en Fase 1)
+**¿Por qué importantes pero no críticas?**
+- Ticketmaster ya cubre ~60% de eventos en Argentina
+- UX básica funcional es suficiente para validar MVP
 
-**Estado**: ✅ **Implementado en Fase 1**
-**Entregable**: ~150 eventos de Ticketmaster Argentina disponibles para explorar
-
----
-
-#### US1.1: Ver Eventos de Eventbrite (Fase 4)
-
-**Como** usuario
-**Quiero** ver eventos de Eventbrite
-**Para** descubrir shows locales, eventos pequeños e independientes que no están en Ticketmaster
-
-**Valor**: Acceso a eventos locales y de nicho que no aparecen en plataformas grandes
-
-**Criterios de Aceptación**:
-- [ ] Puedo ver eventos de Eventbrite mezclados con eventos de otras fuentes
-- [ ] No veo eventos duplicados entre Eventbrite y Ticketmaster
-- [ ] Los eventos de Eventbrite tienen la misma calidad de información
-- [ ] El sistema actualiza eventos de Eventbrite automáticamente
-
-**Prioridad**: 🟡 IMPORTANTE
-
----
-
-#### US1.2: Ver Eventos de Sitios Locales (Fase 4)
-
-**Como** usuario
-**Quiero** ver eventos de venues locales (ej: Niceto Club, C Complejo Art Media)
-**Para** descubrir shows exclusivos que solo se anuncian en sitios de los venues
-
-**Valor**: Cobertura completa incluyendo eventos que solo se promocionan localmente
-
-**Criterios de Aceptación**:
-- [ ] Puedo ver eventos de mínimo 2 sitios locales
-- [ ] Los eventos locales se mezclan con otras fuentes sin duplicarse
-- [ ] La información es consistente (fecha, hora, venue validados)
-
-**Prioridad**: 🟡 IMPORTANTE
-
----
-
-#### US1.3: Buscar Eventos por Texto (Fase 3)
-
-**Como** usuario
-**Quiero** buscar eventos por nombre de artista o título
-**Para** encontrar rápidamente shows específicos que me interesan
-
-**Valor**: Encontrar eventos específicos en segundos sin scroll manual
-
-**Criterios de Aceptación**:
-- [ ] Puedo escribir texto en barra de búsqueda (artista, título, venue)
-- [ ] Los resultados se actualizan al presionar Enter o botón "Buscar"
-- [ ] Búsqueda funciona con y sin acentos (ej: "Metallica" = "Metállica")
-- [ ] Búsqueda es case-insensitive
-- [ ] Si escribo menos de 2 caracteres, se muestra mensaje de ayuda
-- [ ] Se muestra conteo total de resultados encontrados
-
-**Prioridad**: 🔴 CRÍTICO
-
----
-
-#### US1.4: Filtrar Eventos (Fase 3)
-
-**Como** usuario
-**Quiero** filtrar eventos por ciudad, fecha y categoría
-**Para** ver solo eventos relevantes a mis preferencias
-
-**Valor**: Reducir ruido y enfocarse en eventos de interés personal
-
-**Criterios de Aceptación**:
-- [ ] Puedo seleccionar ciudad desde un dropdown
-- [ ] Puedo seleccionar rango de fechas con date picker
-- [ ] Puedo filtrar por tipo (Concierto, Festival, Teatro, etc.)
-- [ ] Los filtros se pueden combinar (ej: Buenos Aires + Conciertos + Este mes)
-- [ ] Puedo limpiar todos los filtros con un botón
-- [ ] Los filtros persisten en URL (puedo compartir link con filtros aplicados)
-
-**Prioridad**: 🔴 CRÍTICO
-
----
-
-### Epic 2: Ver Información de Eventos
-
-**Objetivo**: Los usuarios pueden acceder a toda la información necesaria para decidir asistir a un evento.
-
-#### US2.0: Ver Información Básica ✅ (Fase 1 - Implementado)
-
-**Como** usuario
-**Quiero** ver información esencial de cada evento en el listado
-**Para** identificar rápidamente eventos que me interesan
-
-**Valor**: Vista rápida de eventos sin navegar a detalles
-
-**Criterios de Aceptación**:
-- [x] Cada evento muestra: título, fecha, venue, ciudad
-- [x] Se muestra imagen del evento (o placeholder si no disponible)
-- [x] Puedo ver la lista completa de eventos disponibles
-- [x] Los eventos están ordenados por fecha (próximos primero)
-
-**Estado**: ✅ **Implementado en Fase 1**
-
----
-
-#### US2.1: Ver Información Completa y Comprar Entradas (Fase 5)
-
-**Como** usuario
-**Quiero** ver todos los detalles de un evento y poder comprar entradas
-**Para** tener toda la información necesaria y acceder a la compra en un solo lugar
-
-**Valor**: Información completa + acceso directo a compra de entradas
-
-**Criterios de Aceptación**:
-- [ ] Puedo hacer clic en un evento para ver página de detalle completa
-- [ ] Veo: título, fecha completa (día/hora), venue, dirección, descripción
-- [ ] Veo precio de entradas (si disponible)
-- [ ] Veo artistas participantes (si disponible)
-- [ ] Hay botón "Comprar Entradas" que abre link externo en nueva pestaña
-- [ ] Si el evento no existe, veo página 404 clara
-- [ ] Puedo volver al listado desde el detalle
-
-**Prioridad**: 🔴 CRÍTICO
-
----
-
-### Epic 3: Datos Siempre Actualizados y de Calidad
-
-**Objetivo**: Los usuarios siempre ven información actualizada, sin eventos pasados ni duplicados.
-
-#### US3.0: Eventos se Actualizan Automáticamente (Fase 6)
-
-**Como** usuario
-**Quiero** que los eventos se actualicen automáticamente cada día
-**Para** siempre ver información fresca sin eventos pasados
-
-**Valor**: Información confiable sin intervención manual
-
-**Criterios de Aceptación**:
-- [ ] Los eventos nuevos aparecen automáticamente cada día
-- [ ] Los eventos pasados desaparecen de la lista principal
-- [ ] No veo eventos cancelados o con información desactualizada
-- [ ] La actualización ocurre sin interrumpir el servicio
-
-**Prioridad**: 🔴 CRÍTICO
-
----
-
-#### US3.1: Eventos de Calidad (Sin Duplicados, Validados) (Fase 2)
-
-**Como** usuario
-**Quiero** ver solo eventos válidos y sin duplicados
-**Para** no confundirme con información repetida o incorrecta
-
-**Valor**: Experiencia limpia y confiable
-
-**Criterios de Aceptación**:
-- [ ] No veo el mismo evento repetido de diferentes fuentes
-- [ ] No veo eventos sin información básica (título, fecha, venue)
-- [ ] No veo eventos en países fuera de alcance (solo Argentina en MVP)
-- [ ] La información mostrada es consistente y completa
-
-**Prioridad**: 🟡 IMPORTANTE
-
----
-
-## Definición de Terminado (General)
-
-Aplica a todas las historias de usuario del MVP.
-
-- [ ] Tests relevantes pasan (unitarios e integración según corresponda)
-- [ ] Tipado TypeScript sin errores (`npm run type-check`)
-- [ ] Linter y formato sin issues (`npm run lint` y Prettier)
-- [ ] Manejo de errores y estados de carga implementados
-- [ ] Logs mínimos útiles sin datos sensibles
-- [ ] UI responsive básica y accesible (navegable con teclado, labels)
-- [ ] Performance razonable para el caso (sin bloqueos visibles en UI)
-- [ ] Documentación técnica mínima en el código donde sea necesario
+**Conclusión**: Calidad de datos (Fase 2) antes que UX avanzada (Fase 3) = Menos problemas después.
 
 ---
 
@@ -275,7 +116,7 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 
 | Fase | US Implementadas | Valor Entregado |
 |------|------------------|-----------------|
-| Fase 1 ✅ | US1.0 (Ticketmaster)<br>US2.0 (Info básica) | Ver eventos de Ticketmaster en UI |
+| Fase 1 | US1.0 (Ticketmaster)<br>US2.0 (Info básica) | Ver eventos de Ticketmaster en UI |
 | Fase 2 | US3.1 (Calidad datos) | Sin duplicados, eventos válidos |
 | Fase 3 | US1.3 (Búsqueda)<br>US1.4 (Filtros) | Encontrar eventos específicos |
 | Fase 4 | US1.1 (Eventbrite)<br>US1.2 (Sitios locales) | Más cobertura de eventos |
@@ -285,7 +126,7 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 
 ---
 
-### Fase 0: Setup & Configuración ✅ (Completada)
+### Fase 0: Setup & Configuración
 
 **Objetivo**: Proyecto corriendo con infraestructura básica
 
@@ -293,21 +134,22 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 
 ---
 
-### Fase 1: Ver Eventos de Ticketmaster ✅ (Completada)
+### Fase 1: Ver Eventos de Ticketmaster (1-2 días)
 
 **Objetivo**: Primera fuente de datos funcionando end-to-end
 
-**User Stories Implementadas**:
-- ✅ US1.0: Ver eventos de Ticketmaster
-- ✅ US2.0: Ver información básica
+**User Stories a Implementar**:
+- US1.0: Ver eventos de Ticketmaster
+- US2.0: Ver información básica
 
-**Valor Entregado**: Los usuarios pueden ver ~150 eventos de Ticketmaster Argentina en una UI responsive
+**Valor Entregado**: Los usuarios podrán ver eventos de Ticketmaster Argentina en una UI responsive
 
-**Logros**:
-- 35 tests unitarios pasando (100%)
-- TypeScript sin errores
-- API de scraping manual funcional
-- UI con EventCard mostrando eventos
+**Tareas**:
+- Integración con API de Ticketmaster
+- Modelo de datos (Prisma schema)
+- Repository para eventos
+- UI básica con listado de eventos
+- Tests unitarios de repositorio y mappers
 
 ---
 
@@ -409,6 +251,208 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 - Responsive design (mobile/tablet)
 - Optimización de imágenes
 - Performance audit (Lighthouse >90)
+
+---
+
+## Épicas y User Stories
+
+Organizadas por valor entregado a usuarios. Cada fuente de datos es una user story independiente que agrega eventos al catálogo.
+
+---
+
+### Epic 1: Descubrir Eventos Musicales
+
+**Objetivo**: Los usuarios pueden descubrir eventos musicales de múltiples fuentes y encontrar exactamente lo que buscan.
+
+#### US1.0: Ver Eventos de Ticketmaster (Fase 1)
+
+**Como** usuario
+**Quiero** ver eventos de conciertos y festivales de Ticketmaster Argentina
+**Para** descubrir shows internacionales y eventos en venues grandes
+
+**Valor**: Acceso a catálogo internacional de eventos musicales en Argentina
+
+**Criterios de Aceptación**:
+- [ ] Puedo ver lista de eventos de Ticketmaster en la página principal
+- [ ] Cada evento muestra: título, fecha, venue, ciudad, imagen
+- [ ] Los eventos están ordenados por fecha (próximos primero)
+- [ ] Si hay imagen disponible, se muestra correctamente
+- [ ] Puedo hacer clic en un evento para ver más detalles
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+#### US1.1: Ver Eventos de Eventbrite (Fase 4)
+
+**Como** usuario
+**Quiero** ver eventos de Eventbrite
+**Para** descubrir shows locales, eventos pequeños e independientes que no están en Ticketmaster
+
+**Valor**: Acceso a eventos locales y de nicho que no aparecen en plataformas grandes
+
+**Criterios de Aceptación**:
+- [ ] Puedo ver eventos de Eventbrite mezclados con eventos de otras fuentes
+- [ ] No veo eventos duplicados entre Eventbrite y Ticketmaster
+- [ ] Los eventos de Eventbrite tienen la misma calidad de información
+- [ ] El sistema actualiza eventos de Eventbrite automáticamente
+
+**Prioridad**: 🟡 IMPORTANTE
+
+---
+
+#### US1.2: Ver Eventos de Sitios Locales (Fase 4)
+
+**Como** usuario
+**Quiero** ver eventos de venues locales (ej: Niceto Club, C Complejo Art Media)
+**Para** descubrir shows exclusivos que solo se anuncian en sitios de los venues
+
+**Valor**: Cobertura completa incluyendo eventos que solo se promocionan localmente
+
+**Criterios de Aceptación**:
+- [ ] Puedo ver eventos de mínimo 2 sitios locales
+- [ ] Los eventos locales se mezclan con otras fuentes sin duplicarse
+- [ ] La información es consistente (fecha, hora, venue validados)
+
+**Prioridad**: 🟡 IMPORTANTE
+
+---
+
+#### US1.3: Buscar Eventos por Texto (Fase 3)
+
+**Como** usuario
+**Quiero** buscar eventos por nombre de artista o título
+**Para** encontrar rápidamente shows específicos que me interesan
+
+**Valor**: Encontrar eventos específicos en segundos sin scroll manual
+
+**Criterios de Aceptación**:
+- [ ] Puedo escribir texto en barra de búsqueda (artista, título, venue)
+- [ ] Los resultados se actualizan al presionar Enter o botón "Buscar"
+- [ ] Búsqueda funciona con y sin acentos (ej: "Metallica" = "Metállica")
+- [ ] Búsqueda es case-insensitive
+- [ ] Si escribo menos de 2 caracteres, se muestra mensaje de ayuda
+- [ ] Se muestra conteo total de resultados encontrados
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+#### US1.4: Filtrar Eventos (Fase 3)
+
+**Como** usuario
+**Quiero** filtrar eventos por ciudad, fecha y categoría
+**Para** ver solo eventos relevantes a mis preferencias
+
+**Valor**: Reducir ruido y enfocarse en eventos de interés personal
+
+**Criterios de Aceptación**:
+- [ ] Puedo seleccionar ciudad desde un dropdown
+- [ ] Puedo seleccionar rango de fechas con date picker
+- [ ] Puedo filtrar por tipo (Concierto, Festival, Teatro, etc.)
+- [ ] Los filtros se pueden combinar (ej: Buenos Aires + Conciertos + Este mes)
+- [ ] Puedo limpiar todos los filtros con un botón
+- [ ] Los filtros persisten en URL (puedo compartir link con filtros aplicados)
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+### Epic 2: Ver Información de Eventos
+
+**Objetivo**: Los usuarios pueden acceder a toda la información necesaria para decidir asistir a un evento.
+
+#### US2.0: Ver Información Básica (Fase 1)
+
+**Como** usuario
+**Quiero** ver información esencial de cada evento en el listado
+**Para** identificar rápidamente eventos que me interesan
+
+**Valor**: Vista rápida de eventos sin navegar a detalles
+
+**Criterios de Aceptación**:
+- [ ] Cada evento muestra: título, fecha, venue, ciudad
+- [ ] Se muestra imagen del evento (o placeholder si no disponible)
+- [ ] Puedo ver la lista completa de eventos disponibles
+- [ ] Los eventos están ordenados por fecha (próximos primero)
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+#### US2.1: Ver Información Completa y Comprar Entradas (Fase 5)
+
+**Como** usuario
+**Quiero** ver todos los detalles de un evento y poder comprar entradas
+**Para** tener toda la información necesaria y acceder a la compra en un solo lugar
+
+**Valor**: Información completa + acceso directo a compra de entradas
+
+**Criterios de Aceptación**:
+- [ ] Puedo hacer clic en un evento para ver página de detalle completa
+- [ ] Veo: título, fecha completa (día/hora), venue, dirección, descripción
+- [ ] Veo precio de entradas (si disponible)
+- [ ] Veo artistas participantes (si disponible)
+- [ ] Hay botón "Comprar Entradas" que abre link externo en nueva pestaña
+- [ ] Si el evento no existe, veo página 404 clara
+- [ ] Puedo volver al listado desde el detalle
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+### Epic 3: Datos Siempre Actualizados y de Calidad
+
+**Objetivo**: Los usuarios siempre ven información actualizada, sin eventos pasados ni duplicados.
+
+#### US3.0: Eventos se Actualizan Automáticamente (Fase 6)
+
+**Como** usuario
+**Quiero** que los eventos se actualicen automáticamente cada día
+**Para** siempre ver información fresca sin eventos pasados
+
+**Valor**: Información confiable sin intervención manual
+
+**Criterios de Aceptación**:
+- [ ] Los eventos nuevos aparecen automáticamente cada día
+- [ ] Los eventos pasados desaparecen de la lista principal
+- [ ] No veo eventos cancelados o con información desactualizada
+- [ ] La actualización ocurre sin interrumpir el servicio
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+#### US3.1: Eventos de Calidad (Sin Duplicados, Validados) (Fase 2)
+
+**Como** usuario
+**Quiero** ver solo eventos válidos y sin duplicados
+**Para** no confundirme con información repetida o incorrecta
+
+**Valor**: Experiencia limpia y confiable
+
+**Criterios de Aceptación**:
+- [ ] No veo el mismo evento repetido de diferentes fuentes
+- [ ] No veo eventos sin información básica (título, fecha, venue)
+- [ ] No veo eventos en países fuera de alcance (solo Argentina en MVP)
+- [ ] La información mostrada es consistente y completa
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+## Definición de Terminado (General)
+
+Aplica a todas las historias de usuario del MVP.
+
+- [ ] Tests relevantes pasan (unitarios e integración según corresponda)
+- [ ] Tipado TypeScript sin errores (`npm run type-check`)
+- [ ] Linter y formato sin issues (`npm run lint` y Prettier)
+- [ ] Manejo de errores y estados de carga implementados
+- [ ] Logs mínimos útiles sin datos sensibles
+- [ ] UI responsive básica y accesible (navegable con teclado, labels)
+- [ ] Performance razonable para el caso (sin bloqueos visibles en UI)
+- [ ] Documentación técnica mínima en el código donde sea necesario
 
 ---
 

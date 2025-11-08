@@ -1,6 +1,6 @@
 # Roadmap de Implementación - EnVivo
 
-> **Última actualización**: 8 de Noviembre de 2025 (Fase 1 completada)
+> **Última actualización**: 8 de Noviembre de 2025 (Fase 2 completada)
 > **Branch actual**: `claude/project-overview-011CUqdqHGiRRDdpktZ4Ef7M`
 > **Estrategia**: Vertical Slices (features end-to-end)
 
@@ -32,6 +32,35 @@
 - 10 tests: PrismaEventRepository
 - 3 tests: Event entity
 - 4 tests: GlobalPreferences entity
+
+**TypeScript**: No compilation errors ✅
+
+### ✅ Fase 2: Business Rules + Deduplicación - **COMPLETADA**
+
+**Duración**: ~2 horas
+**Commits**:
+- `719522a` - feat: implement business rules and deduplication (Fase 2)
+
+**Tests**: 98/98 passing ✅
+- 39 tests: EventBusinessRules (validación, normalización, deduplicación)
+- 24 tests: EventService (integración completa)
+- 35 tests: Fase 1 (mappers, sources, repositories, entities)
+
+**Nuevos Archivos**:
+- `config/business-rules.json` - Configuración externa de reglas
+- `src/features/events/domain/services/EventBusinessRules.ts` - Validación y deduplicación
+- `src/features/events/domain/services/EventBusinessRules.test.ts` - 39 tests
+- `src/features/events/domain/services/EventService.ts` - Orquestación de business logic
+- `src/features/events/domain/services/EventService.test.ts` - 24 tests
+
+**Funcionalidad Implementada**:
+- ✅ Validación de campos requeridos (título, fecha, ciudad, país)
+- ✅ Validación de rangos de fechas (pasado/futuro)
+- ✅ Normalización automática (ciudad → Title Case, país → ISO-2, categorías)
+- ✅ Deduplicación con fuzzy matching (>85% similaridad)
+- ✅ Detección cross-source (mismo evento en Ticketmaster y Eventbrite)
+- ✅ Estrategia de actualización inteligente (fuente más confiable)
+- ✅ EventService para procesamiento batch con reportes detallados
 
 **TypeScript**: No compilation errors ✅
 
@@ -293,29 +322,32 @@ src/
 
 ---
 
-### Fase 2: Business Rules + Deduplicación
-**Duración estimada**: 1 día  
-**Objetivo**: Validación centralizada y sin duplicados
+### ✅ Fase 2: Business Rules + Deduplicación - **COMPLETADA**
+**Duración real**: ~2 horas
+**Objetivo**: Validación centralizada y sin duplicados ✅
 
-**Tareas pendientes**:
-1. [ ] Implementar `EventBusinessRules` en capa Domain
-   - [ ] Validación de fechas (no pasadas, rango máximo)
-   - [ ] Validación de campos requeridos
-   - [ ] Validación de ubicación (países permitidos)
-2. [ ] Implementar deduplicación con fuzzy matching
-   - [ ] Usar `string-similarity` para comparar títulos
-   - [ ] Comparar fecha (±24h), venue, ciudad
-   - [ ] Threshold de similitud: 0.85
-3. [ ] Crear `config/business-rules.json`
-4. [ ] Integrar business rules en flujo de scraping
-5. [ ] Tests unitarios de business rules (>80% coverage)
-6. [ ] Tests de deduplicación con casos edge
+**Tareas completadas**:
+1. [x] Implementar `EventBusinessRules` en capa Domain
+   - [x] Validación de fechas (no pasadas, rango máximo)
+   - [x] Validación de campos requeridos
+   - [x] Validación de ubicación (países permitidos)
+2. [x] Implementar deduplicación con fuzzy matching
+   - [x] Usar `string-similarity` para comparar títulos
+   - [x] Comparar fecha (±24h), venue, ciudad
+   - [x] Threshold de similitud: 0.85
+3. [x] Crear `config/business-rules.json`
+4. [x] Crear `EventService` para orquestación
+5. [x] Tests unitarios de business rules (39 tests - >80% coverage)
+6. [x] Tests de integración EventService (24 tests)
+7. [x] Tests de deduplicación con casos edge y cross-source
 
 **Entregable**:
 - ✅ Eventos inválidos rechazados con logs claros
 - ✅ No hay duplicados en BD
+- ✅ 98/98 tests pasando
+- ✅ Desarrollo TDD completo (sin necesidad de API externa)
 
-**Git**: `git commit -m "feat: business rules and deduplication" && git push`
+**Git**: ✅ `git commit -m "feat: implement business rules and deduplication (Fase 2)" && git push`
 
 ---
 
@@ -551,21 +583,32 @@ chore: cambios menores (deps, config)
 
 ## 🚀 Próxima Acción
 
-**Fase 0**: ✅ **COMPLETADA AL 100%**
+**Fase 0**: ✅ **COMPLETADA**
+**Fase 1**: ✅ **COMPLETADA**
+**Fase 2**: ✅ **COMPLETADA**
 
-Todas las acciones manuales fueron ejecutadas exitosamente:
-- ✅ Prisma Client generado
-- ✅ Base de datos creada (dev.db)
-- ✅ Tests pasando (7/7)
-- ✅ Type check sin errores
+**Progreso actual**:
+- ✅ Setup completo (Prisma, TypeScript, Clean Architecture)
+- ✅ Primera fuente de datos (Ticketmaster → BD → UI)
+- ✅ Business Rules + Deduplicación con fuzzy matching
+- ✅ 98/98 tests pasando
+- ✅ TypeScript sin errores
 
-**Siguiente paso**: **Iniciar Fase 1 - Primer Vertical Slice (Ticketmaster → BD → UI)**
+**Siguiente paso**: **Iniciar Fase 3 - Búsqueda + Filtros**
+
+**Tareas de Fase 3**:
+1. Implementar búsqueda por texto (full-text search)
+2. Crear componente SearchBar con debounce
+3. Implementar filtros combinables (ciudad, fecha, categoría)
+4. Persistir filtros en URL query params
+5. Tests de búsqueda y filtros
 
 ---
 
-**Estado del Proyecto**: 🟢 **LISTO PARA FASE 1**
+**Estado del Proyecto**: 🟢 **LISTO PARA FASE 3**
 
 **Branch**: `claude/project-overview-011CUqdqHGiRRDdpktZ4Ef7M`
-**Última actualización**: 7 de Noviembre de 2025 - 21:40 UTC
-**Tests**: 7 passed (7) ✅
-**Prisma**: Generado ✅
+**Última actualización**: 8 de Noviembre de 2025
+**Tests**: 98 passed (98) ✅
+**TypeScript**: No errors ✅
+**Fases completadas**: 3/8 (Fase 0, 1, 2)
