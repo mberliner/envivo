@@ -87,27 +87,15 @@ envivo/
     └── schema.prisma
 ```
 
-## 🎯 Estado de Features del MVP
+## 🎯 Features del MVP
 
-### ✅ Implementado (Fase 1 Completada)
-- **Integración con Ticketmaster API** - Discovery API v2 funcional
-- **Scraping manual** - Endpoint `POST /api/admin/scraper/sync` con autenticación
-- **Listado de eventos** - UI responsive con EventCard components
-- **Persistencia en BD** - SQLite con Prisma ORM
+- **Descubrir eventos** - Agregación de eventos de múltiples fuentes (Ticketmaster, Eventbrite, sitios locales)
+- **Búsqueda inteligente** - Buscar por artista, título, venue con filtros (ciudad, fecha, categoría)
+- **Información completa** - Detalles de eventos, precios, links a compra de entradas
+- **Datos actualizados** - Scraping automático diario con validación y deduplicación
+- **Clean Architecture** - Codebase mantenible siguiendo principios SOLID
 
-### 🚧 En Desarrollo
-- **Business Rules y Deduplicación** (Fase 2 - Próxima)
-- **Búsqueda por texto** (Fase 3)
-- **Filtros avanzados** (ciudad, fecha, categoría) (Fase 3)
-
-### ⏳ Planificado
-- **Orchestrator asíncrono** - Múltiples fuentes en paralelo (Fase 4)
-- **Detalle completo de eventos** (Fase 5)
-- **Scraping automático diario** (Fase 6)
-- **Tests E2E** (Fase 7)
-- **Búsqueda geográfica** (Post-MVP)
-
-**Ver roadmap completo**: [Estado del Proyecto](#-estado-del-proyecto)
+**Ver roadmap completo**: [docs/PRODUCT.md](docs/PRODUCT.md)
 
 ## 📚 Documentación
 
@@ -180,40 +168,15 @@ curl -X POST http://localhost:3000/api/admin/scraper/sync \
 
 ## 🚀 Estado del Proyecto
 
-### ✅ Fase Actual: Fase 1 COMPLETADA
+**Proyecto en desarrollo activo** siguiendo estrategia de **Vertical Slices** (features end-to-end).
 
-**Estrategia de Implementación**: Vertical Slices (features end-to-end)
-
-El proyecto sigue un enfoque de **vertical slices** - cada fase implementa una feature completa desde el backend hasta la UI, proveyendo valor inmediato.
-
-### Roadmap de Implementación
-
-| Fase | Duración | Objetivo | Estado |
-|------|----------|----------|--------|
-| **Fase 0** | 4-6 horas | Setup inicial + estructura base | ✅ Completada |
-| **Fase 1** | 3.5 horas | Ticketmaster → BD → UI | ✅ Completada |
-| **Fase 2** | 1 día | Business Rules + Deduplicación | 🚧 Próxima |
-| **Fase 3** | 1-2 días | Búsqueda + Filtros | ⏳ Pendiente |
-| **Fase 4** | 1 día | Orchestrator asíncrono | ⏳ Pendiente |
-| **Fase 5** | 1 día | Segunda fuente + Detalle | ⏳ Pendiente |
-| **Fase 6** | 1 día | Scraping automático + Deploy | ⏳ Pendiente |
-| **Fase 7** | 1 día | Tests E2E + Pulido | ⏳ Pendiente |
-
-### 🎉 Fase 1 - Logros
-- 35 tests unitarios pasando (100%)
-- TypeScript sin errores
-- TicketmasterMapper, TicketmasterSource, PrismaEventRepository
-- API Route con autenticación
-- UI responsive con EventCard
-
-**Ver roadmap detallado**: [docs/PRODUCT.md](docs/PRODUCT.md#roadmap-de-implementaci%C3%B3n)
+**Ver roadmap completo**: [docs/PRODUCT.md](docs/PRODUCT.md#roadmap-de-implementaci%C3%B3n)
 
 ### Git Workflow
 
 Durante el MVP, seguimos **trunk-based development**:
-- Commit y push directo a `main` después de cada fase completada
+- Commits directos después de completar cada fase
 - Convención: `feat: [descripción de la fase]`
-- Ejemplo: `git commit -m "feat: first vertical slice - Ticketmaster to UI"`
 
 ---
 
