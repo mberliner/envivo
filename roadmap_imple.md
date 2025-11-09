@@ -1,6 +1,6 @@
 # Roadmap de Implementación - EnVivo
 
-> **Última actualización**: 8 de Noviembre de 2025 (Fase 3 COMPLETADA)
+> **Última actualización**: 9 de Noviembre de 2025 (Fase 4 COMPLETADA)
 > **Branch actual**: `claude/project-overview-011CUqdqHGiRRDdpktZ4Ef7M`
 > **Estrategia**: Vertical Slices (features end-to-end)
 
@@ -133,7 +133,7 @@
   - Teatro/Comedia: Les Luthiers, Dalia Gutmann
   - Datos reales: venues, precios ARS, múltiples ciudades
 
-**TypeScript**: Errores menores en tests (no afectan funcionalidad) ⚠️
+**TypeScript**: 0 errores ✅
 
 ---
 
@@ -486,8 +486,20 @@ src/app/api/admin/scraper/sync/
 - ✅ TypeScript: 0 errores
 
 **Commits**:
-- `feat: implement business rules and deduplication (Fase 2)` (anteriormente)
-- `feat: implement DataSourceOrchestrator with async scraping (Fase 4)` (pendiente)
+- `42e7a47` - feat: implement DataSourceOrchestrator with async scraping (Fase 4)
+- `034f737` - docs: update manual testing instructions for Fase 4
+- `d2d364e` - docs: clarify commands must run in local terminal (not Claude Code)
+- `5060f96` - fix: infinite loop in EventsPage caused by useEffect dependencies
+- `3b35719` - fix: infinite loop in SearchBar and EventFilters useEffect
+- `367ee41` - fix: remove mode:insensitive from Prisma queries (SQLite incompatible)
+- `9da088e` - fix: TypeScript errors in PrismaEventRepository tests
+
+**Testing Manual** (Opcional - Requiere API Keys):
+- Ver guía completa en `TESTING_FASE4_MANUAL.md`
+- Requiere: `TICKETMASTER_API_KEY` y `ADMIN_API_KEY` en `.env.local`
+- Endpoint: `POST /api/admin/scraper/sync`
+- Respuesta incluye métricas del orchestrator: `sources[]`, `totalEvents`, `totalProcessed`, `totalDuplicates`, etc.
+- Instrucciones paso a paso para: scraping manual, verificar BD, validar deduplicación, troubleshooting
 
 ---
 
