@@ -77,10 +77,20 @@ model Event {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  // Índices simples para filtros individuales
   @@index([date])
   @@index([city])
   @@index([category])
   @@index([country])
+
+  // Índices compuestos para combinaciones comunes de filtros
+  @@index([city, date]) // Búsqueda: eventos en ciudad X desde fecha Y
+  @@index([category, date]) // Búsqueda: festivales desde fecha Y
+  @@index([city, category]) // Búsqueda: conciertos en Buenos Aires
+
+  // Índice para deduplicación (source + externalId único)
+  @@index([source, externalId])
+
   // FTS5 se configurará directamente en SQLite en fases posteriores
   @@map("events")
 }
