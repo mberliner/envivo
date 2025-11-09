@@ -1,6 +1,6 @@
 # Roadmap de Implementación - EnVivo
 
-> **Última actualización**: 8 de Noviembre de 2025 (Fase 2 completada)
+> **Última actualización**: 8 de Noviembre de 2025 (Fase 3 en progreso - backend completado)
 > **Branch actual**: `claude/project-overview-011CUqdqHGiRRDdpktZ4Ef7M`
 > **Estrategia**: Vertical Slices (features end-to-end)
 
@@ -61,6 +61,58 @@
 - ✅ Detección cross-source (mismo evento en Ticketmaster y Eventbrite)
 - ✅ Estrategia de actualización inteligente (fuente más confiable)
 - ✅ EventService para procesamiento batch con reportes detallados
+
+**TypeScript**: No compilation errors ✅
+
+### 🚧 Fase 3: Búsqueda + Filtros - **EN PROGRESO**
+
+**Duración estimada**: 2-3 días total
+**Tiempo invertido**: ~2.5 horas (backend completado)
+
+**Commits**:
+- `9338d81` - feat(fase-3): implement SearchService with realistic fixtures
+- `0026620` - feat(fase-3): implement GET /api/events with Zod validation
+- `5a49482` - feat(fase-3): add composite indexes for search optimization
+- `d31e5b8` - feat(fase-3): add database seed script with realistic fixtures
+
+**Tests**: 152/152 passing ✅
+- 21 tests: API Route GET /api/events
+- 33 tests: SearchService (búsqueda, filtros, paginación)
+- 98 tests: Fases anteriores
+
+**Progreso - Backend (100%):**
+- ✅ SearchService (domain layer)
+  - Búsqueda por texto normalizada (case-insensitive, sin acentos)
+  - Filtros combinables: ciudad, categoría, rango de fechas
+  - Paginación con limit/offset
+  - Autocomplete/sugerencias
+  - Helper methods (ciudades/categorías disponibles)
+- ✅ API Route GET /api/events
+  - Validación Zod de query params
+  - Integración con SearchService
+  - Manejo de errores (400, 500)
+  - Respuesta estructurada (events, total, hasMore, limit, offset)
+- ✅ Database indexes
+  - Índices compuestos: [city, date], [category, date], [city, category]
+  - Índice para deduplicación: [source, externalId]
+- ✅ Database seed
+  - Script en `prisma/seed.ts` con 15 eventos realistas
+  - Comando `npm run db:seed` configurado
+
+**Fixtures Creados**:
+- `/src/test/fixtures/events.fixtures.ts` - 15 eventos argentinos realistas
+  - Artistas internacionales: Metallica, Coldplay, Taylor Swift, Iron Maiden, RHCP
+  - Artistas nacionales: Fito Páez, Los Fabulosos Cadillacs, Divididos, Charly García
+  - Festivales: Lollapalooza Argentina, Cosquín Rock
+  - Teatro/Comedia: Les Luthiers, Dalia Gutmann
+  - Datos reales: venues, precios ARS, múltiples ciudades
+
+**Progreso - Frontend (0%):**
+- ⏸️ Componentes UI
+  - SearchBar (input con debouncing)
+  - EventFilters (dropdowns ciudad/categoría, date picker)
+  - Integración en HomePage
+- ⏸️ URL State Persistence (query params)
 
 **TypeScript**: No compilation errors ✅
 
@@ -586,29 +638,38 @@ chore: cambios menores (deps, config)
 **Fase 0**: ✅ **COMPLETADA**
 **Fase 1**: ✅ **COMPLETADA**
 **Fase 2**: ✅ **COMPLETADA**
+**Fase 3**: 🚧 **EN PROGRESO** (Backend 100%, Frontend 0%)
 
 **Progreso actual**:
 - ✅ Setup completo (Prisma, TypeScript, Clean Architecture)
 - ✅ Primera fuente de datos (Ticketmaster → BD → UI)
 - ✅ Business Rules + Deduplicación con fuzzy matching
-- ✅ 98/98 tests pasando
+- ✅ Búsqueda y filtros (backend) - SearchService + API Route
+- ✅ Database indexes optimizados
+- ✅ Database seed con 15 eventos realistas
+- ✅ 152/152 tests pasando
 - ✅ TypeScript sin errores
 
-**Siguiente paso**: **Iniciar Fase 3 - Búsqueda + Filtros**
+**Siguiente paso**: **Completar Fase 3 - Frontend (UI Components)**
 
-**Tareas de Fase 3**:
-1. Implementar búsqueda por texto (full-text search)
-2. Crear componente SearchBar con debounce
-3. Implementar filtros combinables (ciudad, fecha, categoría)
-4. Persistir filtros en URL query params
-5. Tests de búsqueda y filtros
+**Tareas pendientes Fase 3**:
+1. ⏸️ Crear componente SearchBar (client component con debouncing)
+2. ⏸️ Crear componente EventFilters (dropdowns ciudad/categoría, date picker)
+3. ⏸️ Actualizar HomePage para integrar búsqueda/filtros
+4. ⏸️ Implementar URL state persistence (query params)
+5. ⏸️ Tests de componentes (opcional - testing library react)
+
+**Opciones para continuar**:
+- **Opción A**: Continuar con UI de Fase 3 (SearchBar + Filters)
+- **Opción B**: Saltar a Fase 4 (Orchestrator para múltiples fuentes)
+- **Opción C**: Saltar a Fase 5 (Segunda fuente de datos + página de detalle)
 
 ---
 
-**Estado del Proyecto**: 🟢 **LISTO PARA FASE 3**
+**Estado del Proyecto**: 🟢 **FASE 3 BACKEND COMPLETADO**
 
 **Branch**: `claude/project-overview-011CUqdqHGiRRDdpktZ4Ef7M`
 **Última actualización**: 8 de Noviembre de 2025
-**Tests**: 98 passed (98) ✅
+**Tests**: 152 passed (152) ✅
 **TypeScript**: No errors ✅
-**Fases completadas**: 3/8 (Fase 0, 1, 2)
+**Fases completadas**: 2.5/8 (Fase 0, 1, 2, Fase 3 backend)
