@@ -40,14 +40,14 @@ describe('EventBusinessRules', () => {
       title: 'Metallica en Buenos Aires',
       date: futureDate,
       venueName: 'Estadio River Plate',
-      venueAddress: 'Av. Figueroa Alcorta 7597',
       city: 'Buenos Aires',
       country: 'AR',
       category: 'Concierto',
       imageUrl: 'https://example.com/metallica.jpg',
       ticketUrl: 'https://ticketmaster.com/metallica',
       source: 'ticketmaster',
-      price: '$15000',
+      price: 15000,
+      currency: 'ARS',
       description: 'Concierto de Metallica en Argentina',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -181,11 +181,11 @@ describe('EventBusinessRules', () => {
     });
 
     test('normaliza categoría a formato estándar', () => {
-      expect(rules.normalize(createValidEvent({ category: 'concert' })).category).toBe('Concierto');
-      expect(rules.normalize(createValidEvent({ category: 'festival' })).category).toBe('Festival');
-      expect(rules.normalize(createValidEvent({ category: 'teatro' })).category).toBe('Teatro');
-      expect(rules.normalize(createValidEvent({ category: 'stand-up' })).category).toBe('Stand-up');
-      expect(rules.normalize(createValidEvent({ category: 'opera' })).category).toBe('Ópera');
+      expect(rules.normalize(createValidEvent({ category: 'concert' as any })).category).toBe('Concierto');
+      expect(rules.normalize(createValidEvent({ category: 'festival' as any })).category).toBe('Festival');
+      expect(rules.normalize(createValidEvent({ category: 'teatro' as any })).category).toBe('Teatro');
+      expect(rules.normalize(createValidEvent({ category: 'stand-up' as any })).category).toBe('Stand-up');
+      expect(rules.normalize(createValidEvent({ category: 'opera' as any })).category).toBe('Ópera');
     });
 
     test('normaliza categoría desconocida a "Otro"', () => {
@@ -275,13 +275,13 @@ describe('EventBusinessRules', () => {
 
     test('actualiza si evento entrante tiene imagen y el existente no', () => {
       const incoming = createValidEvent({ imageUrl: 'https://example.com/image.jpg' });
-      const existing = createValidEvent({ imageUrl: null });
+      const existing = createValidEvent({ imageUrl: undefined });
       expect(rules.shouldUpdate(incoming, existing)).toBe(true);
     });
 
     test('actualiza si evento entrante tiene precio y el existente no', () => {
-      const incoming = createValidEvent({ price: '$15000' });
-      const existing = createValidEvent({ price: null });
+      const incoming = createValidEvent({ price: 15000 });
+      const existing = createValidEvent({ price: undefined });
       expect(rules.shouldUpdate(incoming, existing)).toBe(true);
     });
 
@@ -413,7 +413,7 @@ describe('EventBusinessRules', () => {
       const rawEvent = createValidEvent({
         city: 'BUENOS AIRES  ', // Uppercase + espacios
         country: 'argentina', // Nombre completo
-        category: 'concert', // Inglés
+        category: 'concert' as any, // Inglés
         title: '  Metallica en Argentina  ', // Espacios
       });
 

@@ -156,8 +156,8 @@ export class EventService {
       date: date,
       endDate: endDate,
       venueName: rawEvent.venue,
-      city: rawEvent.city || 'Unknown',
-      country: rawEvent.country || 'AR',
+      city: rawEvent.city || '', // Será validado por business rules
+      country: rawEvent.country || '', // Será validado por business rules
       category: (rawEvent.category as Event['category']) || 'Otro',
       genre: rawEvent.genre,
       artists: rawEvent.artists,

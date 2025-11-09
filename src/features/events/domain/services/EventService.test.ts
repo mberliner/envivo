@@ -69,6 +69,7 @@ const createEvent = (overrides?: Partial<Event>): Event => {
     source: 'ticketmaster',
     externalId: 'tm-001',
     description: 'Gran concierto de Metallica',
+    currency: 'ARS',
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
@@ -269,7 +270,7 @@ describe('EventService', () => {
     test('actualiza duplicado si evento entrante tiene más información', async () => {
       const existingEvent = createEvent({
         description: 'Descripción corta',
-        imageUrl: null,
+        imageUrl: undefined,
       });
       mockRepository.findByFilters = vi.fn().mockResolvedValue([existingEvent]);
 
