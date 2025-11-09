@@ -134,32 +134,73 @@ Usamos un **enfoque híbrido** que combina trunk-based development para cambios 
 
 ## Testing Requirements
 
-### Antes de Commit
+### ⛔ REGLA CRÍTICA: TESTS FALLANDO = INADMISIBLE
+
+**TODOS los tests DEBEN pasar antes de hacer commit.**
 
 ```bash
-# 1. Type check
+# Estado REQUERIDO para commit
+✅ TypeScript: 0 errors
+✅ Tests: X/X passing (100%)
+✅ Lint: 0 warnings
+```
+
+**❌ NUNCA commitear con:**
+- Tests fallando (aunque sea 1)
+- Errores de TypeScript
+- Tests comentados o skipeados (`test.skip`, `it.skip`)
+- Tests con `.only` (que ignoran otros tests)
+
+**Si un test falla:**
+1. ARREGLÁ el código hasta que pase
+2. Si es un test viejo que ya no aplica, ELIMINALO (no lo skipees)
+3. Si necesitás commitear urgente, ARREGLÁ el test primero
+
+**No hay excepciones a esta regla.**
+
+### Antes de CADA Commit
+
+```bash
+# 1. Type check (OBLIGATORIO)
 npm run type-check
+# Resultado esperado: 0 errors
 
-# 2. Lint
+# 2. Tests unitarios (OBLIGATORIO)
+npm test
+# Resultado esperado: X/X passing (100%)
+
+# 3. Lint (OBLIGATORIO)
 npm run lint
-
-# 3. Tests unitarios
-npm run test
+# Resultado esperado: 0 warnings
 
 # 4. Tests E2E (si tocaste UI)
 npm run test:e2e
 ```
 
+**Si ANY de estos comandos falla, NO commitear.**
+
 ### Cobertura Mínima
 
-| Capa | Coverage Requerido |
-|------|--------------------|
-| Domain (business rules) | >80% |
-| Data (repositories) | >70% |
-| Data (scrapers) | >60% |
-| UI (componentes) | >60% |
+| Capa | Coverage Requerido | Estado Actual |
+|------|--------------------|--------------|
+| Domain (business rules) | >80% | ✅ 83.3% |
+| Data (repositories) | >70% | ✅ 100% (activos) |
+| Data (scrapers) | >60% | ✅ 100% |
+| UI (componentes) | >60% | ⏸️ Pendiente |
 
 **Comando**: `npm run test:coverage`
+
+### Git Hooks (Automático)
+
+El proyecto puede configurar git hooks para prevenir commits con tests fallando:
+
+```bash
+# .git/hooks/pre-commit (opcional, recomendado)
+#!/bin/bash
+npm run type-check && npm test
+```
+
+Si el hook falla, el commit se bloquea automáticamente.
 
 ---
 

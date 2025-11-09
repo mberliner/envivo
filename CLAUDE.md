@@ -306,6 +306,23 @@ import { env } from '@/shared/infrastructure/config/env';
 
 ## Testing Requirements
 
+### ⛔ REGLA CRÍTICA: ZERO TOLERANCE PARA TESTS FALLANDO
+
+**TODOS los tests deben pasar SIEMPRE antes de commit.**
+
+```bash
+✅ TypeScript: 0 errors (OBLIGATORIO)
+✅ Tests: 152/152 passing (OBLIGATORIO)
+✅ Lint: 0 warnings (OBLIGATORIO)
+```
+
+**NO commitear si:**
+- Aunque sea 1 test falla
+- Hay errores de TypeScript
+- Tests están comentados/skipeados
+
+**Ver [CONTRIBUTING.md#testing-requirements](docs/CONTRIBUTING.md#testing-requirements) para detalles completos.**
+
 ### Cobertura Objetivo (Metas Finales)
 
 | Capa | Cobertura | Prioridad | Estado Actual |
