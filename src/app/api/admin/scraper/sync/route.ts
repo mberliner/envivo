@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TicketmasterSource } from '@/features/events/data/sources/ticketmaster/TicketmasterSource';
 import { PrismaEventRepository } from '@/features/events/data/repositories/PrismaEventRepository';
+import { DataSourceOrchestrator } from '@/features/events/data/orchestrator/DataSourceOrchestrator';
 import { env } from '@/shared/infrastructure/config/env';
 
 /**
  * POST /api/admin/scraper/sync
  *
- * Ejecuta scraping manual de Ticketmaster y guarda eventos en BD
+ * Ejecuta scraping manual usando DataSourceOrchestrator
+ * Automáticamente valida, dedupl ica y guarda eventos en BD
  *
  * Headers requeridos:
  * - x-api-key: ADMIN_API_KEY
@@ -46,22 +48,28 @@ export async function POST(req: NextRequest) {
       // Body vacío o inválido - usar defaults
     }
 
-    // 3. Ejecutar scraping de Ticketmaster
-    const ticketmasterSource = new TicketmasterSource();
-    const rawEvents = await ticketmasterSource.fetch({ country, city });
-
-    // 4. Guardar eventos en BD
+    // 3. Configurar orchestrator con Ticketmaster
     const repository = new PrismaEventRepository();
-    const savedCount = await repository.upsertMany(rawEvents);
+    const orchestrator = new DataSourceOrchestrator(repository);
+
+    // Registrar Ticketmaster source
+    const ticketmasterSource = new TicketmasterSource();
+    orchestrator.registerSource(ticketmasterSource);
+
+    // 4. Ejecutar scraping (automáticamente valida, dedupl ica y guarda)
+    const result = await orchestrator.fetchAll();
 
     // 5. Retornar resumen
     return NextResponse.json(
       {
         success: true,
-        source: 'ticketmaster',
-        eventsScraped: rawEvents.length,
-        eventsSaved: savedCount,
-        timestamp: new Date().toISOString(),
+        sources: result.sources,
+        totalEvents: result.totalEvents,
+        totalProcessed: result.totalProcessed,
+        totalDuplicates: result.totalDuplicates,
+        totalErrors: result.totalErrors,
+        duration: result.duration,
+        timestamp: result.timestamp.toISOString(),
       },
       { status: 200 }
     );

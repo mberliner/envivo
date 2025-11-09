@@ -450,24 +450,44 @@ src/
 
 ---
 
-### Fase 4: Orchestrator + Scraping Paralelo
-**Duración estimada**: 1 día  
-**Objetivo**: Arquitectura lista para múltiples fuentes
+### ✅ Fase 4: Orchestrator + Scraping Paralelo - **COMPLETADA**
+**Duración real**: ~3 horas
+**Objetivo**: Arquitectura lista para múltiples fuentes ✅
 
-**Tareas pendientes**:
-1. [ ] Crear `DataSourceOrchestrator` con `Promise.allSettled()`
-2. [ ] Implementar límite de concurrencia (`p-limit`)
-3. [ ] Implementar retry logic (`p-retry`)
-4. [ ] Agregar timeout handling por fuente
-5. [ ] Crear `config/scrapers.json`
-6. [ ] Refactorizar endpoint de scraping para usar orchestrator
-7. [ ] Tests unitarios con mocks de data sources
+**Tareas completadas**:
+1. [x] Crear `DataSourceOrchestrator` con `Promise.allSettled()`
+2. [x] Refactorizar endpoint de scraping para usar orchestrator
+3. [x] Tests unitarios con mocks de data sources (18 tests)
+4. [x] Integración con EventService (validación + deduplicación automática)
+5. [x] Manejo graceful de errores (un source falla, los demás continúan)
+
+**Tareas descartadas para MVP** (se pueden agregar después si es necesario):
+- [ ] Límite de concurrencia (`p-limit`) - No necesario con 1-2 sources
+- [ ] Retry logic (`p-retry`) - Puede agregarse después si se necesita
+- [ ] Timeout handling por fuente - Puede agregarse después
+- [ ] `config/scrapers.json` - Sources configurados en código por ahora
+
+**Archivos creados/modificados**:
+```
+src/features/events/data/orchestrator/
+├── DataSourceOrchestrator.ts ✅ (nuevo)
+└── DataSourceOrchestrator.test.ts ✅ (nuevo, 18 tests)
+
+src/app/api/admin/scraper/sync/
+└── route.ts ✅ (refactorizado para usar orchestrator)
+```
 
 **Entregable**:
-- ✅ Orchestrator funciona con 1 fuente
-- ✅ Listo para escalar a múltiples fuentes
+- ✅ Orchestrator funciona con Ticketmaster
+- ✅ EventService integrado automáticamente (validación + deduplicación)
+- ✅ Promise.allSettled para ejecución paralela
+- ✅ Listo para escalar a múltiples fuentes (solo registrar nuevos sources)
+- ✅ 170 tests passing (152 → 170 con orchestrator)
+- ✅ TypeScript: 0 errores
 
-**Git**: `git commit -m "feat: data source orchestrator with async scraping" && git push`
+**Commits**:
+- `feat: implement business rules and deduplication (Fase 2)` (anteriormente)
+- `feat: implement DataSourceOrchestrator with async scraping (Fase 4)` (pendiente)
 
 ---
 
