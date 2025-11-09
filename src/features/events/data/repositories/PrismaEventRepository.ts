@@ -44,11 +44,9 @@ export class PrismaEventRepository implements IEventRepository {
   async findByFilters(filters: EventFilters): Promise<Event[]> {
     const where: any = {};
 
+    // Filtro por ciudad (exact match - viene de dropdown)
     if (filters.city) {
-      where.city = {
-        contains: filters.city,
-        mode: 'insensitive',
-      };
+      where.city = filters.city;
     }
 
     if (filters.country) {
@@ -69,11 +67,12 @@ export class PrismaEventRepository implements IEventRepository {
       }
     }
 
-    // Búsqueda simple en título (FTS5 será en fase posterior)
+    // Búsqueda simple en título (case-sensitive en SQLite)
+    // TODO: Implementar FTS5 para búsqueda case-insensitive en Fase posterior
     if (filters.search) {
       where.title = {
         contains: filters.search,
-        mode: 'insensitive',
+        // mode: 'insensitive' no soportado en SQLite
       };
     }
 

@@ -129,10 +129,7 @@ describe('PrismaEventRepository', () => {
 
       expect(mockPrismaEvent.findMany).toHaveBeenCalledWith({
         where: {
-          city: {
-            contains: 'Buenos Aires',
-            mode: 'insensitive',
-          },
+          city: 'Buenos Aires',
         },
         orderBy: {
           date: 'asc',
@@ -171,7 +168,6 @@ describe('PrismaEventRepository', () => {
         where: {
           title: {
             contains: 'Metallica',
-            mode: 'insensitive',
           },
         },
         orderBy: {
