@@ -78,10 +78,14 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
 
   /**
    * Fetch inicial y cuando cambian los filtros
+   *
+   * IMPORTANTE: Usamos las variables primitivas directamente como dependencias
+   * en lugar de fetchEvents para evitar loops infinitos
    */
   useEffect(() => {
     fetchEvents();
-  }, [fetchEvents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, cityFilter, categoryFilter, dateFromFilter, dateToFilter]);
 
   /**
    * Handler para cambios en SearchBar
