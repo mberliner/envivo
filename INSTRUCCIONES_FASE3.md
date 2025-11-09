@@ -1,17 +1,18 @@
-# Instrucciones Manuales - Fase 3 Completada
+# Instrucciones Manuales - Fase 3 y 4 Completadas
 
-> **Documento temporal** para verificar y usar las features implementadas en Fase 3
-> **Fecha**: 8 de Noviembre de 2025
-> **Estado**: Fase 3 completada (Backend + Frontend)
+> **Documento temporal** para verificar y usar las features implementadas
+> **Fecha**: 9 de Noviembre de 2025
+> **Estado**: Fase 3 y 4 completadas (Backend + Frontend + Orchestrator)
 
 ---
 
 ## ✅ Estado Actual
 
-- **Tests**: 152/152 pasando ✅
+- **Tests**: 170/170 pasando ✅ (152 → 170 con orchestrator)
 - **TypeScript**: 0 errores ✅
-- **Backend**: SearchService + API Route completados
+- **Backend**: SearchService + API Route + DataSourceOrchestrator completados
 - **Frontend**: SearchBar + EventFilters + URL persistence completados
+- **Orchestrator**: Scraping paralelo con Promise.allSettled implementado
 
 ---
 
@@ -249,6 +250,76 @@ curl 'http://localhost:3000/api/events?limit=5&offset=5'
 
 ---
 
+## 🔄 Probar Scraping Manual con Orchestrator (Opcional)
+
+> **Nota**: Esto requiere tener `TICKETMASTER_API_KEY` y `ADMIN_API_KEY` en `.env.local`
+
+El orchestrator ejecuta múltiples fuentes de datos en paralelo. Actualmente solo Ticketmaster está configurado.
+
+### Generar ADMIN_API_KEY (si no tenés)
+
+```bash
+# Generar clave segura
+openssl rand -base64 32
+
+# Agregar a .env.local
+echo "ADMIN_API_KEY=tu-clave-generada-aqui" >> .env.local
+```
+
+### Ejecutar Scraping
+
+```bash
+# Asegurate de tener el servidor corriendo
+npm run dev
+
+# En otra terminal, ejecutar scraping
+curl -X POST http://localhost:3000/api/admin/scraper/sync \
+  -H "x-api-key: tu-ADMIN_API_KEY-aqui" \
+  -H "Content-Type: application/json"
+```
+
+### Respuesta Esperada (con Orchestrator)
+
+```json
+{
+  "success": true,
+  "sources": [
+    {
+      "name": "ticketmaster",
+      "success": true,
+      "eventsCount": 50,
+      "duration": 1234
+    }
+  ],
+  "totalEvents": 50,
+  "totalProcessed": 45,
+  "totalDuplicates": 3,
+  "totalErrors": 2,
+  "duration": 1456,
+  "timestamp": "2025-11-09T01:23:45.678Z"
+}
+```
+
+**Qué significa cada campo:**
+- `sources[]`: Resultados por cada fuente de datos
+- `totalEvents`: Total de eventos scrapeados de todas las fuentes
+- `totalProcessed`: Eventos aceptados y guardados en BD (después de validación)
+- `totalDuplicates`: Eventos que ya existían (deduplicados)
+- `totalErrors`: Eventos que no pasaron validación
+- `duration`: Tiempo total de ejecución en ms
+
+### Verificar que se guardaron
+
+```bash
+# Ver en Prisma Studio
+npm run db:studio
+
+# O con curl
+curl http://localhost:3000/api/events | jq '.data | length'
+```
+
+---
+
 ## 🧪 Verificar que Tests Pasen
 
 ```bash
@@ -261,7 +332,7 @@ npm run type-check
 
 **Salida esperada:**
 ```
-✓ 152 tests passing (152)
+✓ 170 tests passing (170)
 ✅ TypeScript: 0 errors
 ```
 
@@ -300,6 +371,7 @@ Los 15 eventos seeded incluyen:
 
 ### Checklist de Funcionalidad
 
+**Frontend (Fase 3):**
 - [ ] Seed pobla BD con 15 eventos
 - [ ] Home page muestra los 15 eventos en grid
 - [ ] SearchBar con debouncing (espera 300ms antes de buscar)
@@ -315,29 +387,35 @@ Los 15 eventos seeded incluyen:
 - [ ] Loading state se muestra mientras busca
 - [ ] Empty state se muestra si no hay resultados
 - [ ] API /api/events retorna JSON correcto
-- [ ] Todos los tests pasan (152/152)
-- [ ] TypeScript sin errores
+
+**Backend (Fase 4):**
+- [ ] DataSourceOrchestrator ejecuta sources en paralelo
+- [ ] /api/admin/scraper/sync usa orchestrator
+- [ ] Scraping manual funciona (si tenés TICKETMASTER_API_KEY)
+- [ ] EventService integrado automáticamente (validación + deduplicación)
+
+**Quality Assurance:**
+- [ ] Todos los tests pasan (170/170) ✅
+- [ ] TypeScript sin errores ✅
 
 ---
 
-## 🚀 Próximos Pasos (Post-Fase 3)
+## 🚀 Próximos Pasos (Post-Fase 4)
 
-### Opción A: Fase 4 - Orchestrator Asíncrono
-**Propósito**: Preparar para múltiples fuentes de datos en paralelo
+### ✅ Fase 4 - Orchestrator Asíncrono - **COMPLETADA**
 
-**Tareas:**
-1. Crear `DataSourceOrchestrator` que ejecute múltiples fuentes en paralelo
-2. Usar `Promise.allSettled` para manejo robusto de errores
-3. Integrar `EventService` para procesamiento batch
-4. Rate limiting y retry logic
-5. Actualizar `/api/admin/scraper/sync` para usar orchestrator
-6. Tests del orchestrator
+**Lo que se implementó:**
+- ✅ `DataSourceOrchestrator` con `Promise.allSettled`
+- ✅ EventService integrado automáticamente
+- ✅ Endpoint `/api/admin/scraper/sync` actualizado
+- ✅ 18 tests del orchestrator
+- ✅ Manejo graceful de errores (un source falla, los demás continúan)
 
-**Beneficio**: Cuando agregues Eventbrite u otras fuentes, se scrapean todas en paralelo (5x más rápido)
+**Beneficio logrado**: La arquitectura está lista para escalar a múltiples fuentes. Solo hay que crear nuevos sources y registrarlos.
 
 ---
 
-### Opción B: Fase 5 - Segunda Fuente (Eventbrite)
+### Opción A: Fase 5 - Segunda Fuente (Eventbrite)
 **Propósito**: Agregar más eventos de otra fuente
 
 **Tareas:**
@@ -351,7 +429,7 @@ Los 15 eventos seeded incluyen:
 
 ---
 
-### Opción C: Fase 6 - Deploy + Scraping Automático
+### Opción B: Fase 6 - Deploy + Scraping Automático
 **Propósito**: Llevar a producción con datos frescos
 
 **Tareas:**
@@ -414,12 +492,12 @@ git push
 ## 📞 Siguientes Acciones Recomendadas
 
 1. **Probar todo manualmente** (usa este documento)
-2. **Decidir próxima fase** (Fase 4, 5, o 6)
+2. **Decidir próxima fase** (Fase 5 o Fase 6)
 3. **Borrar este documento** cuando ya no lo necesites (es temporal)
 
 ---
 
-**Última actualización**: 8 de Noviembre de 2025
-**Autor**: Claude Code (Fase 3 completada)
-**Estado**: ✅ Listo para usar
+**Última actualización**: 9 de Noviembre de 2025
+**Autor**: Claude Code (Fases 3 y 4 completadas)
+**Estado**: ✅ Listo para usar (170 tests passing)
 
