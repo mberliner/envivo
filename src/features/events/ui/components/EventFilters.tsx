@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export interface EventFiltersProps {
   /** Ciudades disponibles para filtrar */
@@ -44,15 +44,23 @@ export function EventFilters({
   const [dateFrom, setDateFrom] = useState(initialFilters.dateFrom || '');
   const [dateTo, setDateTo] = useState(initialFilters.dateTo || '');
 
+  // Usar ref para evitar que el callback cause re-renders
+  const onFiltersChangeRef = useRef(onFiltersChange);
+
+  useEffect(() => {
+    onFiltersChangeRef.current = onFiltersChange;
+  }, [onFiltersChange]);
+
   // Notificar cambios al padre
   useEffect(() => {
-    onFiltersChange({
+    onFiltersChangeRef.current({
       city: city || undefined,
       category: category || undefined,
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
     });
-  }, [city, category, dateFrom, dateTo, onFiltersChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [city, category, dateFrom, dateTo]);
 
   // Limpiar todos los filtros
   const handleClearFilters = () => {

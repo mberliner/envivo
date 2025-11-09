@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDebounce } from '@/shared/hooks/useDebounce';
 
 export interface SearchBarProps {
@@ -32,10 +32,18 @@ export function SearchBar({
   const [inputValue, setInputValue] = useState(initialValue);
   const debouncedValue = useDebounce(inputValue, debounceDelay);
 
+  // Usar ref para evitar que el callback cause re-renders
+  const onSearchRef = useRef(onSearch);
+
+  useEffect(() => {
+    onSearchRef.current = onSearch;
+  }, [onSearch]);
+
   // Ejecutar onSearch cuando el valor debounced cambia
   useEffect(() => {
-    onSearch(debouncedValue);
-  }, [debouncedValue, onSearch]);
+    onSearchRef.current(debouncedValue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedValue]);
 
   // Limpiar búsqueda
   const handleClear = () => {
