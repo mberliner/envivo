@@ -16,11 +16,44 @@
 
 ---
 
+## ⚠️ IMPORTANTE: Ejecutar en Tu Terminal Local
+
+**TODOS los comandos de este documento deben ejecutarse en tu terminal local**, NO en Claude Code.
+
+Claude Code no puede descargar binarios de Prisma por restricciones de red. Los tests automáticos usan mocks y pasan ✅, pero para desarrollo manual necesitás ejecutar en tu máquina.
+
+---
+
 ## 📋 Pasos para Probar la Aplicación
+
+### 0. Setup Inicial (Primera vez)
+
+**En tu terminal local**, ejecutá:
+
+```bash
+# 1. Instalar dependencias
+npm install
+
+# 2. Generar Prisma Client
+npx prisma generate
+
+# 3. Crear base de datos SQLite
+npx prisma db push
+```
+
+**Salida esperada:**
+```
+✅ Prisma Client generado
+✅ Base de datos creada en prisma/dev.db
+```
+
+---
 
 ### 1. Poblar la Base de Datos con Datos de Prueba
 
 La aplicación incluye un seed script con 15 eventos realistas de Argentina.
+
+**En tu terminal local:**
 
 ```bash
 # Desde la raíz del proyecto
@@ -67,6 +100,8 @@ npm run db:seed
 ---
 
 ### 2. Iniciar el Servidor de Desarrollo
+
+**En tu terminal local:**
 
 ```bash
 npm run dev
@@ -268,11 +303,13 @@ echo "ADMIN_API_KEY=tu-clave-generada-aqui" >> .env.local
 
 ### Ejecutar Scraping
 
+**En tu terminal local:**
+
 ```bash
-# Asegurate de tener el servidor corriendo
+# 1. Asegurate de tener el servidor corriendo
 npm run dev
 
-# En otra terminal, ejecutar scraping
+# 2. En otra terminal, ejecutar scraping
 curl -X POST http://localhost:3000/api/admin/scraper/sync \
   -H "x-api-key: tu-ADMIN_API_KEY-aqui" \
   -H "Content-Type: application/json"
@@ -310,6 +347,8 @@ curl -X POST http://localhost:3000/api/admin/scraper/sync \
 
 ### Verificar que se guardaron
 
+**En tu terminal local:**
+
 ```bash
 # Ver en Prisma Studio
 npm run db:studio
@@ -322,6 +361,8 @@ curl http://localhost:3000/api/events | jq '.data | length'
 
 ## 🧪 Verificar que Tests Pasen
 
+**En tu terminal local:**
+
 ```bash
 # Correr todos los tests
 npm test
@@ -329,6 +370,8 @@ npm test
 # Verificar TypeScript
 npm run type-check
 ```
+
+> **Nota**: Los tests ya pasaron en Claude Code (170/170 ✅). Esta verificación es opcional para confirmar en tu máquina local.
 
 **Salida esperada:**
 ```
@@ -465,9 +508,12 @@ Los 15 eventos seeded incluyen:
 
 ## 📝 Comandos Útiles
 
+**Ejecutar en tu terminal local:**
+
 ```bash
-# Setup inicial
+# Setup inicial (primera vez)
 npm install
+npx prisma generate   # Generar Prisma Client
 npm run db:push       # Crear schema en SQLite
 npm run db:seed       # Poblar con datos de prueba
 
