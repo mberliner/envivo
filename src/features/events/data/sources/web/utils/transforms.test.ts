@@ -9,6 +9,8 @@ import {
   sanitizeHtml,
   cleanWhitespace,
   toAbsoluteUrl,
+  parseLivepassDate,
+  cleanLivepassTitle,
   applyTransform,
 } from './transforms';
 
@@ -291,6 +293,151 @@ describe('toAbsoluteUrl', () => {
   });
 });
 
+describe('parseLivepassDate', () => {
+  describe('LivePass format (day + month, no year)', () => {
+    it('should parse "09 NOV" format', () => {
+      const result = parseLivepassDate('09 NOV');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(9);
+      expect(result?.getMonth()).toBe(10); // November = 10 (0-indexed)
+    });
+
+    it('should parse "21 DIC" format', () => {
+      const result = parseLivepassDate('21 DIC');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(21);
+      expect(result?.getMonth()).toBe(11); // December = 11
+    });
+
+    it('should parse "1 ENE" format (single digit)', () => {
+      const result = parseLivepassDate('1 ENE');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(1);
+      expect(result?.getMonth()).toBe(0); // January = 0
+    });
+
+    it('should handle all abbreviated month names', () => {
+      const months = [
+        { text: '15 ENE', month: 0 },
+        { text: '15 FEB', month: 1 },
+        { text: '15 MAR', month: 2 },
+        { text: '15 ABR', month: 3 },
+        { text: '15 MAY', month: 4 },
+        { text: '15 JUN', month: 5 },
+        { text: '15 JUL', month: 6 },
+        { text: '15 AGO', month: 7 },
+        { text: '15 SEP', month: 8 },
+        { text: '15 OCT', month: 9 },
+        { text: '15 NOV', month: 10 },
+        { text: '15 DIC', month: 11 },
+      ];
+
+      months.forEach(({ text, month }) => {
+        const result = parseLivepassDate(text);
+        expect(result?.getMonth()).toBe(month);
+      });
+    });
+  });
+
+  describe('Year inference', () => {
+    it('should infer year correctly for future months', () => {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+
+      // Pick a month in the future
+      const futureMonth = (now.getMonth() + 2) % 12;
+      const monthNames = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+
+      const result = parseLivepassDate(`15 ${monthNames[futureMonth]}`);
+      expect(result?.getFullYear()).toBe(futureMonth < now.getMonth() ? currentYear + 1 : currentYear);
+    });
+  });
+
+  describe('Edge cases', () => {
+    it('should return undefined for invalid format', () => {
+      expect(parseLivepassDate('invalid')).toBeUndefined();
+      expect(parseLivepassDate('99 XYZ')).toBeUndefined();
+    });
+
+    it('should return undefined for empty string', () => {
+      expect(parseLivepassDate('')).toBeUndefined();
+    });
+
+    it('should return undefined for non-string input', () => {
+      expect(parseLivepassDate(null as any)).toBeUndefined();
+      expect(parseLivepassDate(undefined as any)).toBeUndefined();
+    });
+
+    it('should handle case insensitivity', () => {
+      const result1 = parseLivepassDate('09 nov');
+      const result2 = parseLivepassDate('09 NOV');
+      const result3 = parseLivepassDate('09 Nov');
+
+      expect(result1?.getMonth()).toBe(10);
+      expect(result2?.getMonth()).toBe(10);
+      expect(result3?.getMonth()).toBe(10);
+    });
+
+    it('should handle extra whitespace', () => {
+      const result = parseLivepassDate('  09   NOV  ');
+      expect(result?.getDate()).toBe(9);
+      expect(result?.getMonth()).toBe(10);
+    });
+  });
+});
+
+describe('cleanLivepassTitle', () => {
+  describe('Venue removal', () => {
+    it('should remove " en Café Berlín" from end', () => {
+      expect(cleanLivepassTitle('Santiago Molina en Café Berlín')).toBe('Santiago Molina');
+    });
+
+    it('should remove " en Cafe Berlin" (no accents)', () => {
+      expect(cleanLivepassTitle('Metallica en Cafe Berlin')).toBe('Metallica');
+    });
+
+    it('should handle mixed case', () => {
+      expect(cleanLivepassTitle('Iron Maiden EN Café Berlín')).toBe('Iron Maiden');
+      expect(cleanLivepassTitle('AC/DC en CAFÉ BERLÍN')).toBe('AC/DC');
+    });
+
+    it('should remove with various accent combinations', () => {
+      expect(cleanLivepassTitle('Artist en Café Berlín')).toBe('Artist');
+      expect(cleanLivepassTitle('Artist en Cafe Berlín')).toBe('Artist');
+      expect(cleanLivepassTitle('Artist en Café Berlin')).toBe('Artist');
+    });
+  });
+
+  describe('Edge cases', () => {
+    it('should return original title if no venue suffix', () => {
+      expect(cleanLivepassTitle('Evento sin venue')).toBe('Evento sin venue');
+    });
+
+    it('should handle title that is only venue (return original)', () => {
+      expect(cleanLivepassTitle('en Café Berlín')).toBe('en Café Berlín');
+    });
+
+    it('should return empty string for empty input', () => {
+      expect(cleanLivepassTitle('')).toBe('');
+    });
+
+    it('should handle non-string input', () => {
+      expect(cleanLivepassTitle(null as any)).toBe('');
+      expect(cleanLivepassTitle(undefined as any)).toBe('');
+    });
+
+    it('should trim whitespace after removal', () => {
+      expect(cleanLivepassTitle('Artist  en Café Berlín  ')).toBe('Artist');
+    });
+
+    it('should not remove venue if it appears in the middle', () => {
+      expect(cleanLivepassTitle('Evento en Café Berlín y otros lugares')).toBe(
+        'Evento en Café Berlín y otros lugares'
+      );
+    });
+  });
+});
+
 describe('applyTransform', () => {
   it('should apply parseSpanishDate transform', () => {
     const result = applyTransform('parseSpanishDate', '15 de marzo de 2025');
@@ -315,6 +462,17 @@ describe('applyTransform', () => {
   it('should apply toAbsoluteUrl transform', () => {
     const result = applyTransform('toAbsoluteUrl', '/path', 'https://example.com');
     expect(result).toBe('https://example.com/path');
+  });
+
+  it('should apply parseLivepassDate transform', () => {
+    const result = applyTransform('parseLivepassDate', '09 NOV');
+    expect(result).toBeInstanceOf(Date);
+    expect(result?.getMonth()).toBe(10);
+  });
+
+  it('should apply cleanLivepassTitle transform', () => {
+    const result = applyTransform('cleanLivepassTitle', 'Metallica en Café Berlín');
+    expect(result).toBe('Metallica');
   });
 
   it('should throw error for unknown transform', () => {

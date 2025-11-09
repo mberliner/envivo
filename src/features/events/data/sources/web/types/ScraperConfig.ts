@@ -28,14 +28,15 @@ export interface PaginationConfig {
 
 /**
  * Selectores CSS para extraer datos de eventos
+ * Los selectores pueden ser undefined si se usan defaultValues
  */
 export interface EventSelectors {
   /** Selector del título del evento */
-  title: string;
+  title?: string;
   /** Selector de la fecha/hora */
-  date: string;
+  date?: string;
   /** Selector del venue/lugar */
-  venue: string;
+  venue?: string;
   /** Selector de la ciudad */
   city?: string;
   /** Selector de la dirección */
@@ -50,6 +51,27 @@ export interface EventSelectors {
   category?: string;
   /** Selector de la descripción */
   description?: string;
+}
+
+/**
+ * Valores por defecto para campos sin selector
+ * Útil para sitios donde algunos campos están hardcodeados
+ */
+export interface DefaultValues {
+  /** Título por defecto (si no hay selector) */
+  title?: string;
+  /** Fecha por defecto (si no hay selector) */
+  date?: string;
+  /** Venue por defecto (si no hay selector) */
+  venue?: string;
+  /** Ciudad por defecto (si no hay selector) */
+  city?: string;
+  /** País por defecto (si no hay selector) */
+  country?: string;
+  /** Dirección por defecto (si no hay selector) */
+  address?: string;
+  /** Categoría por defecto (si no hay selector) */
+  category?: string;
 }
 
 /**
@@ -124,6 +146,8 @@ export interface ScraperConfig {
   listing: ListingConfig;
   /** Selectores CSS para extraer datos */
   selectors: EventSelectors;
+  /** Valores por defecto para campos sin selector */
+  defaultValues?: DefaultValues;
   /** Funciones de transformación (nombre de función en transforms.ts) */
   transforms?: TransformFunctions;
   /** Rate limiting */

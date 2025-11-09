@@ -32,7 +32,7 @@ export interface FetchOptions {
  */
 export class GenericWebScraper implements IDataSource {
   readonly name: string;
-  readonly type = 'scraper' as const;
+  readonly type = 'web' as const;
 
   private readonly config: ScraperConfig;
   private readonly httpClient: AxiosInstance;
@@ -144,21 +144,30 @@ export class GenericWebScraper implements IDataSource {
     $item: cheerio.Cheerio<any>,
     $: cheerio.CheerioAPI
   ): RawEvent | null {
-    const { selectors, transforms } = this.config;
+    const { selectors, transforms, defaultValues } = this.config;
 
     // Extraer todos los campos
     const rawData: Record<string, string> = {};
 
     Object.entries(selectors).forEach(([field, selector]) => {
-      if (!selector) return;
+      if (!selector) {
+        // Si no hay selector, usar valor por defecto si existe
+        if (defaultValues && field in defaultValues) {
+          const defaultValue = defaultValues[field as keyof typeof defaultValues];
+          if (defaultValue) {
+            rawData[field] = defaultValue;
+          }
+        }
+        return;
+      }
 
       let value: string | undefined;
 
       // Extraer valor según el tipo de selector
-      if (selector.startsWith('@')) {
-        // Atributo (ej: "@href", "@src")
-        const attrName = selector.substring(1);
-        value = $item.find(selector.replace(`@${attrName}`, '')).attr(attrName);
+      if (selector.includes('@')) {
+        // Atributo (ej: ".event-img@src", "a@href")
+        const [cssSelector, attrName] = selector.split('@');
+        value = $item.find(cssSelector).attr(attrName);
       } else {
         // Texto
         value = $item.find(selector).text().trim();
@@ -166,10 +175,16 @@ export class GenericWebScraper implements IDataSource {
 
       if (value) {
         rawData[field] = cleanWhitespace(value);
+      } else if (defaultValues && field in defaultValues) {
+        // Si no se encontró valor, usar default si existe
+        const defaultValue = defaultValues[field as keyof typeof defaultValues];
+        if (defaultValue) {
+          rawData[field] = defaultValue;
+        }
       }
     });
 
-    // Aplicar transformaciones
+    // Aplicar transformaciones (solo a campos extraídos, no a defaults)
     const transformedData: Record<string, any> = { ...rawData };
 
     if (transforms) {
@@ -202,16 +217,16 @@ export class GenericWebScraper implements IDataSource {
     // Construir RawEvent
     return {
       _source: this.name, // Using _source to match TicketmasterMapper pattern
-      externalId: this.generateExternalId(transformedData),
+      externalId: this.generateExternalId(rawData), // Use raw data for ID (before transformation)
       title: transformedData.title,
       date: transformedData.date,
       venue: transformedData.venue,
-      city: transformedData.city,
-      country: this.config.name.includes('argentina') ? 'AR' : undefined,
+      city: transformedData.city || defaultValues?.city,
+      country: transformedData.country || defaultValues?.country,
       address: transformedData.address,
       price: transformedData.price,
       currency: transformedData.price !== undefined ? 'ARS' : undefined,
-      category: transformedData.category || 'Concierto',
+      category: transformedData.category || defaultValues?.category || 'Concierto',
       imageUrl: transformedData.image
         ? toAbsoluteUrl(transformedData.image, this.config.baseUrl)
         : undefined,

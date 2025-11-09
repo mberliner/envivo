@@ -70,8 +70,22 @@ export function parseSpanishDate(dateString: string): Date | undefined {
   // Formato: "15/03/2025" o "15-03-2025"
   const numericFormatMatch = normalized.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
   if (numericFormatMatch) {
-    const [, day, month, year] = numericFormatMatch;
-    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const [, dayStr, monthStr, yearStr] = numericFormatMatch;
+    const day = parseInt(dayStr);
+    const month = parseInt(monthStr);
+    const year = parseInt(yearStr);
+
+    // Validar rangos antes de crear el Date
+    if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+      return undefined;
+    }
+
+    const date = new Date(year, month - 1, day);
+    // Validar que la fecha sea válida (por ej. 31/02 no es válida)
+    if (isNaN(date.getTime())) {
+      return undefined;
+    }
+    return date;
   }
 
   // Formato ISO: "2025-03-15T20:00:00"
@@ -164,8 +178,8 @@ export function cleanWhitespace(text: string): string {
 
   return text
     .trim()
-    .replace(/\s+/g, ' ') // Múltiples espacios → 1 espacio
-    .replace(/\n\s*\n/g, '\n'); // Múltiples saltos de línea → 1 salto
+    .replace(/\n\s*\n+/g, '\n') // Múltiples saltos de línea → 1 salto (hacer esto primero)
+    .replace(/[^\S\n]+/g, ' '); // Múltiples espacios (no newlines) → 1 espacio
 }
 
 /**
@@ -193,6 +207,82 @@ export function toAbsoluteUrl(relativeUrl: string, baseUrl: string): string {
 }
 
 /**
+ * Parse fechas de LivePass (formato "09 NOV" sin año)
+ *
+ * LivePass usa formato corto: "09 NOV", "21 DIC"
+ * Inferimos el año basándonos en la fecha actual.
+ *
+ * @param dateString - String con la fecha ("09 NOV", "21 DIC")
+ * @returns Date object o undefined si no se puede parsear
+ */
+export function parseLivepassDate(dateString: string): Date | undefined {
+  if (!dateString || typeof dateString !== 'string') {
+    return undefined;
+  }
+
+  const normalized = dateString.toLowerCase().trim();
+
+  // Formato: "09 NOV" o "21 DIC"
+  const match = normalized.match(/(\d{1,2})\s+([a-z]+)/);
+  if (!match) {
+    return undefined;
+  }
+
+  const [, dayStr, monthName] = match;
+  const day = parseInt(dayStr);
+  const month = SPANISH_MONTHS[monthName];
+
+  if (month === undefined || isNaN(day) || day < 1 || day > 31) {
+    return undefined;
+  }
+
+  // Inferir el año: usar año actual, pero si el mes ya pasó, usar año siguiente
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+
+  // Si el mes del evento es anterior al mes actual, probablemente es del año siguiente
+  let year = currentYear;
+  if (month < currentMonth) {
+    year = currentYear + 1;
+  } else if (month === currentMonth && day < now.getDate()) {
+    // Si es el mismo mes pero el día ya pasó, también usar año siguiente
+    year = currentYear + 1;
+  }
+
+  const date = new Date(year, month, day);
+
+  // Validar que la fecha sea válida
+  if (isNaN(date.getTime())) {
+    return undefined;
+  }
+
+  return date;
+}
+
+/**
+ * Limpia títulos de LivePass removiendo el venue del final
+ *
+ * LivePass incluye el venue en el título: "Santiago Molina en Café Berlín"
+ * Necesitamos extraer solo el nombre del artista/evento.
+ *
+ * @param title - Título completo con venue
+ * @returns Título limpio sin venue
+ */
+export function cleanLivepassTitle(title: string): string {
+  if (!title || typeof title !== 'string') {
+    return '';
+  }
+
+  // Remover " en Café Berlín" (con o sin acento)
+  const cleaned = title
+    .replace(/\s+en\s+Caf[eé]\s+Berl[ií]n\s*$/i, '')
+    .trim();
+
+  return cleaned || title; // Si el resultado está vacío, devolver título original
+}
+
+/**
  * Mapeo de nombres de transformaciones a funciones
  *
  * Usado por GenericWebScraper para aplicar transformaciones por nombre.
@@ -203,6 +293,8 @@ export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: strin
   sanitizeHtml: (value: string) => sanitizeHtml(value),
   cleanWhitespace: (value: string) => cleanWhitespace(value),
   toAbsoluteUrl: (value: string, baseUrl?: string) => toAbsoluteUrl(value, baseUrl || ''),
+  parseLivepassDate: (value: string) => parseLivepassDate(value),
+  cleanLivepassTitle: (value: string) => cleanLivepassTitle(value),
 };
 
 /**

@@ -163,12 +163,11 @@ describe('GenericWebScraper', () => {
 
   describe('Scraping - Single Event', () => {
     it('should extract single event correctly', async () => {
-      const scraper = new GenericWebScraper(BASE_CONFIG);
-
-      // Mock HTTP response
+      // Mock HTTP response BEFORE creating scraper
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
 
+      const scraper = new GenericWebScraper(BASE_CONFIG);
       const events = await scraper.fetch();
 
       expect(events).toHaveLength(1);
@@ -195,10 +194,10 @@ describe('GenericWebScraper', () => {
 
   describe('Scraping - Multiple Events', () => {
     it('should extract multiple events correctly', async () => {
-      const scraper = new GenericWebScraper(BASE_CONFIG);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_MULTIPLE_EVENTS });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(BASE_CONFIG);
 
       const events = await scraper.fetch();
 
@@ -209,10 +208,10 @@ describe('GenericWebScraper', () => {
     });
 
     it('should parse different price formats', async () => {
-      const scraper = new GenericWebScraper(BASE_CONFIG);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_MULTIPLE_EVENTS });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(BASE_CONFIG);
 
       const events = await scraper.fetch();
 
@@ -224,10 +223,10 @@ describe('GenericWebScraper', () => {
 
   describe('Validation', () => {
     it('should skip events with missing required fields', async () => {
-      const scraper = new GenericWebScraper(BASE_CONFIG);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_MISSING_FIELDS });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(BASE_CONFIG);
 
       const events = await scraper.fetch();
 
@@ -236,10 +235,10 @@ describe('GenericWebScraper', () => {
     });
 
     it('should validate title, date, and venue are required', async () => {
-      const scraper = new GenericWebScraper(BASE_CONFIG);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_MISSING_FIELDS });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(BASE_CONFIG);
 
       const events = await scraper.fetch();
 
@@ -262,12 +261,12 @@ describe('GenericWebScraper', () => {
         },
       };
 
-      const scraper = new GenericWebScraper(config);
-
       const mockGet = vi.fn();
       mockGet.mockResolvedValueOnce({ data: MOCK_HTML_SINGLE_EVENT }); // Page 1
       mockGet.mockResolvedValueOnce({ data: MOCK_HTML_SINGLE_EVENT }); // Page 2
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(config);
 
       const events = await scraper.fetch();
 
@@ -287,10 +286,10 @@ describe('GenericWebScraper', () => {
         },
       };
 
-      const scraper = new GenericWebScraper(config);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(config);
 
       await scraper.fetch();
 
@@ -307,11 +306,11 @@ describe('GenericWebScraper', () => {
         },
       };
 
-      const scraper = new GenericWebScraper(config);
-
       // Mix of valid and invalid HTML
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_MULTIPLE_EVENTS });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(config);
 
       const events = await scraper.fetch();
 
@@ -320,10 +319,23 @@ describe('GenericWebScraper', () => {
     });
 
     it('should throw error on HTTP failure', async () => {
-      const scraper = new GenericWebScraper(BASE_CONFIG);
+      const config: ScraperConfig = {
+        ...BASE_CONFIG,
+        errorHandling: {
+          skipFailedEvents: false,
+          skipFailedPages: false,
+          retry: {
+            maxRetries: 1, // Reduce retries for faster test
+            initialDelay: 100,
+            backoffMultiplier: 1,
+          },
+        },
+      };
 
       const mockGet = vi.fn().mockRejectedValue(new Error('Network error'));
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(config);
 
       await expect(scraper.fetch()).rejects.toThrow();
     });
@@ -331,10 +343,10 @@ describe('GenericWebScraper', () => {
 
   describe('External ID Generation', () => {
     it('should use link as external ID when available', async () => {
-      const scraper = new GenericWebScraper(BASE_CONFIG);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(BASE_CONFIG);
 
       const events = await scraper.fetch();
 
@@ -350,10 +362,10 @@ describe('GenericWebScraper', () => {
         },
       };
 
-      const scraper = new GenericWebScraper(config);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(config);
 
       const events = await scraper.fetch();
 
@@ -365,10 +377,10 @@ describe('GenericWebScraper', () => {
 
   describe('Transformations', () => {
     it('should apply date transformation', async () => {
-      const scraper = new GenericWebScraper(BASE_CONFIG);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(BASE_CONFIG);
 
       const events = await scraper.fetch();
 
@@ -376,10 +388,10 @@ describe('GenericWebScraper', () => {
     });
 
     it('should apply price transformation', async () => {
-      const scraper = new GenericWebScraper(BASE_CONFIG);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(BASE_CONFIG);
 
       const events = await scraper.fetch();
 
@@ -388,10 +400,10 @@ describe('GenericWebScraper', () => {
     });
 
     it('should convert relative URLs to absolute', async () => {
-      const scraper = new GenericWebScraper(BASE_CONFIG);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(BASE_CONFIG);
 
       const events = await scraper.fetch();
 
@@ -402,10 +414,10 @@ describe('GenericWebScraper', () => {
 
   describe('Selectors', () => {
     it('should extract text from CSS selectors', async () => {
-      const scraper = new GenericWebScraper(BASE_CONFIG);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(BASE_CONFIG);
 
       const events = await scraper.fetch();
 
@@ -414,10 +426,10 @@ describe('GenericWebScraper', () => {
     });
 
     it('should extract attributes with @ syntax', async () => {
-      const scraper = new GenericWebScraper(BASE_CONFIG);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(BASE_CONFIG);
 
       const events = await scraper.fetch();
 
@@ -436,10 +448,10 @@ describe('GenericWebScraper', () => {
         },
       };
 
-      const scraper = new GenericWebScraper(config);
-
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
       (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(config);
 
       await scraper.fetch();
 
