@@ -50,7 +50,7 @@ export class EventService {
       errors: [],
     };
 
-    const eventsToUpsert: RawEvent[] = [];
+    const eventsToUpsert: Event[] = [];
 
     for (const rawEvent of rawEvents) {
       try {
@@ -79,13 +79,13 @@ export class EventService {
 
           // Decidir si actualizar
           if (this.businessRules.shouldUpdate(normalizedEvent, duplicate)) {
-            eventsToUpsert.push(this.eventToRawEvent(normalizedEvent));
+            eventsToUpsert.push(normalizedEvent);
             result.updated++;
           }
           // Si no debe actualizar, ignorar
         } else {
           // Evento nuevo, agregar para inserción
-          eventsToUpsert.push(this.eventToRawEvent(normalizedEvent));
+          eventsToUpsert.push(normalizedEvent);
           result.accepted++;
         }
       } catch (error) {
@@ -141,18 +141,42 @@ export class EventService {
    * Convierte RawEvent a Event (agrega campos faltantes)
    */
   private rawEventToEvent(rawEvent: RawEvent): Event {
+    // Convertir fecha si viene como string
+    const date = typeof rawEvent.date === 'string' ? new Date(rawEvent.date) : rawEvent.date;
+    const endDate = rawEvent.endDate
+      ? typeof rawEvent.endDate === 'string'
+        ? new Date(rawEvent.endDate)
+        : rawEvent.endDate
+      : undefined;
+
     return {
-      ...rawEvent,
       id: rawEvent.externalId || `temp-${Date.now()}`,
-      venueName: rawEvent.venueName || 'Unknown',
-      venueAddress: rawEvent.venueAddress,
+      title: rawEvent.title,
+      description: rawEvent.description,
+      date: date,
+      endDate: endDate,
+      venueName: rawEvent.venue,
+      city: rawEvent.city || 'Unknown',
+      country: rawEvent.country || 'AR',
+      category: (rawEvent.category as Event['category']) || 'Otro',
+      genre: rawEvent.genre,
+      artists: rawEvent.artists,
+      imageUrl: rawEvent.imageUrl,
+      ticketUrl: rawEvent.ticketUrl,
+      price: rawEvent.price,
+      priceMax: rawEvent.priceMax,
+      currency: rawEvent.currency || 'ARS',
+      venueCapacity: rawEvent.venueCapacity,
+      source: 'unknown', // Será sobrescrito por el orchestrator
+      externalId: rawEvent.externalId,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Event;
+    };
   }
 
   /**
    * Convierte Event a RawEvent (para guardar en BD)
+   * NOTA: Este método ya no se usa después de arreglar processEvents
    */
   private eventToRawEvent(event: Event): RawEvent {
     return {
@@ -160,12 +184,12 @@ export class EventService {
       description: event.description,
       date: event.date,
       endDate: event.endDate,
-      venueName: event.venueName,
-      venueAddress: event.venueAddress,
+      venue: event.venueName,
       city: event.city,
       country: event.country,
       category: event.category,
       genre: event.genre,
+      artists: event.artists,
       imageUrl: event.imageUrl,
       ticketUrl: event.ticketUrl,
       price: event.price,

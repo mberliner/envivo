@@ -51,12 +51,10 @@ async function main() {
           imageUrl: mockEvent.imageUrl || null,
           ticketUrl: mockEvent.ticketUrl || null,
 
-          // Precio - Convertir string a float si es necesario
-          price: mockEvent.price ? parseFloat(mockEvent.price.replace(/[^0-9.-]/g, '')) : null,
-          priceMax: mockEvent.priceMax
-            ? parseFloat(mockEvent.priceMax.replace(/[^0-9.-]/g, ''))
-            : null,
-          currency: mockEvent.currency || 'ARS',
+          // Precio (ya son numbers en los fixtures)
+          price: mockEvent.price ?? null,
+          priceMax: mockEvent.priceMax ?? null,
+          currency: mockEvent.currency,
 
           // Metadatos
           source: mockEvent.source,
@@ -87,11 +85,11 @@ async function main() {
   console.log('📊 Resumen de la base de datos:');
   console.log(`   Total de eventos: ${total}`);
   console.log(`\n   Eventos por ciudad:`);
-  cities.forEach(c => {
+  cities.forEach((c: { city: string; _count: number }) => {
     console.log(`   - ${c.city}: ${c._count} eventos`);
   });
   console.log(`\n   Eventos por categoría:`);
-  categories.forEach(c => {
+  categories.forEach((c: { category: string; _count: number }) => {
     console.log(`   - ${c.category}: ${c._count} eventos`);
   });
 }
