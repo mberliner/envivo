@@ -39,6 +39,8 @@ export interface EventSelectors {
   venue?: string;
   /** Selector de la ciudad */
   city?: string;
+  /** Selector del país */
+  country?: string;
   /** Selector de la dirección */
   address?: string;
   /** Selector del precio */

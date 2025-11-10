@@ -11,18 +11,15 @@ import { ScraperConfig } from './types/ScraperConfig';
 
 /**
  * Registry de configuraciones de scrapers disponibles
- *
- * NOTE: Config files are in project root /config folder, not in src.
- * Using relative path since @/ alias only covers src/
  */
 const SCRAPER_CONFIGS: Record<string, () => Promise<ScraperConfig>> = {
   livepass: async () => {
-    const { livepassConfig } = await import('../../../../../../config/scrapers/livepass.config');
+    const { livepassConfig } = await import('@/config/scrapers/livepass.config');
     return livepassConfig;
   },
   // Agregar más scrapers aquí:
   // alternativa: async () => {
-  //   const { alternativaConfig } = await import('../../../../../../config/scrapers/alternativa.config');
+  //   const { alternativaConfig } = await import('@/config/scrapers/alternativa.config');
   //   return alternativaConfig;
   // },
 };

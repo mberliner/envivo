@@ -19,10 +19,11 @@ export interface IDataSource {
   /**
    * Tipo de data source
    * - api: Consume API REST/GraphQL
-   * - scraper: Extrae datos de HTML
+   * - web: Scraper web genérico (HTML/CSS)
+   * - scraper: Extrae datos de HTML (legacy)
    * - file: Lee archivo local/remoto
    */
-  type: 'api' | 'scraper' | 'file';
+  type: 'api' | 'web' | 'scraper' | 'file';
 
   /**
    * Obtiene eventos de la fuente de datos

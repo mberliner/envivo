@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Crear orchestrator
-    const repository = new PrismaEventRepository(prisma);
+    const repository = new PrismaEventRepository();
     const orchestrator = new DataSourceOrchestrator(repository);
 
     // Registrar LivePass scraper

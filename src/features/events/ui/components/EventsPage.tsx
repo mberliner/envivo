@@ -33,6 +33,12 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Pagination state
+  const [offset, setOffset] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const limit = 50;
+
   // Leer filtros de URL
   const searchQuery = params.get('q') || '';
   const cityFilter = params.get('city') || '';
@@ -56,6 +62,10 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
       if (dateFromFilter) queryParams.set('dateFrom', new Date(dateFromFilter).toISOString());
       if (dateToFilter) queryParams.set('dateTo', new Date(dateToFilter).toISOString());
 
+      // Pagination params
+      queryParams.set('limit', limit.toString());
+      queryParams.set('offset', offset.toString());
+
       const url = `/api/events?${queryParams.toString()}`;
       const response = await fetch(url);
 
@@ -65,19 +75,30 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
 
       const data = await response.json();
       setEvents(data.events || []);
+      setTotal(data.total || 0);
+      setHasMore(data.hasMore || false);
 
       // Actualizar listas de ciudades y categorías disponibles
       // (opcional: solo si queremos que sea dinámico)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
       setEvents([]);
+      setTotal(0);
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
+  }, [searchQuery, cityFilter, categoryFilter, dateFromFilter, dateToFilter, offset, limit]);
+
+  /**
+   * Reset offset when filters change
+   */
+  useEffect(() => {
+    setOffset(0);
   }, [searchQuery, cityFilter, categoryFilter, dateFromFilter, dateToFilter]);
 
   /**
-   * Fetch inicial y cuando cambian los filtros
+   * Fetch inicial y cuando cambian los filtros o la paginación
    *
    * IMPORTANTE: Usamos las variables primitivas directamente como dependencias
    * en lugar de fetchEvents para evitar loops infinitos
@@ -85,7 +106,7 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
   useEffect(() => {
     fetchEvents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, cityFilter, categoryFilter, dateFromFilter, dateToFilter]);
+  }, [searchQuery, cityFilter, categoryFilter, dateFromFilter, dateToFilter, offset]);
 
   /**
    * Handler para cambios en SearchBar
@@ -111,6 +132,23 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
     },
     [setParams]
   );
+
+  /**
+   * Pagination handlers
+   */
+  const handleNextPage = useCallback(() => {
+    if (hasMore) {
+      setOffset((prev) => prev + limit);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [hasMore, limit]);
+
+  const handlePrevPage = useCallback(() => {
+    if (offset > 0) {
+      setOffset((prev) => Math.max(0, prev - limit));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [offset, limit]);
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -155,9 +193,9 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
             <p className="text-sm text-gray-600">Buscando eventos...</p>
           ) : (
             <p className="text-sm text-gray-600">
-              {events.length === 0 && 'No se encontraron eventos'}
-              {events.length === 1 && '1 evento encontrado'}
-              {events.length > 1 && `${events.length} eventos encontrados`}
+              {total === 0 && 'No se encontraron eventos'}
+              {total === 1 && '1 evento encontrado'}
+              {total > 1 && `${total} eventos encontrados • Mostrando ${offset + 1}-${Math.min(offset + limit, total)}`}
             </p>
           )}
         </div>
@@ -178,11 +216,46 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
 
         {/* Grid de eventos */}
         {!loading && events.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {events.map((event) => (
+                <EventCard key={event.id} event={event} />
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {total > limit && (
+              <div className="flex justify-center items-center gap-4 mt-8">
+                <button
+                  onClick={handlePrevPage}
+                  disabled={offset === 0}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    offset === 0
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  ← Anterior
+                </button>
+
+                <span className="text-sm text-gray-600">
+                  Página {Math.floor(offset / limit) + 1} de {Math.ceil(total / limit)}
+                </span>
+
+                <button
+                  onClick={handleNextPage}
+                  disabled={!hasMore}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    !hasMore
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-purple-600 text-white hover:bg-purple-700'
+                  }`}
+                >
+                  Siguiente →
+                </button>
+              </div>
+            )}
+          </>
         )}
 
         {/* Empty State */}
