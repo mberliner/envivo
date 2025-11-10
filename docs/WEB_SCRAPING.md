@@ -37,7 +37,7 @@ El sistema de web scraping permite extraer eventos de sitios web HTML usando **c
 
 | Sitio | Estado | Config |
 |-------|--------|--------|
-| LivePass.com.ar | 🟡 Template (requiere actualizar selectores) | `config/scrapers/livepass.config.ts` |
+| LivePass.com.ar | 🟡 Template (requiere actualizar selectores) | `src/config/scrapers/livepass.config.ts` |
 | _Agregar más aquí_ | - | - |
 
 ---
@@ -179,7 +179,7 @@ scrapers.forEach(scraper => orchestrator.registerSource(scraper));
 
 ### Paso 3: Crear Configuración
 
-Crear archivo `config/scrapers/mi-sitio.config.ts`:
+Crear archivo `src/config/scrapers/mi-sitio.config.ts`:
 
 ```typescript
 import { ScraperConfig } from '@/features/events/data/sources/web/types/ScraperConfig';
@@ -252,12 +252,12 @@ Editar `src/features/events/data/sources/web/WebScraperFactory.ts`:
 ```typescript
 const SCRAPER_CONFIGS: Record<string, () => Promise<ScraperConfig>> = {
   livepass: async () => {
-    const { livepassConfig } = await import('../../../../../../config/scrapers/livepass.config');
+    const { livepassConfig } = await import('@/config/scrapers/livepass.config');
     return livepassConfig;
   },
   // ✅ AGREGAR AQUÍ
   'mi-sitio': async () => {
-    const { miSitioConfig } = await import('../../../../../../config/scrapers/mi-sitio.config');
+    const { miSitioConfig } = await import('@/config/scrapers/mi-sitio.config');
     return miSitioConfig;
   },
 };
