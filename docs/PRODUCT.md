@@ -27,10 +27,11 @@ Ordenadas por criticidad desde perspectiva de **Vertical Slices** - fundamentos 
 | **Búsqueda por texto** | Buscar eventos por título, artista o venue | 🔴 CRÍTICO | Fase 3 |
 | **Filtros combinables** | Filtrar por ciudad, fecha, categoría (combinables y persistentes en URL) | 🔴 CRÍTICO | Fase 3 |
 | **Múltiples fuentes** | Eventbrite + mínimo 2 sitios locales scrapeados | 🟡 IMPORTANTE | Fase 4 |
-| **Detalle de evento** | Página con información completa + link directo a compra de entradas | 🔴 CRÍTICO | Fase 5 |
-| **Actualización automática** | Scraping diario automático con cron job | 🔴 CRÍTICO | Fase 6 |
-| **Deploy en producción** | Vercel con CI/CD automático desde GitHub | 🔴 CRÍTICO | Fase 6 |
-| **Experiencia pulida** | Tests E2E, responsive design, loading states, optimización de performance | 🟡 IMPORTANTE | Fase 7 |
+| **Ocultar eventos** | Usuarios pueden eliminar eventos no deseados (no regresan en scrapings) | 🟡 IMPORTANTE | Fase 5 |
+| **Detalle de evento** | Página con información completa + link directo a compra de entradas | 🔴 CRÍTICO | Fase 6 |
+| **Actualización automática** | Scraping diario automático con cron job | 🔴 CRÍTICO | Fase 7 |
+| **Deploy en producción** | Vercel con CI/CD automático desde GitHub | 🔴 CRÍTICO | Fase 7 |
+| **Experiencia pulida** | Tests E2E, responsive design, loading states, optimización de performance | 🟡 IMPORTANTE | Fase 8 |
 
 > **Nota**: Ver `roadmap_imple.md` para tracking detallado del estado actual de implementación.
 
@@ -84,7 +85,7 @@ En **vertical slices**, la criticidad no solo viene del valor inmediato al usuar
 - ❌ **Sin deduplicación**: Cuando agregues Eventbrite (Fase 4), usuarios verán duplicados
 - ✅ **Fundamentos primero**: Construir sobre base sólida = menos refactoring después
 
-**🔴 Fase 3-6 (UX y Producción - CRÍTICO)**
+**🔴 Fase 3, 6-7 (UX y Producción - CRÍTICO)**
 - Búsqueda + Filtros (encontrar eventos)
 - Detalle de evento (información completa)
 - Deploy + Scraping automático (MVP en producción)
@@ -94,8 +95,9 @@ En **vertical slices**, la criticidad no solo viene del valor inmediato al usuar
 - Sin deploy → No hay producto
 - Sin scraping automático → Datos obsoletos en días
 
-**🟡 Fase 4 y 7 (Mejoras - IMPORTANTE)**
+**🟡 Fase 4, 5 y 8 (Mejoras - IMPORTANTE)**
 - Múltiples fuentes (más eventos)
+- Ocultar eventos (curación personalizada)
 - Pulido final (responsive, tests E2E, optimización)
 
 **¿Por qué importantes pero no críticas?**
@@ -120,9 +122,10 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 | Fase 2 | US3.1 (Calidad datos) | Sin duplicados, eventos válidos |
 | Fase 3 | US1.3 (Búsqueda)<br>US1.4 (Filtros) | Encontrar eventos específicos |
 | Fase 4 | US1.1 (Eventbrite)<br>US1.2 (Sitios locales) | Más cobertura de eventos |
-| Fase 5 | US2.1 (Info completa) | Detalles + compra de entradas |
-| Fase 6 | US3.0 (Actualización auto) | Datos siempre frescos |
-| Fase 7 | (Pulido y optimización) | Experiencia pulida |
+| Fase 5 | US3.2 (Ocultar eventos) | Curar contenido personalizado |
+| Fase 6 | US2.1 (Info completa) | Detalles + compra de entradas |
+| Fase 7 | US3.0 (Actualización auto) | Datos siempre frescos |
+| Fase 8 | (Pulido y optimización) | Experiencia pulida |
 
 ---
 
@@ -205,7 +208,25 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 
 ---
 
-### Fase 5: Información Completa (1 día)
+### Fase 5: Curación de Contenido (1 día)
+
+**Objetivo**: Usuarios pueden ocultar eventos no deseados y evitar que regresen
+
+**User Stories a Implementar**:
+- US3.2: Ocultar eventos no deseados
+
+**Valor Entregado**: Los usuarios pueden personalizar su feed eliminando eventos que no les interesan
+
+**Tareas**:
+- Crear tabla `EventBlacklist` en Prisma schema
+- Implementar API DELETE `/api/events/:id`
+- Agregar botón de eliminación en EventCard UI
+- Modificar lógica de scraping para filtrar eventos bloqueados
+- Tests de eliminación y persistencia
+
+---
+
+### Fase 6: Información Completa (1 día)
 
 **Objetivo**: Toda la información para decidir asistir
 
@@ -222,7 +243,7 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 
 ---
 
-### Fase 6: Actualización Automática (1 día)
+### Fase 7: Actualización Automática (1 día)
 
 **Objetivo**: Datos siempre frescos sin intervención manual
 
@@ -239,7 +260,7 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 
 ---
 
-### Fase 7: Pulido Final (1 día)
+### Fase 8: Pulido Final (1 día)
 
 **Objetivo**: Experiencia pulida y optimizada
 
@@ -441,6 +462,32 @@ Organizadas por valor entregado a usuarios. Cada fuente de datos es una user sto
 
 ---
 
+#### US3.2: Ocultar Eventos No Deseados (Fase 5)
+
+**Como** usuario
+**Quiero** poder ocultar eventos que no me interesan
+**Para** personalizar mi feed y no volver a verlos en futuros scrapings
+
+**Valor**: Curación personalizada del contenido sin intervención manual
+
+**Criterios de Aceptación**:
+- [ ] Cada evento tiene un botón "Ocultar" o ícono de eliminar
+- [ ] Al hacer clic en "Ocultar", el evento desaparece inmediatamente de la lista
+- [ ] El evento no vuelve a aparecer en el siguiente scraping automático
+- [ ] Si cambio de filtros o hago búsquedas, los eventos ocultos permanecen ocultos
+- [ ] La acción es permanente hasta que decida restaurarlo (post-MVP)
+- [ ] Recibo confirmación visual cuando oculto un evento
+
+**Prioridad**: 🟡 IMPORTANTE
+
+**Implementación Técnica** (Opción 3 - Blacklist):
+- Tabla `EventBlacklist` que guarda `source + externalId` de eventos eliminados
+- Hard delete del evento en tabla `Event`
+- Antes de procesar eventos en scraping, filtrar contra blacklist
+- API endpoint DELETE `/api/events/:id` para eliminar desde UI
+
+---
+
 ## Definición de Terminado (General)
 
 Aplica a todas las historias de usuario del MVP.
@@ -520,4 +567,4 @@ Aplica a todas las historias de usuario del MVP.
 
 ---
 
-**Última actualización**: 8 de Noviembre de 2025
+**Última actualización**: 10 de Noviembre de 2025
