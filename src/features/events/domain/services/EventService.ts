@@ -207,7 +207,7 @@ export class EventService {
       priceMax: rawEvent.priceMax,
       currency: rawEvent.currency || 'ARS',
       venueCapacity: rawEvent.venueCapacity,
-      source: 'unknown', // Será sobrescrito por el orchestrator
+      source: (rawEvent as any)._source || rawEvent.source || 'unknown', // Fix: usar _source del scraper
       externalId: rawEvent.externalId,
       createdAt: new Date(),
       updatedAt: new Date(),
