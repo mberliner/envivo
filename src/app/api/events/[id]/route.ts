@@ -9,10 +9,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/infrastructure/database/prisma';
+import { Prisma } from '@prisma/client';
 import { nanoid } from 'nanoid';
 
 interface RouteContext {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -63,8 +64,9 @@ export async function DELETE(
     }
 
     // Usar transacción para garantizar atomicidad
-    await prisma.$transaction(async (tx: typeof prisma) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 1. Agregar a blacklist
+      // @ts-ignore - eventBlacklist will exist after migration
       await tx.eventBlacklist.create({
         data: {
           id: nanoid(),

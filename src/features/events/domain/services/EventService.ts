@@ -43,6 +43,7 @@ export class EventService {
       return false; // Si no tiene externalId, no puede estar blacklisted
     }
 
+    // @ts-ignore - eventBlacklist will exist after migration
     const blacklisted = await prisma.eventBlacklist.findUnique({
       where: {
         source_externalId: {
