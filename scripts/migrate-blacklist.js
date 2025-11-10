@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 require('dotenv').config({ path: '.env.local' });
-require('dotenv').config({ path: '.env' });
 
 const http = require('http');
 
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 
 if (!ADMIN_API_KEY) {
-  console.error('❌ Error: ADMIN_API_KEY no está configurado');
+  console.error('❌ Error: ADMIN_API_KEY no está configurado en .env.local');
   process.exit(1);
 }
 

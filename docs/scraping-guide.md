@@ -75,10 +75,12 @@ sqlite3 prisma/dev.db "SELECT title, venue, city, date FROM Event WHERE venue = 
 
 ### Error: "ADMIN_API_KEY no está configurado"
 
-Verifica que `.env` o `.env.local` tenga:
+Verifica que `.env.local` tenga:
 ```env
 ADMIN_API_KEY="tu-api-key-aqui"
 ```
+
+> Ver [docs/ENV_SETUP.md](ENV_SETUP.md) para guía completa de configuración.
 
 ### Error: "No se puede conectar al servidor"
 
@@ -89,7 +91,7 @@ npm run dev
 
 ### Error: "Unauthorized" (401)
 
-Verifica que el `ADMIN_API_KEY` en `.env` coincida con el que usas en la request.
+Verifica que el `ADMIN_API_KEY` en `.env.local` coincida con el que usas en la request.
 
 ### Error: "Failed to scrape livepass"
 

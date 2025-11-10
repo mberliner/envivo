@@ -431,21 +431,37 @@ git commit -m "feat: business rules and deduplication"
 
 ## Variables de Entorno
 
+> **Archivo a usar**: `.env.local` (desarrollo local)
+> **Documentación completa**: [docs/ENV_SETUP.md](docs/ENV_SETUP.md)
+
+### Setup Rápido
+
+```bash
+# 1. Copiar template
+cp .env.example .env.local
+
+# 2. Editar .env.local con valores reales
+```
+
 ### Requeridas (Mínimas)
 
 ```bash
+# .env.local
 DATABASE_URL="file:./dev.db"
 TICKETMASTER_API_KEY="..."
 EVENTBRITE_API_KEY="..."  # Opcional
 ADMIN_API_KEY="..." # mínimo 32 caracteres
 
-# Públicas (expuestas al cliente)
+# Públicas (expuestas al cliente - usar SOLO cuando sea necesario)
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 NEXT_PUBLIC_APP_NAME="EnVivo"
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="..."  # Opcional
 ```
 
-**Ver `docs/examples/env-example.ts` para lista completa con validación Zod.**
+**Referencias**:
+- Template: `.env.example`
+- Validación Zod: `docs/examples/env-example.ts`
+- Guía completa: `docs/ENV_SETUP.md`
 
 ---
 

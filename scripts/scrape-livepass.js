@@ -5,7 +5,6 @@
  */
 
 require('dotenv').config({ path: '.env.local' });
-require('dotenv').config({ path: '.env' });
 
 const http = require('http');
 
@@ -13,7 +12,7 @@ const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 if (!ADMIN_API_KEY) {
-  console.error('❌ Error: ADMIN_API_KEY no está configurado en .env');
+  console.error('❌ Error: ADMIN_API_KEY no está configurado en .env.local');
   process.exit(1);
 }
 
