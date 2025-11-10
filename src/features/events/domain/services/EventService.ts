@@ -78,7 +78,9 @@ export class EventService {
     for (const rawEvent of rawEvents) {
       try {
         // 0. Verificar blacklist (US3.2)
-        if (await this.isBlacklisted(rawEvent.source, rawEvent.externalId)) {
+        // IMPORTANTE: GenericWebScraper usa _source (no source)
+        const source = (rawEvent as any)._source || rawEvent.source || 'unknown';
+        if (await this.isBlacklisted(source, rawEvent.externalId)) {
           result.rejected++;
           result.errors.push({
             event: rawEvent,
