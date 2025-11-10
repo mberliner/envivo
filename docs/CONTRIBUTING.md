@@ -27,23 +27,32 @@ La documentación de EnVivo sigue el principio **"Single Source of Truth"** para
 | Topic | Primary Location (SSOT) | Secondary References |
 |-------|-------------------------|----------------------|
 | **Architecture & Clean Architecture** | `ARCHITECTURE.md` | `CLAUDE.md` (summary) |
-| **SOLID Principles** | `ARCHITECTURE.md` (lines 697-751) | `CLAUDE.md` (reference) |
+| **SOLID Principles** | `ARCHITECTURE.md` | `CLAUDE.md` (reference) |
 | **ADRs (Decisiones Arquitectónicas)** | `ARCHITECTURE.md` | - |
-| **Code Conventions & Naming** | `CLAUDE.md` (lines 72-101) | - |
+| **Scraping Asíncrono & Orchestrator** | `ARCHITECTURE.md` | - |
+| **Data Mappers (patrón)** | `ARCHITECTURE.md` | `DEVELOPMENT.md` (naming) |
+| **Interface Segregation (ISP)** | `ARCHITECTURE.md` | - |
+| **Business Rules** | `ARCHITECTURE.md` | - |
+| **Code Conventions & Naming** | `DEVELOPMENT.md` | `CLAUDE.md` (summary) |
 | **Git Workflow & Commits** | `CONTRIBUTING.md` (this file) | `CLAUDE.md` (summary) |
-| **Testing Requirements & Coverage** | `CONTRIBUTING.md` (lines 46-73) | `CLAUDE.md` (table) |
-| **Security Best Practices** | `SECURITY.md` | `CLAUDE.md`, `PRODUCT.md` (refs) |
+| **Testing (stack, comandos, coverage)** | `DEVELOPMENT.md` | `CLAUDE.md` (table summary) |
+| **Testing Best Practices (AAA, mocks)** | `DEVELOPMENT.md` | - |
+| **Security Best Practices** | `SECURITY.md` | `CLAUDE.md` (refs) |
 | **Attack Vectors & Defense in Depth** | `SECURITY.md` | - |
 | **Product Features & Roadmap** | `PRODUCT.md` | `README.md` (link) |
 | **User Stories** | `PRODUCT.md` | - |
-| **Project Structure** | `README.md` (lines 50-87) | `CLAUDE.md` (summary) |
+| **Vertical Slices Strategy** | `PRODUCT.md` | `CLAUDE.md` (summary) |
+| **Project Structure (folders)** | `DEVELOPMENT.md` | `README.md`, `CLAUDE.md` (summary) |
 | **Development Setup & Install** | `README.md` Quick Start | `DEVELOPMENT.md` (reference) |
-| **TypeScript Best Practices** | `DEVELOPMENT.md` (lines 11-71) | - |
-| **React/Next.js Best Practices** | `DEVELOPMENT.md` (lines 74-116) | - |
-| **CLI Commands** | `DEVELOPMENT.md` (lines 119-135) | - |
-| **Debugging Guide** | `DEVELOPMENT.md` (lines 138-176) | - |
-| **Performance Tips** | `DEVELOPMENT.md` (lines 179-225) | - |
+| **TypeScript Best Practices** | `DEVELOPMENT.md` | - |
+| **React/Next.js Best Practices** | `DEVELOPMENT.md` | - |
+| **CLI Commands** | `DEVELOPMENT.md` | - |
+| **Environment Variables** | `DEVELOPMENT.md` | - |
+| **Database Setup (Prisma)** | `DEVELOPMENT.md` | `ARCHITECTURE.md` (schema design) |
+| **Debugging Guide** | `DEVELOPMENT.md` | - |
+| **Performance Tips** | `DEVELOPMENT.md` | - |
 | **Code Examples** | `docs/examples/` | `CLAUDE.md` (references) |
+| **Implementation Tracking** | `roadmap_imple.md` | NO REFERENCIAR EN DOCS |
 
 ### Cómo Actualizar Documentación
 
@@ -125,32 +134,73 @@ Usamos un **enfoque híbrido** que combina trunk-based development para cambios 
 
 ## Testing Requirements
 
-### Antes de Commit
+### ⛔ REGLA CRÍTICA: TESTS FALLANDO = INADMISIBLE
+
+**TODOS los tests DEBEN pasar antes de hacer commit.**
 
 ```bash
-# 1. Type check
+# Estado REQUERIDO para commit
+✅ TypeScript: 0 errors
+✅ Tests: X/X passing (100%)
+✅ Lint: 0 warnings
+```
+
+**❌ NUNCA commitear con:**
+- Tests fallando (aunque sea 1)
+- Errores de TypeScript
+- Tests comentados o skipeados (`test.skip`, `it.skip`)
+- Tests con `.only` (que ignoran otros tests)
+
+**Si un test falla:**
+1. ARREGLÁ el código hasta que pase
+2. Si es un test viejo que ya no aplica, ELIMINALO (no lo skipees)
+3. Si necesitás commitear urgente, ARREGLÁ el test primero
+
+**No hay excepciones a esta regla.**
+
+### Antes de CADA Commit
+
+```bash
+# 1. Type check (OBLIGATORIO)
 npm run type-check
+# Resultado esperado: 0 errors
 
-# 2. Lint
+# 2. Tests unitarios (OBLIGATORIO)
+npm test
+# Resultado esperado: X/X passing (100%)
+
+# 3. Lint (OBLIGATORIO)
 npm run lint
-
-# 3. Tests unitarios
-npm run test
+# Resultado esperado: 0 warnings
 
 # 4. Tests E2E (si tocaste UI)
 npm run test:e2e
 ```
 
+**Si ANY de estos comandos falla, NO commitear.**
+
 ### Cobertura Mínima
 
-| Capa | Coverage Requerido |
-|------|--------------------|
-| Domain (business rules) | >80% |
-| Data (repositories) | >70% |
-| Data (scrapers) | >60% |
-| UI (componentes) | >60% |
+| Capa | Coverage Requerido | Estado Actual |
+|------|--------------------|--------------|
+| Domain (business rules) | >80% | ✅ 83.3% |
+| Data (repositories) | >70% | ✅ 100% (activos) |
+| Data (scrapers) | >60% | ✅ 100% |
+| UI (componentes) | >60% | ⏸️ Pendiente |
 
 **Comando**: `npm run test:coverage`
+
+### Git Hooks (Automático)
+
+El proyecto puede configurar git hooks para prevenir commits con tests fallando:
+
+```bash
+# .git/hooks/pre-commit (opcional, recomendado)
+#!/bin/bash
+npm run type-check && npm test
+```
+
+Si el hook falla, el commit se bloquea automáticamente.
 
 ---
 

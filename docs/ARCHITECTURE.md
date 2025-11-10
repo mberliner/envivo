@@ -4,11 +4,12 @@
 
 1. [Clean Architecture](#clean-architecture)
 2. [Scraping Asíncrono](#scraping-asíncrono)
-3. [Interfaces y Extensibilidad (ISP)](#interfaces-y-extensibilidad)
-4. [Business Rules](#business-rules)
-5. [Database Schema](#database-schema)
-6. [SOLID Principles](#solid-principles)
-7. [Migración a Go (Futuro)](#migración-a-go)
+3. [Data Mappers](#data-mappers)
+4. [Interfaces y Extensibilidad (ISP)](#interfaces-y-extensibilidad)
+5. [Business Rules](#business-rules)
+6. [Database Schema](#database-schema)
+7. [SOLID Principles](#solid-principles)
+8. [Migración a Go (Futuro)](#migración-a-go)
 
 ---
 
@@ -100,6 +101,79 @@ console.log(result.successful, result.failed, result.totalEvents);
 ```
 
 **Ver código completo**: `docs/examples/scraper-example.ts`
+
+---
+
+## Data Mappers
+
+### Responsabilidad
+
+Los **mappers** transforman datos entre capas sin lógica de negocio:
+- **API → Domain**: De formato externo (Ticketmaster API) a entidades del dominio
+- **Domain → DTO**: De entidades a objetos de transferencia (si necesario)
+
+### Patrón de Implementación
+
+**❌ NO usar interfaces para mappers** (no hay polimorfismo necesario):
+
+```typescript
+// ❌ Malo: Interface innecesaria
+interface ITicketmasterMapper {
+  toRawEvent(apiEvent: TicketmasterEvent): RawEvent;
+}
+
+class TicketmasterMapper implements ITicketmasterMapper {
+  toRawEvent(apiEvent: TicketmasterEvent): RawEvent { }
+}
+```
+
+**✅ Usar métodos estáticos** (mappers son funciones puras):
+
+```typescript
+// ✅ Bueno: Métodos estáticos sin interface
+class TicketmasterMapper {
+  static toRawEvent(apiEvent: TicketmasterEvent): RawEvent {
+    return {
+      id: apiEvent.id,
+      title: apiEvent.name,
+      date: new Date(apiEvent.dates.start.dateTime),
+      venue: apiEvent._embedded.venues[0]?.name || 'Unknown',
+      city: apiEvent._embedded.venues[0]?.city.name || 'Unknown',
+      country: apiEvent._embedded.venues[0]?.country.countryCode || 'AR',
+      imageUrl: apiEvent.images?.[0]?.url || null,
+      ticketUrl: apiEvent.url,
+      source: 'ticketmaster'
+    };
+  }
+
+  static toRawEvents(apiEvents: TicketmasterEvent[]): RawEvent[] {
+    return apiEvents.map(event => this.toRawEvent(event));
+  }
+}
+```
+
+### Uso
+
+```typescript
+// En TicketmasterSource
+async fetch(): Promise<RawEvent[]> {
+  const apiResponse = await this.fetchFromAPI();
+  const apiEvents = apiResponse._embedded?.events || [];
+
+  // Llamar método estático directamente
+  return TicketmasterMapper.toRawEvents(apiEvents);
+}
+```
+
+### Naming Convention
+
+- **Clase**: `{Source}Mapper` (ej: `TicketmasterMapper`, `EventbriteMapper`)
+- **Métodos**: `toRawEvent()`, `toRawEvents()`, `toDTO()`, etc.
+- **Sin interfaces**: Los mappers son funciones puras, no hay necesidad de polimorfismo
+
+**Ver implementación completa**: `src/features/events/data/mappers/TicketmasterMapper.ts`
+
+**Ver tests**: `tests/unit/data/mappers/TicketmasterMapper.test.ts`
 
 ---
 

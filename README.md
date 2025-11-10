@@ -6,12 +6,13 @@ Agregador de eventos musicales en vivo con scraping asíncrono, Clean Architectu
 
 - **Framework**: Next.js 14+ con App Router
 - **Lenguaje**: TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui
+- **Styling**: Tailwind CSS
 - **Base de Datos**: SQLite con Prisma ORM (MVP) / PostgreSQL (producción)
-- **Búsqueda**: SQLite FTS5 (Full-Text Search)
-- **Testing**: Vitest + Playwright + React Testing Library
-- **Scraping**: Cheerio + Axios (async con p-limit)
-  - Playwright disponible para sitios dinámicos (JS-heavy)
+- **Búsqueda**: SQLite FTS5 (Full-Text Search) - Planificado Fase 3
+- **Testing**: Vitest + React Testing Library
+  - Playwright planificado para tests E2E (Fase 7)
+- **Scraping**: Axios (API clients)
+  - Cheerio planificado para scrapers HTML (Fase 5)
 - **Deploy**: Vercel (gratis)
 
 ## 🚀 Quick Start
@@ -88,13 +89,13 @@ envivo/
 
 ## 🎯 Features del MVP
 
-- ✅ Búsqueda por texto (título, artista, venue)
-- ✅ Filtros por ciudad, fecha, categoría
-- ✅ Detalle completo de eventos
-- ✅ Scraping asíncrono de múltiples fuentes
-- ✅ Integración con Ticketmaster API
-- ✅ Validación y deduplicación automática
-- ✅ Búsqueda geográfica ("eventos cerca de mí")
+- **Descubrir eventos** - Agregación de eventos de múltiples fuentes (Ticketmaster, Eventbrite, sitios locales)
+- **Búsqueda inteligente** - Buscar por artista, título, venue con filtros (ciudad, fecha, categoría)
+- **Información completa** - Detalles de eventos, precios, links a compra de entradas
+- **Datos actualizados** - Scraping automático diario con validación y deduplicación
+- **Clean Architecture** - Codebase mantenible siguiendo principios SOLID
+
+**Ver roadmap completo**: [docs/PRODUCT.md](docs/PRODUCT.md)
 
 ## 📚 Documentación
 
@@ -105,18 +106,18 @@ envivo/
 ## 🧪 Testing
 
 ```bash
-# Tests unitarios
+# Tests unitarios (35 tests, 100% passing)
 npm run test
 
-# Tests con coverage
-npm run test:coverage
-
-# Tests E2E
-npm run test:e2e
+# Tests con UI interactiva
+npm run test:ui
 
 # Type checking
 npm run type-check
 ```
+
+**Cobertura actual**: Data layer (mappers, sources, repositories) - 28 tests
+**Planificado**: E2E tests con Playwright en Fase 7
 
 ## 🔒 Seguridad
 
@@ -152,28 +153,32 @@ npm run format
 npx prisma studio          # UI para base de datos
 npx prisma migrate dev     # Crear migración
 
-# Scraping manual
+# Scraping manual (endpoint disponible en Fase 1)
 curl -X POST http://localhost:3000/api/admin/scraper/sync \
-  -H "x-api-key: your-admin-key"
+  -H "x-api-key: YOUR_ADMIN_API_KEY"
 
-# Re-scraping con preferencias actualizadas
-curl -X POST "http://localhost:3000/api/admin/scraper/sync?applyNewPreferences=true" \
-  -H "x-api-key: your-admin-key"
-
-# Ver estado del scraping
-curl http://localhost:3000/api/scraper/status
+# Scraping con parámetros opcionales
+curl -X POST http://localhost:3000/api/admin/scraper/sync \
+  -H "x-api-key: YOUR_ADMIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"country": "AR", "city": "Buenos Aires"}'
 ```
 
-### Preferencias por Defecto (Primer Scraping)
+**Nota**: La configuración de preferencias globales y re-scraping avanzado están planificados para Fase 2.
 
-La primera vez que se ejecuta scraping, se crean automáticamente estas preferencias:
+## 🚀 Estado del Proyecto
 
-- **Países**: Solo Argentina (`AR`)
-- **Ciudades**: Buenos Aires, Ciudad de Buenos Aires, CABA
-- **Categorías**: Music, Concert, Festival
-- **Tamaños de venue**: Todos (small, medium, large)
+**Proyecto en desarrollo activo** siguiendo estrategia de **Vertical Slices** (features end-to-end).
 
-Para modificar preferencias, actualizar vía endpoint `/api/admin/preferences` (ver [PRODUCT.md](docs/PRODUCT.md) - US1.4).
+**Ver roadmap completo**: [docs/PRODUCT.md](docs/PRODUCT.md#roadmap-de-implementaci%C3%B3n)
+
+### Git Workflow
+
+Durante el MVP, seguimos **trunk-based development**:
+- Commits directos después de completar cada fase
+- Convención: `feat: [descripción de la fase]`
+
+---
 
 ## 🤝 Contribuir
 
@@ -197,4 +202,4 @@ Claudio
 
 ---
 
-**Última actualización**: Enero 2025
+**Última actualización**: 8 de Noviembre de 2025

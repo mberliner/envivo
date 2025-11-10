@@ -3,10 +3,10 @@
 ## Tabla de Contenidos
 
 1. [Features del MVP](#features-del-mvp)
-2. [Épicas](#épicas)
-3. [Definición de Terminado (General)](#definición-de-terminado-general)
-4. [User Stories](#user-stories)
-5. [Roadmap de Implementación](#roadmap-de-implementación)
+2. [Estrategia: Vertical Slices](#estrategia-vertical-slices)
+3. [Roadmap de Implementación](#roadmap-de-implementación)
+4. [Épicas y User Stories](#épicas-y-user-stories)
+5. [Definición de Terminado (General)](#definición-de-terminado-general)
 6. [Métricas de Éxito](#métricas-de-éxito)
 7. [Checklist Pre-Launch](#checklist-pre-launch)
 
@@ -14,18 +14,26 @@
 
 ## Features del MVP
 
-### ✅ Core Features (Must-Have)
+### Core Features (Must-Have)
 
-| Feature | Descripción | Prioridad |
-|---------|-------------|-----------|
-| **Búsqueda por texto** | Buscar eventos por título, artista o venue | 🔴 CRÍTICO |
-| **Filtros avanzados** | Filtrar por ciudad, fecha, categoría | 🔴 CRÍTICO |
-| **Detalle de evento** | Ver información completa del evento | 🔴 CRÍTICO |
-| **Scraping automático** | Actualización diaria de eventos | 🔴 CRÍTICO |
-| **Integración Ticketmaster** | API de Ticketmaster como fuente principal | 🔴 CRÍTICO |
-| **Scrapers locales** | Mínimo 2 sitios locales scrapeados | 🟡 IMPORTANTE |
-| **Validación de datos** | Reglas de negocio para calidad de datos | 🟡 IMPORTANTE |
-| **Deduplicación** | Detectar eventos duplicados automáticamente | 🟡 IMPORTANTE |
+Ordenadas por criticidad desde perspectiva de **Vertical Slices** - fundamentos técnicos primero, UX después. La columna "Fase Planificada" indica el orden lógico de implementación en roadmap, NO el estado actual de desarrollo.
+
+| Feature | Descripción | Prioridad | Fase Planificada |
+|---------|-------------|-----------|------------------|
+| **Primera fuente de datos** | Integración con Ticketmaster API | 🔴 CRÍTICO | Fase 1 |
+| **UI básica de eventos** | Listado de eventos con información esencial (título, fecha, venue, ciudad, imagen) | 🔴 CRÍTICO | Fase 1 |
+| **Validación de datos** | Reglas de negocio para calidad (fechas válidas, ubicación, campos requeridos) | 🔴 CRÍTICO | Fase 2 |
+| **Deduplicación inteligente** | Detectar duplicados con fuzzy matching entre todas las fuentes | 🔴 CRÍTICO | Fase 2 |
+| **Búsqueda por texto** | Buscar eventos por título, artista o venue | 🔴 CRÍTICO | Fase 3 |
+| **Filtros combinables** | Filtrar por ciudad, fecha, categoría (combinables y persistentes en URL) | 🔴 CRÍTICO | Fase 3 |
+| **Múltiples fuentes** | Eventbrite + mínimo 2 sitios locales scrapeados | 🟡 IMPORTANTE | Fase 4 |
+| **Ocultar eventos** | Usuarios pueden eliminar eventos no deseados (no regresan en scrapings) | 🟡 IMPORTANTE | Fase 5 |
+| **Detalle de evento** | Página con información completa + link directo a compra de entradas | 🔴 CRÍTICO | Fase 6 |
+| **Actualización automática** | Scraping diario automático con cron job | 🔴 CRÍTICO | Fase 7 |
+| **Deploy en producción** | Vercel con CI/CD automático desde GitHub | 🔴 CRÍTICO | Fase 7 |
+| **Experiencia pulida** | Tests E2E, responsive design, loading states, optimización de performance | 🟡 IMPORTANTE | Fase 8 |
+
+> **Nota**: Ver `roadmap_imple.md` para tracking detallado del estado actual de implementación.
 
 ### 🚫 NO Incluir en MVP (Post-MVP)
 
@@ -40,61 +48,443 @@
 
 ---
 
-## Épicas
+## Estrategia: Vertical Slices
 
-### Epic 1: Búsqueda de Eventos
+### Enfoque: Features End-to-End con Valor Inmediato
 
-**Objetivo**: Los usuarios pueden buscar y filtrar eventos musicales fácilmente.
+En lugar de implementar horizontalmente por capas (toda la capa de datos, luego lógica, luego UI), seguimos **vertical slices** - implementar features completas end-to-end que proveen valor inmediato a los usuarios.
 
-**User Stories**:
-- US1.1: Búsqueda por texto
-- US1.2: Filtros avanzados (ciudad, fecha, categoría)
-- US1.3: Ordenamiento de resultados
+**Ventajas**:
+- ✅ **Valor inmediato**: algo funcional en 1-2 días (no 10 días)
+- ✅ **Feedback rápido**: UI con datos reales desde la primera fase
+- ✅ **Menos overhead**: no implementar infraestructura compleja hasta que sea necesaria
+- ✅ **Deployable**: cada fase puede ir a producción
+- ✅ **Testeable**: cada slice incluye sus tests
 
-**Criterios de Éxito**:
-- Búsqueda responde en <500ms (p95)
-- Filtros se pueden combinar
-- Resultados relevantes (FTS5)
+**Ejemplo**: En lugar de implementar TODOS los scrapers, luego TODA la UI, luego TODOS los filtros...
+- **Fase 1**: Ticketmaster → BD → UI básica → **Funciona end-to-end**
+- **Fase 2**: Agregar calidad de datos → **Funciona mejor**
+- **Fase 3**: Agregar búsqueda → **Funciona con búsqueda**
 
----
-
-### Epic 2: Visualización de Eventos
-
-**Objetivo**: Los usuarios pueden ver información detallada de eventos.
-
-**User Stories**:
-- US2.1: Ver detalle completo de evento
-- US2.2: Ver ubicación en mapa (opcional MVP)
-- US2.3: Link a compra de entradas
-
-**Criterios de Éxito**:
-- Toda la información visible (título, fecha, venue, precio)
-- Imágenes optimizadas (Next.js Image)
-- Links externos funcionan
+Cada fase entrega **valor real** que se puede mostrar a usuarios.
 
 ---
 
-### Epic 3: Scraping y Gestión de Datos
+### Criticidad desde Enfoque Vertical
 
-**Objetivo**: El sistema mantiene datos actualizados automáticamente.
+En **vertical slices**, la criticidad no solo viene del valor inmediato al usuario, sino de **construir fundamentos sólidos** que permitan escalar sin reescribir todo.
 
-**User Stories**:
-- US3.0: Población inicial de base de datos (scraping manual)
-- US3.1: Scraping automático diario
-- US3.2: Validación de datos
-- US3.3: Deduplicación de eventos
-- US3.4: Configuración de preferencias globales (Post-MVP Fase 1.5)
-- US3.5: Re-scraping manual con preferencias actualizadas (Post-MVP Fase 1.5)
+**Orden de Criticidad**:
 
-**Criterios de Éxito**:
-- BD se puede poblar desde cero con scraping manual
-- Scraping >90% success rate
-- No eventos duplicados en BD
-- Logs claros de cada ejecución
-- Eventos rechazados por preferencias quedan registrados con razón
-- Preferencias se pueden configurar vía UI admin (Post-MVP)
+**🔴 Fase 1-2 (Fundamentos Técnicos - CRÍTICO)**
+- Primera fuente de datos + UI básica
+- Validación y deduplicación de datos
 
-**Nota**: Scraping manual (`POST /api/admin/scraper/sync`) es **CRÍTICO** para MVP - permite poblar BD inicial y re-scraping bajo demanda.
+**¿Por qué son críticas?**
+- ❌ **Sin validación**: Basura en BD (fechas inválidas, ubicaciones vacías, eventos sin información)
+- ❌ **Sin deduplicación**: Cuando agregues Eventbrite (Fase 4), usuarios verán duplicados
+- ✅ **Fundamentos primero**: Construir sobre base sólida = menos refactoring después
+
+**🔴 Fase 3, 6-7 (UX y Producción - CRÍTICO)**
+- Búsqueda + Filtros (encontrar eventos)
+- Detalle de evento (información completa)
+- Deploy + Scraping automático (MVP en producción)
+
+**¿Por qué son críticas?**
+- Sin búsqueda/filtros → MVP no usable (scroll infinito)
+- Sin deploy → No hay producto
+- Sin scraping automático → Datos obsoletos en días
+
+**🟡 Fase 4, 5 y 8 (Mejoras - IMPORTANTE)**
+- Múltiples fuentes (más eventos)
+- Ocultar eventos (curación personalizada)
+- Pulido final (responsive, tests E2E, optimización)
+
+**¿Por qué importantes pero no críticas?**
+- Ticketmaster ya cubre ~60% de eventos en Argentina
+- UX básica funcional es suficiente para validar MVP
+
+**Conclusión**: Calidad de datos (Fase 2) antes que UX avanzada (Fase 3) = Menos problemas después.
+
+---
+
+## Roadmap de Implementación
+
+Fases del MVP organizadas para entregar valor incremental a usuarios.
+
+---
+
+### Roadmap: Mapa de User Stories por Fase
+
+| Fase | US Implementadas | Valor Entregado |
+|------|------------------|-----------------|
+| Fase 1 | US1.0 (Ticketmaster)<br>US2.0 (Info básica) | Ver eventos de Ticketmaster en UI |
+| Fase 2 | US3.1 (Calidad datos) | Sin duplicados, eventos válidos |
+| Fase 3 | US1.3 (Búsqueda)<br>US1.4 (Filtros) | Encontrar eventos específicos |
+| Fase 4 | US1.1 (Eventbrite)<br>US1.2 (Sitios locales) | Más cobertura de eventos |
+| Fase 5 | US3.2 (Ocultar eventos) | Curar contenido personalizado |
+| Fase 6 | US2.1 (Info completa) | Detalles + compra de entradas |
+| Fase 7 | US3.0 (Actualización auto) | Datos siempre frescos |
+| Fase 8 | (Pulido y optimización) | Experiencia pulida |
+
+---
+
+### Fase 0: Setup & Configuración
+
+**Objetivo**: Proyecto corriendo con infraestructura básica
+
+**Entregable**: `npm run dev` funciona, estructura creada, Prisma configurado
+
+---
+
+### Fase 1: Ver Eventos de Ticketmaster (1-2 días)
+
+**Objetivo**: Primera fuente de datos funcionando end-to-end
+
+**User Stories a Implementar**:
+- US1.0: Ver eventos de Ticketmaster
+- US2.0: Ver información básica
+
+**Valor Entregado**: Los usuarios podrán ver eventos de Ticketmaster Argentina en una UI responsive
+
+**Tareas**:
+- Integración con API de Ticketmaster
+- Modelo de datos (Prisma schema)
+- Repository para eventos
+- UI básica con listado de eventos
+- Tests unitarios de repositorio y mappers
+
+---
+
+### Fase 2: Calidad de Datos (1 día)
+
+**Objetivo**: Solo eventos válidos y sin duplicados
+
+**User Stories a Implementar**:
+- US3.1: Eventos de calidad (sin duplicados, validados)
+
+**Valor Entregado**: Usuarios ven eventos limpios, sin duplicados entre fuentes, solo información válida
+
+**Tareas**:
+- Implementar validación de datos (fechas, campos requeridos, países)
+- Implementar deduplicación (fuzzy matching entre fuentes)
+- Tests de business rules (>80% coverage)
+
+---
+
+### Fase 3: Búsqueda y Filtros (1-2 días)
+
+**Objetivo**: Usuarios encuentran exactamente lo que buscan
+
+**User Stories a Implementar**:
+- US1.3: Buscar eventos por texto
+- US1.4: Filtrar eventos
+
+**Valor Entregado**: Encontrar eventos específicos en segundos, filtrar por ciudad/fecha/categoría
+
+**Tareas**:
+- Implementar búsqueda por texto (full-text search)
+- Implementar filtros combinables (ciudad, fecha, categoría)
+- Persistir filtros en URL
+- Tests de búsqueda y filtros
+
+---
+
+### Fase 4: Más Fuentes de Datos (1-2 días)
+
+**Objetivo**: Mayor cobertura de eventos
+
+**User Stories a Implementar**:
+- US1.1: Ver eventos de Eventbrite
+- US1.2: Ver eventos de sitios locales
+
+**Valor Entregado**: Acceso a eventos locales y de nicho que no están en Ticketmaster
+
+**Tareas**:
+- Implementar integración con Eventbrite API
+- Implementar scraper de 1-2 sitios locales
+- Verificar deduplicación entre todas las fuentes
+- Tests de nuevas fuentes
+
+---
+
+### Fase 5: Curación de Contenido (1 día)
+
+**Objetivo**: Usuarios pueden ocultar eventos no deseados y evitar que regresen
+
+**User Stories a Implementar**:
+- US3.2: Ocultar eventos no deseados
+
+**Valor Entregado**: Los usuarios pueden personalizar su feed eliminando eventos que no les interesan
+
+**Tareas**:
+- Crear tabla `EventBlacklist` en Prisma schema
+- Implementar API DELETE `/api/events/:id`
+- Agregar botón de eliminación en EventCard UI
+- Modificar lógica de scraping para filtrar eventos bloqueados
+- Tests de eliminación y persistencia
+
+---
+
+### Fase 6: Información Completa (1 día)
+
+**Objetivo**: Toda la información para decidir asistir
+
+**User Stories a Implementar**:
+- US2.1: Ver información completa y comprar entradas
+
+**Valor Entregado**: Detalles completos del evento + acceso directo a compra
+
+**Tareas**:
+- Página de detalle de evento
+- Botón de compra (link externo)
+- Link "Volver a resultados"
+- Tests E2E básicos (navegación)
+
+---
+
+### Fase 7: Actualización Automática (1 día)
+
+**Objetivo**: Datos siempre frescos sin intervención manual
+
+**User Stories a Implementar**:
+- US3.0: Eventos se actualizan automáticamente
+
+**Valor Entregado**: Usuarios siempre ven información actualizada
+
+**Tareas**:
+- GitHub Action con cron diario (2 AM UTC)
+- Deploy a Vercel
+- Verificar scraping automático funciona
+- Logs estructurados
+
+---
+
+### Fase 8: Pulido Final (1 día)
+
+**Objetivo**: Experiencia pulida y optimizada
+
+**Valor Entregado**: MVP listo para usuarios reales
+
+**Tareas**:
+- Tests E2E de flujos críticos
+- Error boundaries y loading states
+- Responsive design (mobile/tablet)
+- Optimización de imágenes
+- Performance audit (Lighthouse >90)
+
+---
+
+## Épicas y User Stories
+
+Organizadas por valor entregado a usuarios. Cada fuente de datos es una user story independiente que agrega eventos al catálogo.
+
+---
+
+### Epic 1: Descubrir Eventos Musicales
+
+**Objetivo**: Los usuarios pueden descubrir eventos musicales de múltiples fuentes y encontrar exactamente lo que buscan.
+
+#### US1.0: Ver Eventos de Ticketmaster (Fase 1)
+
+**Como** usuario
+**Quiero** ver eventos de conciertos y festivales de Ticketmaster Argentina
+**Para** descubrir shows internacionales y eventos en venues grandes
+
+**Valor**: Acceso a catálogo internacional de eventos musicales en Argentina
+
+**Criterios de Aceptación**:
+- [ ] Puedo ver lista de eventos de Ticketmaster en la página principal
+- [ ] Cada evento muestra: título, fecha, venue, ciudad, imagen
+- [ ] Los eventos están ordenados por fecha (próximos primero)
+- [ ] Si hay imagen disponible, se muestra correctamente
+- [ ] Puedo hacer clic en un evento para ver más detalles
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+#### US1.1: Ver Eventos de Eventbrite (Fase 4)
+
+**Como** usuario
+**Quiero** ver eventos de Eventbrite
+**Para** descubrir shows locales, eventos pequeños e independientes que no están en Ticketmaster
+
+**Valor**: Acceso a eventos locales y de nicho que no aparecen en plataformas grandes
+
+**Criterios de Aceptación**:
+- [ ] Puedo ver eventos de Eventbrite mezclados con eventos de otras fuentes
+- [ ] No veo eventos duplicados entre Eventbrite y Ticketmaster
+- [ ] Los eventos de Eventbrite tienen la misma calidad de información
+- [ ] El sistema actualiza eventos de Eventbrite automáticamente
+
+**Prioridad**: 🟡 IMPORTANTE
+
+---
+
+#### US1.2: Ver Eventos de Sitios Locales (Fase 4)
+
+**Como** usuario
+**Quiero** ver eventos de venues locales (ej: Niceto Club, C Complejo Art Media)
+**Para** descubrir shows exclusivos que solo se anuncian en sitios de los venues
+
+**Valor**: Cobertura completa incluyendo eventos que solo se promocionan localmente
+
+**Criterios de Aceptación**:
+- [ ] Puedo ver eventos de mínimo 2 sitios locales
+- [ ] Los eventos locales se mezclan con otras fuentes sin duplicarse
+- [ ] La información es consistente (fecha, hora, venue validados)
+
+**Prioridad**: 🟡 IMPORTANTE
+
+---
+
+#### US1.3: Buscar Eventos por Texto (Fase 3)
+
+**Como** usuario
+**Quiero** buscar eventos por nombre de artista o título
+**Para** encontrar rápidamente shows específicos que me interesan
+
+**Valor**: Encontrar eventos específicos en segundos sin scroll manual
+
+**Criterios de Aceptación**:
+- [ ] Puedo escribir texto en barra de búsqueda (artista, título, venue)
+- [ ] Los resultados se actualizan al presionar Enter o botón "Buscar"
+- [ ] Búsqueda funciona con y sin acentos (ej: "Metallica" = "Metállica")
+- [ ] Búsqueda es case-insensitive
+- [ ] Si escribo menos de 2 caracteres, se muestra mensaje de ayuda
+- [ ] Se muestra conteo total de resultados encontrados
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+#### US1.4: Filtrar Eventos (Fase 3)
+
+**Como** usuario
+**Quiero** filtrar eventos por ciudad, fecha y categoría
+**Para** ver solo eventos relevantes a mis preferencias
+
+**Valor**: Reducir ruido y enfocarse en eventos de interés personal
+
+**Criterios de Aceptación**:
+- [ ] Puedo seleccionar ciudad desde un dropdown
+- [ ] Puedo seleccionar rango de fechas con date picker
+- [ ] Puedo filtrar por tipo (Concierto, Festival, Teatro, etc.)
+- [ ] Los filtros se pueden combinar (ej: Buenos Aires + Conciertos + Este mes)
+- [ ] Puedo limpiar todos los filtros con un botón
+- [ ] Los filtros persisten en URL (puedo compartir link con filtros aplicados)
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+### Epic 2: Ver Información de Eventos
+
+**Objetivo**: Los usuarios pueden acceder a toda la información necesaria para decidir asistir a un evento.
+
+#### US2.0: Ver Información Básica (Fase 1)
+
+**Como** usuario
+**Quiero** ver información esencial de cada evento en el listado
+**Para** identificar rápidamente eventos que me interesan
+
+**Valor**: Vista rápida de eventos sin navegar a detalles
+
+**Criterios de Aceptación**:
+- [ ] Cada evento muestra: título, fecha, venue, ciudad
+- [ ] Se muestra imagen del evento (o placeholder si no disponible)
+- [ ] Puedo ver la lista completa de eventos disponibles
+- [ ] Los eventos están ordenados por fecha (próximos primero)
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+#### US2.1: Ver Información Completa y Comprar Entradas (Fase 5)
+
+**Como** usuario
+**Quiero** ver todos los detalles de un evento y poder comprar entradas
+**Para** tener toda la información necesaria y acceder a la compra en un solo lugar
+
+**Valor**: Información completa + acceso directo a compra de entradas
+
+**Criterios de Aceptación**:
+- [ ] Puedo hacer clic en un evento para ver página de detalle completa
+- [ ] Veo: título, fecha completa (día/hora), venue, dirección, descripción
+- [ ] Veo precio de entradas (si disponible)
+- [ ] Veo artistas participantes (si disponible)
+- [ ] Hay botón "Comprar Entradas" que abre link externo en nueva pestaña
+- [ ] Si el evento no existe, veo página 404 clara
+- [ ] Puedo volver al listado desde el detalle
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+### Epic 3: Datos Siempre Actualizados y de Calidad
+
+**Objetivo**: Los usuarios siempre ven información actualizada, sin eventos pasados ni duplicados.
+
+#### US3.0: Eventos se Actualizan Automáticamente (Fase 6)
+
+**Como** usuario
+**Quiero** que los eventos se actualicen automáticamente cada día
+**Para** siempre ver información fresca sin eventos pasados
+
+**Valor**: Información confiable sin intervención manual
+
+**Criterios de Aceptación**:
+- [ ] Los eventos nuevos aparecen automáticamente cada día
+- [ ] Los eventos pasados desaparecen de la lista principal
+- [ ] No veo eventos cancelados o con información desactualizada
+- [ ] La actualización ocurre sin interrumpir el servicio
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+#### US3.1: Eventos de Calidad (Sin Duplicados, Validados) (Fase 2)
+
+**Como** usuario
+**Quiero** ver solo eventos válidos y sin duplicados
+**Para** no confundirme con información repetida o incorrecta
+
+**Valor**: Experiencia limpia y confiable
+
+**Criterios de Aceptación**:
+- [ ] No veo el mismo evento repetido de diferentes fuentes
+- [ ] No veo eventos sin información básica (título, fecha, venue)
+- [ ] No veo eventos en países fuera de alcance (solo Argentina en MVP)
+- [ ] La información mostrada es consistente y completa
+
+**Prioridad**: 🔴 CRÍTICO
+
+---
+
+#### US3.2: Ocultar Eventos No Deseados (Fase 5)
+
+**Como** usuario
+**Quiero** poder ocultar eventos que no me interesan
+**Para** personalizar mi feed y no volver a verlos en futuros scrapings
+
+**Valor**: Curación personalizada del contenido sin intervención manual
+
+**Criterios de Aceptación**:
+- [ ] Cada evento tiene un botón "Ocultar" o ícono de eliminar
+- [ ] Al hacer clic en "Ocultar", el evento desaparece inmediatamente de la lista
+- [ ] El evento no vuelve a aparecer en el siguiente scraping automático
+- [ ] Si cambio de filtros o hago búsquedas, los eventos ocultos permanecen ocultos
+- [ ] La acción es permanente hasta que decida restaurarlo (post-MVP)
+- [ ] Recibo confirmación visual cuando oculto un evento
+
+**Prioridad**: 🟡 IMPORTANTE
+
+**Implementación Técnica** (Opción 3 - Blacklist):
+- Tabla `EventBlacklist` que guarda `source + externalId` de eventos eliminados
+- Hard delete del evento en tabla `Event`
+- Antes de procesar eventos en scraping, filtrar contra blacklist
+- API endpoint DELETE `/api/events/:id` para eliminar desde UI
 
 ---
 
@@ -113,618 +503,68 @@ Aplica a todas las historias de usuario del MVP.
 
 ---
 
-## User Stories
-
-### US1.1: Búsqueda por Texto
-
-**Como** usuario
-**Quiero** buscar eventos por título o artista
-**Para** encontrar shows que me interesan
-
-**Criterios de Aceptación**:
-- [ ] Puedo escribir texto en la barra de búsqueda
-- [ ] Los resultados se filtran al presionar "Buscar" o Enter
-- [ ] Se muestran al menos: título, fecha, venue, imagen
-- [ ] Si no hay resultados, se muestra mensaje claro
-- [ ] La búsqueda funciona con acentos o sin ellos (ej: "Metallica" = "Metállica")
-- [ ] Búsqueda case-insensitive
-- [ ] Si la consulta tiene menos de 2 caracteres, no se ejecuta búsqueda y se muestra sugerencia para ampliar el término
-- [ ] Resultados paginados o con "cargar más" y se muestra el conteo total de resultados
-
-**Definición de Terminado**: Aplica DoD general.
-
-**Prioridad**: 🔴 CRÍTICO
-
----
-
-### US1.2: Filtros Avanzados
-
-**Como** usuario
-**Quiero** filtrar eventos por ciudad, fecha y categoría
-**Para** encontrar eventos específicos de mi interés
-
-**Criterios de Aceptación**:
-- [ ] Puedo seleccionar ciudad de una lista (dropdown)
-- [ ] Puedo seleccionar rango de fechas con date picker
-- [ ] Puedo filtrar por categoría (Concierto, Festival, Teatro, Stand-up)
-- [ ] Los filtros se pueden combinar (ej: Buenos Aires + Conciertos + Próxima semana)
-- [ ] Los filtros se pueden limpiar con un botón "Limpiar filtros"
-- [ ] Filtros persisten en URL (compartibles via link)
- - [ ] Al cambiar filtros, la vista vuelve al inicio de la lista de resultados
- - [ ] Valores inválidos de filtros recibidos por URL se ignoran y se normalizan a valores por defecto
-
-**Definición de Terminado**: Aplica DoD general.
-
-**Prioridad**: 🔴 CRÍTICO
-
----
-
-### US2.1: Ver Detalle de Evento
-
-**Como** usuario
-**Quiero** ver información completa de un evento
-**Para** decidir si quiero asistir
-
-**Criterios de Aceptación**:
-- [ ] Se muestra imagen del evento (o placeholder si no hay)
-- [ ] Se muestra título, fecha, hora, venue
-- [ ] Se muestra descripción completa (si está disponible)
-- [ ] Se muestra precio (si está disponible)
-- [ ] Hay botón "Comprar entradas" que abre link externo en nueva pestaña
-- [ ] Se muestra mapa con ubicación del venue (opcional para MVP)
-- [ ] Se muestran artistas participantes (si hay)
- - [ ] Si el evento no existe, se muestra página 404 con mensaje claro
- - [ ] Las imágenes muestran skeleton de carga y fallback ante error
- - [ ] Existe un enlace "Volver a resultados" que preserva query y filtros previos
-
-**Definición de Terminado**: Aplica DoD general.
-
-**Prioridad**: 🔴 CRÍTICO
-
----
-
-### US3.0: Población Inicial de Base de Datos
-
-**Como** administrador del sistema
-**Quiero** ejecutar scraping manual para poblar la BD por primera vez
-**Para** tener datos iniciales antes de que inicie el scraping automático
-
-**Contexto**: Al iniciar el proyecto, la BD está vacía. Este endpoint permite llenarla manualmente.
-
-**Criterios de Aceptación**:
-- [ ] Endpoint `POST /api/admin/scraper/sync` disponible
-- [ ] Requiere autenticación con header `x-api-key` (mínimo 32 caracteres)
-- [ ] Carga preferencias por defecto si no existen (lazy initialization):
-  - allowedCountries: `['AR']`
-  - allowedCities: `['Buenos Aires', 'Ciudad de Buenos Aires', 'CABA']`
-  - allowedCategories: `['Music', 'Concert', 'Festival']`
-  - allowedVenueSizes: `['small', 'medium', 'large']`
-- [ ] Ejecuta scraping de todas las fuentes configuradas en paralelo
-- [ ] Aplica validación de business rules y filtrado por preferencias
-- [ ] Deduplica eventos antes de guardar
-- [ ] Retorna resumen JSON: total scrapeado, aceptados, rechazados, razones, duración
-- [ ] Marca `needsRescraping=false` al finalizar exitosamente
-- [ ] Rate limiting: máximo 10 requests cada 10 segundos
-- [ ] Timeout global: 5 minutos
-- [ ] Logs estructurados con Pino (redactando API keys)
-
-**Definición de Terminado**: Aplica DoD general.
-
-**Prioridad**: 🔴 CRÍTICO
-
-**Ejemplo de uso**:
-```bash
-curl -X POST http://localhost:3000/api/admin/scraper/sync \
-  -H "x-api-key: your-admin-key-min-32-chars"
-```
-
-**Respuesta esperada**:
-```json
-{
-  "status": "success",
-  "summary": {
-    "totalScraped": 500,
-    "accepted": 350,
-    "rejected": 150,
-    "durationMs": 4200
-  },
-  "rejectionReasons": {
-    "COUNTRY_NOT_ALLOWED": 80,
-    "INVALID_DATE_PAST": 70
-  }
-}
-```
-
----
-
-### US3.1: Scraping Automático Diario
-
-**Como** administrador del sistema
-**Quiero** que los datos se actualicen automáticamente cada día
-**Para** tener eventos siempre actualizados sin intervención manual
-
-**Criterios de Aceptación**:
-- [ ] El scraping se ejecuta diariamente a las 2 AM UTC
-- [ ] Se scrapean mínimo 3 fuentes (Ticketmaster + 2 locales)
-- [ ] Los eventos duplicados no se guardan (fuzzy matching)
-- [ ] Los eventos pasados se mantienen en BD (histórico) pero no se muestran
-- [ ] Se envía notificación (log visible) si el scraping falla
-- [ ] Se pueden ver logs de última ejecución en `/api/scraper/status`
- - [ ] Si una fuente falla, el estado expone fuente, timestamp y motivo del fallo
- - [ ] Retries con backoff quedan registrados por fuente con contador visible en el estado
-
-**Definición de Terminado**: Aplica DoD general.
-
-**Prioridad**: 🔴 CRÍTICO
-
----
-
-### US3.2: Validación de Datos
-
-**Como** sistema
-**Quiero** validar todos los eventos antes de guardarlos
-**Para** asegurar calidad de datos en la aplicación
-
-**Criterios de Aceptación**:
-- [ ] Eventos sin título se rechazan
-- [ ] Eventos sin fecha se rechazan
-- [ ] Eventos sin venue se rechazan
-- [ ] Fechas pasadas >1 días se rechazan
-- [ ] Países fuera de la lista permitida se rechazan
-- [ ] Títulos demasiado cortos (<3 caracteres) se rechazan
-- [ ] Se loggean eventos rechazados con razón clara
-- [ ] La razón de rechazo se persiste con un código estandarizado (p.ej., MISSING_DATE, OUT_OF_SCOPE_COUNTRY)
-
-**Definición de Terminado**: Aplica DoD general.
-
-**Prioridad**: 🟡 IMPORTANTE
-
----
-
-### US3.3: Deduplicación de Eventos
-
-**Como** usuario
-**Quiero** rechazar eventos duplicados de diferentes fuentes
-**Para** no mostrar el mismo evento múltiples veces
-
-**Criterios de Aceptación**:
-- [ ] Eventos con títulos >85% similares se consideran duplicados
-- [ ] Eventos en la misma fecha ±24h se consideran duplicados
-- [ ] Eventos en el mismo venue se consideran duplicados
-- [ ] Se prefiere la fuente más confiable (ej: Ticketmaster > scraper local)
-- [ ] Se mergean campos si una fuente tiene más información
- - [ ] No hay duplicados visibles en la UI tras el proceso de deduplicación
-
-**Definición de Terminado**: Aplica DoD general.
-
-**Prioridad**: 🟡 IMPORTANTE
-
----
-
-### US3.4: Configuración de Preferencias Globales (UI Admin)
-
-**Como** administrador del sistema
-**Quiero** configurar preferencias globales de scraping
-**Para** obtener solo eventos relevantes y optimizar uso de recursos
-
-**Criterios de Aceptación**:
-- [ ] Puedo acceder a página `/admin/preferences` con formulario de configuración
-- [ ] Puedo configurar países permitidos (multi-select con códigos ISO)
-- [ ] Puedo configurar ciudades específicas (opcional, lista editable)
-- [ ] Puedo seleccionar géneros musicales de interés (multi-select)
-- [ ] Puedo seleccionar géneros bloqueados (lista negra opcional)
-- [ ] Puedo elegir categorías de eventos permitidas (Concierto, Festival, Teatro, etc.)
-- [ ] Puedo filtrar por tamaño de venue (pequeño <500, mediano 500-2000, grande >2000)
-- [ ] Los umbrales de capacidad de venue son configurables
-- [ ] Las preferencias se guardan en base de datos (tabla GlobalPreferences)
-- [ ] Cambiar preferencias marca automáticamente necesidad de re-scraping
-- [ ] Hay botón "Guardar" (solo guarda) y "Guardar y Re-scrapear Ahora" (ejecuta scraping inmediato)
-- [ ] La página muestra última actualización y conteo de eventos actuales en BD
-- [ ] Hay validación: al menos 1 país debe estar seleccionado
-- [ ] Se muestra modal de confirmación antes de ejecutar re-scraping
-- [ ] Durante re-scraping se muestra progreso o spinner
-- [ ] Al completar, se muestra resumen de eventos scrapeados/aceptados/rechazados
-
-**Definición de Terminado**: Aplica DoD general.
-
-**Prioridad**: 🟡 IMPORTANTE (Post-MVP Fase 1.5)
-
----
-
-### US3.5: Re-scraping Manual con Preferencias Actualizadas
-
-**Como** administrador
-**Quiero** ejecutar scraping manual después de cambiar preferencias
-**Para** actualizar la BD con los nuevos filtros
-
-**Contexto**: Cuando se actualizan preferencias globales (ej: agregar más países), se marca `needsRescraping=true`. Este flujo aplica los nuevos filtros.
-
-**Criterios de Aceptación**:
-- [ ] Endpoint `POST /api/admin/scraper/sync?applyNewPreferences=true` disponible
-- [ ] Invalida caché de preferencias antes de scrapear
-- [ ] Lee nuevas preferencias de BD
-- [ ] Ejecuta scraping aplicando nuevos filtros
-- [ ] Solo guarda eventos que cumplen nuevas preferencias
-- [ ] Marca `needsRescraping=false` al finalizar exitosamente
-- [ ] Retorna resumen con eventos aceptados/rechazados por las nuevas reglas
-- [ ] Si scraping falla, no marca como completado (permite retry)
-
-**Definición de Terminado**: Aplica DoD general.
-
-**Prioridad**: 🟡 IMPORTANTE (Post-MVP Fase 1.5)
-
-**Nota**: El endpoint base (`POST /api/admin/scraper/sync`) ya existe desde US3.0. Esta US solo agrega el parámetro `applyNewPreferences`.
-
----
-
-## Roadmap de Implementación
-
-### Fase 1: Setup Inicial (Día 1)
-
-**Objetivo**: Proyecto configurado y funcionando localmente.
-
-**Tareas**:
-1. Inicializar Next.js 14 con TypeScript
-2. Configurar Prisma + SQLite
-3. Setup Tailwind CSS + shadcn/ui
-4. Crear estructura de carpetas (Clean Architecture)
-5. Configurar ESLint + Prettier
-6. Setup Git + GitHub repo
-7. Configurar variables de entorno
-
-**Entregable**: `npm run dev` funciona, estructura de carpetas creada.
-
----
-
-### Fase 2: Capa de Datos (Días 2-3)
-
-**Objetivo**: Sistema de scraping asíncrono funcionando.
-
-**Tareas**:
-1. Crear interfaces base (`IDataSource`, `IEventRepository`)
-2. Implementar `DataSourceOrchestrator` con async scraping
-3. Implementar `TicketmasterSource` (API client)
-4. Crear mappers (`TicketmasterMapper`)
-5. Implementar `EventRepository` con Prisma
-6. Implementar `EventBusinessRules` (validación, deduplicación)
-7. Tests unitarios de orchestrator y business rules
-
-**Entregable**: Scraping funciona, eventos se guardan en SQLite.
-
----
-
-### Fase 3: Búsqueda (Día 4)
-
-**Objetivo**: Motor de búsqueda funcionando.
-
-**Tareas**:
-1. Configurar SQLite FTS5 en Prisma
-2. Implementar `SearchService` (búsqueda por texto)
-3. Implementar filtros (ciudad, fecha, categoría)
-4. Tests de búsqueda
-
-**Entregable**: API `/api/eventos?q=Metallica&city=Buenos Aires` funciona.
-
----
-
-### Fase 4: API Routes (Día 5)
-
-**Objetivo**: Endpoints REST funcionando.
-
-**Tareas**:
-1. GET `/api/eventos` (búsqueda con filtros)
-2. GET `/api/eventos/[id]` (detalle)
-3. POST `/api/scraper/sync` (trigger scraping manual)
-4. GET `/api/scraper/status` (estado de scraping)
-5. Validación de query params con Zod
-6. Rate limiting básico
-7. Error handling
-
-**Entregable**: API REST completa y documentada.
-
----
-
-### Fase 5: UI/UX (Días 6-8)
-
-**Objetivo**: Interfaz de usuario completa.
-
-**Tareas**:
-1. Página home con buscador
-2. Componente `EventCard` (lista)
-3. Componente `EventFilters` (sidebar)
-4. Página detalle de evento
-5. Componente `SearchBar` con debounce
-6. Loading states y error states
-7. Responsive design (mobile-first)
-8. Optimización de imágenes (Next.js Image)
-
-**Entregable**: UI completa y funcional.
-
----
-
-### Fase 6: Automatización (Día 9)
-
-**Objetivo**: Scraping automático y monitoring.
-
-**Tareas**:
-1. GitHub Action para scraping diario (cron)
-2. GitHub Action para tests en CI
-3. Setup logging con Pino
-4. Error handling global
-5. Sentry integration (opcional)
-6. Vercel deployment config
-
-**Entregable**: Scraping automático funcionando, logs estructurados.
-
----
-
-### Fase 7: Testing & Deploy (Día 10)
-
-**Objetivo**: Proyecto testeado y en producción.
-
-**Tareas**:
-
-1. Tests unitarios de business rules (>80% coverage)
-2. Tests E2E con Playwright (flujos críticos)
-3. Performance testing (búsqueda <500ms)
-4. Security audit (`npm audit`)
-5. Deploy a Vercel
-6. Configurar variables de entorno en Vercel
-7. Verificar scraping diario funciona
-
-**Entregable**: Proyecto en producción en Vercel.
-
----
-
 ## Métricas de Éxito
 
 ### Objetivos del MVP
 
-| Métrica | Objetivo | Cómo Medirlo |
-|---------|----------|--------------|
-| **Performance** | Búsqueda <500ms (p95) | Vercel Analytics |
-| **Disponibilidad** | >99% uptime | Vercel Monitoring |
-| **Datos** | >500 eventos activos | Query a BD: `SELECT COUNT(*) FROM Event WHERE date > NOW()` |
-| **Scraping Success Rate** | >90% de fuentes exitosas | Logs del orchestrator |
-| **Cobertura de Tests** | >80% dominio, >60% total | Vitest coverage report |
-| **Errores en Producción** | <5 errores/día | Sentry o Vercel logs |
-| **Lighthouse Score** | >90 Performance | Lighthouse CI |
+| Métrica | Objetivo | Propósito |
+|---------|----------|-----------|
+| **Performance** | Búsqueda <500ms | Experiencia rápida y fluida |
+| **Disponibilidad** | >99% uptime | Servicio siempre accesible |
+| **Catálogo** | >500 eventos activos | Oferta amplia de eventos |
+| **Actualización** | Diaria automática | Información siempre fresca |
+| **Calidad** | Sin duplicados visibles | Experiencia limpia |
 
-### KPIs de Negocio (Post-MVP)
+###KPIs de Negocio (Post-MVP)
 
-| KPI | Objetivo (Mes 1) | Cómo Medirlo |
-|-----|------------------|--------------|
-| Búsquedas/día | 50+ | Log de requests a `/api/eventos` |
-| Eventos mostrados/día | 200+ | Log de visualizaciones |
+| KPI | Objetivo (Mes 1) |
+|-----|------------------|
+| Búsquedas realizadas | 50+ por día |
+| Eventos visualizados | 200+ por día |
+| Usuarios únicos | 100+ por mes |
 
 ---
 
 ## Checklist Pre-Launch
 
-### Funcionalidad
+### Funcionalidad para Usuarios
 
-- [ ] Búsqueda por texto funciona correctamente
-- [ ] Filtros (ciudad, fecha, categoría) funcionan y se pueden combinar
-- [ ] Detalle de evento muestra toda la información
-- [ ] Links a compra de entradas se abren en nueva pestaña
-- [ ] Scraping diario configurado y funcionando
-- [ ] No hay eventos duplicados visibles
+- [ ] Puedo ver eventos de Ticketmaster en la página principal
+- [ ] Puedo buscar eventos por texto
+- [ ] Puedo filtrar por ciudad, fecha y categoría
+- [ ] Puedo ver detalle completo de un evento
+- [ ] Puedo acceder a compra de entradas (link externo)
+- [ ] Los eventos se actualizan automáticamente cada día
+- [ ] No veo eventos duplicados
+- [ ] No veo eventos pasados en el listado principal
 
-### Calidad
+### Experiencia de Usuario
 
-- [ ] Tests unitarios >80% cobertura (capa de dominio)
-- [ ] Tests E2E para flujos críticos (búsqueda, detalle) pasan
-- [ ] No hay errores de TypeScript (`npm run type-check`)
-- [ ] Linter pasa sin warnings (`npm run lint`)
-- [ ] Código formateado con Prettier
-
-### Performance
-
-- [ ] Lighthouse score >90 (Performance)
-- [ ] Búsqueda responde en <500ms con 1000+ eventos
-- [ ] Imágenes optimizadas con Next.js Image component
-- [ ] Lazy loading de componentes pesados
-- [ ] Build de producción exitoso (`npm run build`)
-
-### Seguridad
-
-**Ver [SECURITY.md](SECURITY.md) para guía completa de seguridad.**
-
-- [ ] Validación Zod en todos los inputs de API
-- [ ] Rate limiting implementado en endpoints públicos
-- [ ] Headers de seguridad configurados (CSP, HSTS, X-Frame-Options)
-- [ ] No hay secretos hardcoded en código
-- [ ] `.env` en `.gitignore`
-- [ ] `npm audit` sin vulnerabilidades críticas o altas
-- [ ] Sanitización de datos scrapeados (DOMPurify)
-
-### Deploy
-
-- [ ] Variables de entorno configuradas en Vercel
-- [ ] GitHub Actions funcionando (tests + deploy)
-- [ ] Dominio configurado (opcional, puede ser subdomain de Vercel)
-- [ ] Monitoring activo (Vercel logs + Sentry opcional)
-- [ ] Scraping diario ejecutándose correctamente
-- [ ] Logs accesibles y legibles
-
-### Documentación
-
-- [ ] README.md actualizado con instrucciones
-- [ ] Variables de entorno documentadas en `.env.example`
-- [ ] Arquitectura documentada en `docs/ARCHITECTURE.md`
-- [ ] User stories y roadmap en `docs/PRODUCT.md`
+- [ ] El sitio funciona en desktop, tablet y mobile
+- [ ] Las imágenes cargan rápido
+- [ ] La búsqueda responde en menos de 1 segundo
+- [ ] Puedo navegar el sitio completamente con teclado
+- [ ] Los colores y textos son legibles
 
 ---
 
 ## Features Post-MVP (Roadmap Futuro)
 
-### Fase 2 (Mes 2)
+### Mes 2-3
 
-- [ ] Autenticación con NextAuth.js
-- [ ] Favoritos/guardados de eventos
-- [ ] Notificaciones de nuevos eventos (email)
-- [ ] Más scrapers locales (objetivo: 10 fuentes)
-- [ ] Migración a PostgreSQL (si >10K eventos)
+- **Autenticación y Cuentas**: Registrarse para guardar favoritos
+- **Favoritos**: Guardar eventos para revisar después
+- **Notificaciones**: Recibir email cuando hay eventos nuevos de interés
+- **Más Fuentes**: Agregar 5-10 sitios locales adicionales
+- **Recomendaciones**: Sugerencias personalizadas basadas en historial
 
-### Fase 3 (Mes 3+)
+### Mes 4+
 
-- [ ] Recomendaciones personalizadas (ML básico)
-- [ ] Integración con Spotify (artistas relacionados)
-- [ ] Compartir eventos en redes sociales
-- [ ] API pública para terceros
-- [ ] Migración de scraping a Go (si >20 fuentes)
-
----
-
-## Adenda: Mejoras Pendientes de Evaluación
-
-> **Propósito**: Mejoras identificadas durante análisis de documentación (Noviembre 2025) que requieren decisión de producto antes de implementar.
-
-### 🔴 Alta Prioridad
-
-**1. Restricciones Técnicas No Documentadas**
-
-**Problema**: No hay límites explícitos para capacidad SQLite, rate limits de APIs, política de retención de datos, ni usuarios concurrentes esperados.
-
-**Impacto**: Sin límites claros, difícil estimar escalabilidad y costos operacionales.
-
-**Acción Sugerida**: Agregar sección "Technical Constraints" después de "Core Features" (línea ~40) con:
-- Límite de eventos en SQLite (ej: 50K eventos antes de migrar a PostgreSQL)
-- Rate limits por fuente (Ticketmaster: 5000/día, Eventbrite: 1000/día)
-- Retención de datos (ej: purgar eventos >90 días pasados)
-- Capacidad concurrente (ej: 100 usuarios simultáneos en MVP)
-
-**Referencia**: Línea 40
+- **Integración Spotify**: Ver eventos de artistas que sigo en Spotify
+- **Compartir en Redes**: Compartir eventos en Instagram, Twitter
+- **API Pública**: Permitir a terceros acceder a los datos
+- **App Móvil**: Versión nativa para iOS/Android
 
 ---
 
-**2. Algoritmo de Deduplicación Vago (US3.3)**
-
-**Problema**: Acceptance criteria dicen ">85% similar" sin especificar:
-- Algoritmo exacto (¿Levenshtein distance? ¿Jaro-Winkler? ¿Fuzzy string matching?)
-- Lógica AND/OR: ¿las 3 condiciones (título + fecha + venue) deben cumplirse TODAS o ALGUNA?
-- Qué hacer con confianza 70-85% (¿ignorar? ¿revisión manual? ¿marcar como sospechoso?)
-
-**Impacto**: Implementación ambigua puede causar falsos positivos/negativos en deduplicación.
-
-**Acción Sugerida**: En US3.3 acceptance criteria, especificar:
-```
-- Usar Jaro-Winkler similarity para títulos (threshold: 0.85)
-- Condiciones: (similarity_title > 0.85) AND (date_diff < 24h) AND (venue_match OR venue_similar > 0.7)
-- Si 0.70 < similarity < 0.85: marcar como "posible duplicado" para revisión manual (post-MVP)
-```
-
-**Referencia**: Líneas 284-301
-
----
-
-**3. Estrategia de Reintentos Incompleta (US3.1)**
-
-**Problema**: Se menciona "retries con backoff" pero faltan detalles críticos:
-- Número máximo de reintentos antes de marcar fuente como fallida
-- Qué hacer con fallos parciales (ej: scrapeó 500 eventos, luego timeout en evento 501)
-- Procedimiento de recovery cuando TODAS las fuentes fallan
-
-**Impacto**: Sin estrategia clara, scraping puede ser frágil y datos inconsistentes.
-
-**Acción Sugerida**: Agregar a US3.1 acceptance criteria:
-```
-- Retry strategy: 3 intentos con exponential backoff (2s, 4s, 8s)
-- Fallos parciales: guardar eventos exitosos, loggear error con último índice procesado
-- Si todas las fuentes fallan: enviar alerta, mantener eventos anteriores, reintentar en próximo cron
-- Timeout por fuente: 30 segundos
-```
-
-**Referencia**: Líneas 240-260
-
----
-
-### 🟡 Media Prioridad
-
-**4. Conflicto de Prioridad: US3.0 vs Automatización**
-
-**Problema**: US3.0 (scraping manual) es CRÍTICO, pero roadmap muestra automatización (GitHub Actions cron) en Fase 6 (Día 9), DESPUÉS de implementar UI (Fase 5). Esto crea confusión: ¿cómo buscan usuarios eventos si no hay scraping automático?
-
-**Impacto**: Dependencia no clara puede causar retrasos o expectativas incorrectas.
-
-**Acción Sugerida**: Clarificar en Roadmap Fase 2-4 que:
-```
-"Hasta Fase 6, scraping es manual vía endpoint /api/admin/scrape.
-Ejecutar manualmente 1 vez antes de cada demo/test de UI."
-```
-O alternativamente: mover implementación de cron a Fase 3 (antes de UI).
-
-**Referencia**: Líneas 186-238, 413-428
-
----
-
-**5. US1.3 (Ordenamiento) Sin Acceptance Criteria**
-
-**Problema**: US1.3 "Ordenamiento de resultados" aparece en Epic 1 pero no tiene user story dedicada con acceptance criteria. Falta especificar:
-- Orden por defecto (¿fecha ascendente? ¿relevancia?)
-- Opciones de ordenamiento disponibles (fecha, popularidad, precio)
-- Si ordenamiento persiste en URL query params
-
-**Impacto**: Implementación inconsistente o incompleta de funcionalidad básica.
-
-**Acción Sugerida**:
-- Opción A: Agregar US1.3 completa después de US1.2 (línea ~180) con AC detallados
-- Opción B: Mover a "Post-MVP" si no es crítico para lanzamiento
-
-**Referencia**: Línea 52
-
----
-
-**6. Lógica de Persistencia de Preferencias Ambigua (US3.4/3.5)**
-
-**Problema**: Cuando preferencias cambian y activan `needsRescraping=true`, no está claro:
-- ¿Eventos existentes se re-evalúan contra nuevas reglas y se purgan si ya no cumplen?
-- Nuevo scraping: ¿REEMPLAZA todos los eventos o AGREGA/MERGE con existentes?
-- ¿Qué pasa si usuario amplía scope (más géneros) y luego lo reduce de nuevo?
-
-**Impacto**: Comportamiento inesperado en datos, posible confusión de usuarios.
-
-**Acción Sugerida**: En US3.5 acceptance criteria, especificar estrategia de migración:
-```
-Opción A (REPLACE): Purgar todos eventos, rescrape completo
-Opción B (APPEND): Mantener eventos existentes, agregar nuevos que cumplan nuevas reglas
-Opción C (MERGE): Re-evaluar existentes, purgar los que no cumplen, agregar nuevos
-```
-Recomendar Opción C para mejor UX.
-
-**Referencia**: Líneas 304-357
-
----
-
-### 🟢 Baja Prioridad
-
-**7. Edge Cases Faltantes en Búsqueda (US1.1)**
-
-**Problema**: Buena cobertura de AC pero faltan casos edge:
-- Caracteres especiales en nombres de bandas (ej: "AC/DC", "C#", "Mötley Crüe")
-- Stopwords en búsqueda ("The Rolling Stones" vs "Rolling Stones")
-- Límite máximo de caracteres en query (prevención DoS)
-
-**Impacto**: Búsquedas pueden fallar o ser vulnerables a abuso.
-
-**Acción Sugerida**: Agregar 2-3 AC a US1.1:
-```
-- Búsqueda normaliza caracteres especiales (/ → espacio, acentos removidos)
-- Stopwords ignorados en matching ("the", "a", "an", "los", "las")
-- Max length de búsqueda: 100 caracteres (retornar 400 Bad Request si excede)
-```
-
-**Referencia**: Líneas 118-137
-
----
-
-## Notas de Implementación
-
-- **Prioridad de revisión**: Abordar items 🔴 Alta antes de Fase 2 de implementación
-- **Items 🟡 Media**: Resolver antes de Fase 4 (UI)
-- **Items 🟢 Baja**: Evaluar durante code review o post-MVP
-- **Actualizar esta adenda**: Marcar items resueltos y agregar fecha de resolución
-
----
-
-**Última actualización**: Noviembre 2025
+**Última actualización**: 10 de Noviembre de 2025

@@ -8,8 +8,8 @@
 
 ### ❌ NUNCA
 
-- **Commit de `.env` con secretos** - Verificar `.gitignore` antes de cada commit
-- **Hardcodear API keys** - Usar variables de entorno exclusivamente
+- **Commit de `.env.local` con secretos** - Verificar `.gitignore` antes de cada commit (archivo debe estar ignorado)
+- **Hardcodear API keys** - Usar variables de entorno exclusivamente (`.env.local`)
 - **Exponer secretos en `NEXT_PUBLIC_*`** - Solo usar para valores públicos (URLs, nombres)
 - **Loggear secretos** - Usar Pino `redact` para ocultar campos sensibles
 - **SQL raw sin prepared statements** - Usar Prisma ORM (queries parametrizadas)

@@ -1,0 +1,19 @@
+{
+  "dateRules": {
+    "minDaysInFuture": -1,
+    "maxDaysInFuture": 365,
+    "allowPastEvents": true
+  },
+  "locationRules": {
+    "requiredLocation": true
+  },
+  "contentRules": {
+    "minTitleLength": 3,
+    "requiredFields": ["title", "date"]
+  },
+  "duplicateRules": {
+    "matchFields": ["title", "date", "venueName"],
+    "fuzzyMatchThreshold": 0.85,
+    "dateToleranceHours": 24
+  }
+}

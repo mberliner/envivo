@@ -2,8 +2,7 @@
 // Database: SQLite (MVP) → PostgreSQL (Production)
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -18,20 +17,20 @@ datasource db {
 model GlobalPreferences {
   id String @id @default("singleton")
 
-  // Ubicación
-  allowedCountries String[] // ["AR", "UY", "CL", "BR"]
-  allowedCities    String[] // ["Buenos Aires", "Montevideo"]
+  // Ubicación - JSON strings para compatibilidad con SQLite
+  allowedCountries String @default("[\"AR\"]") // JSON: ["AR"] - MVP: Solo Argentina
+  allowedCities    String @default("[\"Buenos Aires\",\"Ciudad de Buenos Aires\",\"CABA\"]") // JSON: ["Buenos Aires", "Ciudad de Buenos Aires", "CABA"]
 
-  // Géneros musicales
-  allowedGenres String[] // ["Rock", "Pop", "Jazz", "Metal"]
-  blockedGenres String[] // ["Trap"] - lista negra opcional
+  // Géneros musicales - JSON strings
+  allowedGenres String @default("[\"Rock\",\"Pop\",\"Jazz\",\"Metal\"]") // JSON: ["Rock", "Pop", "Jazz", "Metal"]
+  blockedGenres String @default("[]") // JSON: [] - lista negra opcional
 
-  // Categorías de eventos
-  allowedCategories String[] // ["Concierto", "Festival", "Teatro"]
+  // Categorías de eventos - JSON string
+  allowedCategories String @default("[\"Concierto\",\"Festival\",\"Teatro\"]") // JSON: ["Concierto", "Festival", "Teatro"]
 
-  // Capacidad de venues
-  allowedVenueSizes   String[] // ["small", "medium", "large"]
-  venueSizeThresholds String   @default("{\"small\":500,\"medium\":2000,\"large\":5000}") // JSON string
+  // Capacidad de venues - JSON strings
+  allowedVenueSizes   String @default("[\"small\",\"medium\",\"large\"]") // JSON: ["small", "medium", "large"]
+  venueSizeThresholds String @default("{\"small\":500,\"medium\":2000,\"large\":5000}") // JSON object
 
   // Control de estado
   needsRescraping Boolean  @default(false)
@@ -78,11 +77,21 @@ model Event {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  // Índices simples para filtros individuales
   @@index([date])
   @@index([city])
   @@index([category])
   @@index([country])
-  @@fulltext([title, description]) // FTS5 para búsqueda
+
+  // Índices compuestos para combinaciones comunes de filtros
+  @@index([city, date]) // Búsqueda: eventos en ciudad X desde fecha Y
+  @@index([category, date]) // Búsqueda: festivales desde fecha Y
+  @@index([city, category]) // Búsqueda: conciertos en Buenos Aires
+
+  // Índice para deduplicación (source + externalId único)
+  @@index([source, externalId])
+
+  // FTS5 se configurará directamente en SQLite en fases posteriores
   @@map("events")
 }
 
@@ -154,4 +163,23 @@ model VenueMetadata {
   @@unique([name, city, country])
   @@index([name, city])
   @@map("venue_metadata")
+}
+
+// ============================================================================
+// EVENT BLACKLIST (US3.2 - Ocultar Eventos)
+// ============================================================================
+// Tabla para eventos que el usuario decidió ocultar/eliminar
+// Evita que regresen en futuros scrapings usando source + externalId
+
+model EventBlacklist {
+  id         String   @id @default(cuid())
+  source     String   // "livepass", "ticketmaster", etc.
+  externalId String   // ID del evento en la fuente externa
+  reason     String?  // "usuario lo eliminó", "spam", "duplicado", etc.
+  createdAt  DateTime @default(now())
+
+  // Índice único para evitar duplicados en blacklist
+  @@unique([source, externalId])
+  @@index([source, externalId]) // Búsqueda rápida durante scraping
+  @@map("event_blacklist")
 }

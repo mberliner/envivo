@@ -1,0 +1,61 @@
+{
+  "name": "envivo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "type-check": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/adapter-libsql": "^6.19.0",
+    "@prisma/client": "^6.19.0",
+    "axios": "^1.13.2",
+    "cheerio": "^1.1.2",
+    "isomorphic-dompurify": "^2.31.0",
+    "libsql": "^0.5.22",
+    "next": "16.0.1",
+    "p-limit": "^7.2.0",
+    "p-retry": "^7.1.0",
+    "prisma": "^6.19.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "string-similarity": "^4.0.4",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/string-similarity": "^4.0.2",
+    "@vitejs/plugin-react": "^5.1.0",
+    "@vitest/ui": "2.1.9",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.1",
+    "eslint-config-prettier": "^10.1.8",
+    "jsdom": "^27.1.0",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.6",
+    "typescript": "^5",
+    "vitest": "2.1.9"
+  }
+}

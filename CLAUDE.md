@@ -8,9 +8,195 @@
 
 - **Arquitectura detallada** → `docs/ARCHITECTURE.md`
 - **Product & Roadmap** → `docs/PRODUCT.md`
-- **Ejemplos de código** → `docs/examples/`
-- **Decisiones arquitectónicas** → `docs/BACKUP_CONCEPTS.md`
+- **Desarrollo y Testing** → `docs/DEVELOPMENT.md`
+- **Ejemplos de código** → `docs/examples/` (ver `docs/examples/README.md` para índice)
 - **Estructura proyecto** → `README.md`
+
+---
+
+## Mapa de Documentación del Proyecto
+
+### 📘 Documentos de Usuario Final
+
+#### **README.md** - Punto de Entrada
+**Ubicación**: `/README.md`
+**Audiencia**: Usuarios finales, nuevos desarrolladores
+**Propósito**: Resumen ejecutivo del proyecto + quick start
+**Contenido**:
+- ¿Qué es EnVivo?
+- Quick Start (instalación en 3 pasos)
+- Estructura del proyecto (vista general)
+- Features del MVP (qué hace, no cómo)
+- Comandos básicos
+- Links a documentación detallada
+
+**Cuándo consultar**: Primera visita al proyecto, setup inicial
+
+---
+
+### 📗 Documentos de Producto
+
+#### **docs/PRODUCT.md** - Roadmap y Valor de Usuario
+**Ubicación**: `/docs/PRODUCT.md`
+**Audiencia**: Product owners, stakeholders, desarrolladores
+**Propósito**: Definir QUÉ construir y POR QUÉ (valor para usuarios)
+**Contenido**:
+- Features del MVP (desde perspectiva de usuario)
+- Estrategia de Vertical Slices
+- Épicas y User Stories (enfoque en valor)
+- Roadmap de implementación (fases con valor entregado)
+- Métricas de éxito
+- Checklist pre-launch
+
+**Cuándo consultar**: Planificar features, entender roadmap, escribir user stories
+
+**⚠️ NO contiene**: Detalles técnicos, código, arquitectura, tracking de progreso
+
+---
+
+### 📙 Documentos Técnicos (Desarrollo)
+
+#### **CLAUDE.md** - Contexto para IAs (Este Archivo)
+**Ubicación**: `/CLAUDE.md`
+**Audiencia**: Claude Code y otras IAs de desarrollo
+**Propósito**: Contexto rápido + convenciones para generar código consistente
+**Contenido**:
+- Mapa de documentación (esta sección)
+- Resumen ejecutivo del proyecto
+- Arquitectura (resumen + links a detalles)
+- Naming conventions
+- Testing requirements (tabla resumen)
+- Estrategia de implementación
+- Workflows comunes
+- Preguntas frecuentes
+
+**Cuándo consultar**: Al inicio de cada sesión de IA, antes de generar código
+
+**⚠️ NO contiene**: Detalles de implementación (ver docs específicos), tracking de progreso
+
+---
+
+#### **docs/ARCHITECTURE.md** - Decisiones Arquitectónicas
+**Ubicación**: `/docs/ARCHITECTURE.md`
+**Audiencia**: Desarrolladores, arquitectos, tech leads
+**Propósito**: Documentar decisiones arquitectónicas y patrones
+**Contenido**:
+- Clean Architecture (3 capas, diagrama)
+- Scraping asíncrono (Orchestrator, Promise.allSettled)
+- Data Mappers (patrón, ejemplos)
+- Interface Segregation Principle (ISP)
+- Business Rules (diseño)
+- Database Schema (decisiones de diseño)
+- SOLID Principles (implementación en el proyecto)
+- ADRs (Architecture Decision Records)
+- Migración a Go (futuro)
+
+**Cuándo consultar**: Diseñar nuevas features, entender patrones, tomar decisiones arquitectónicas
+
+---
+
+#### **docs/DEVELOPMENT.md** - Guías Prácticas de Desarrollo
+**Ubicación**: `/docs/DEVELOPMENT.md`
+**Audiencia**: Desarrolladores activos en el proyecto
+**Propósito**: Guías prácticas para desarrollar y mantener el código
+**Contenido**:
+- Setup local (requisitos, instalación)
+- TypeScript best practices (strict mode, type guards)
+- React/Next.js best practices (server components, hooks)
+- Comandos útiles (npm scripts, Prisma)
+- Testing (stack, comandos, coverage, AAA pattern, organización)
+- Estructura del proyecto (carpetas, naming conventions)
+- Environment variables (setup, validación Zod)
+- Database setup (Prisma + SQLite)
+- Debugging (VSCode, React DevTools)
+- Performance tips (lazy loading, memoization)
+
+**Cuándo consultar**: Desarrollar features, escribir tests, configurar entorno
+
+---
+
+#### **docs/CONTRIBUTING.md** - Workflow y Convenciones
+**Ubicación**: `/docs/CONTRIBUTING.md`
+**Audiencia**: Contribuidores, nuevos desarrolladores
+**Propósito**: Definir workflow de contribución y convenciones
+**Contenido**:
+- SSOT Registry (Single Source of Truth - qué va dónde)
+- Git workflow (trunk-based híbrido)
+- Testing requirements
+- Commit conventions
+- Pull Request process
+- Code review guidelines
+
+**Cuándo consultar**: Hacer commits, crear PRs, resolver conflictos de documentación
+
+---
+
+#### **docs/SECURITY.md** - Prácticas de Seguridad
+**Ubicación**: `/docs/SECURITY.md`
+**Audiencia**: Desarrolladores, security reviewers
+**Propósito**: Guías de seguridad obligatorias
+**Contenido**:
+- Security best practices
+- Attack vectors y defensa
+- Validación de inputs (Zod)
+- Sanitización (DOMPurify)
+- Environment variables (secretos)
+- Rate limiting
+- Headers de seguridad
+
+**Cuándo consultar**: Manejar inputs externos, configurar APIs, implementar autenticación
+
+---
+
+### 📔 Tracking Interno (NO Documentación)
+
+#### **roadmap_imple.md** - Tracking de Progreso
+**Ubicación**: `/roadmap_imple.md`
+**Audiencia**: Equipo de desarrollo (interno)
+**Propósito**: Seguimiento de avance de implementación
+**Contenido**:
+- Estado actual (Fase X completada)
+- Commits por fase
+- Tests pasando
+- Checklist de tareas por fase
+
+**Cuándo consultar**: Verificar progreso interno
+
+**⚠️ IMPORTANTE**: Este archivo NO debe ser referenciado en documentación de usuario (README, PRODUCT, CLAUDE). Es solo para tracking interno.
+
+---
+
+### 🗂️ Ejemplos de Código
+
+#### **docs/examples/** - Código de Referencia
+**Ubicación**: `/docs/examples/`
+**Audiencia**: Desarrolladores
+**Propósito**: Ejemplos completos de implementación
+**Archivos**:
+- `README.md` - Índice de todos los ejemplos con descripción
+- `scraper-example.ts` - DataSourceOrchestrator, TicketmasterSource
+- `business-rules-example.ts` - EventBusinessRules, fuzzy matching
+- `testing-example.ts` - Tests unitarios, integración, E2E
+- `security-example.ts` - Validación Zod, sanitización
+- `error-handling-example.ts` - AppError classes, Pino logging
+- `env-example.ts` - Validación de variables de entorno
+- `cicd-example.yml` - GitHub Actions workflows
+
+**Cuándo consultar**: Implementar nuevas features, ver ejemplos concretos
+
+**Nota**: Ver `docs/examples/README.md` para descripciones detalladas de cada archivo
+
+---
+
+### 📝 Notas Personales (NO Documentación Formal)
+
+#### **MEJORAS.md**
+**Ubicación**: `/MEJORAS.md`
+**Tipo**: Notas personales de ideas futuras
+**Contenido**: Ideas muy breves sobre mejoras generales post-MVP (10 líneas)
+**Estado**: Brainstorming personal - puede actualizarse con nuevas ideas
+
+**⚠️ IMPORTANTE**: Este archivo es una nota personal y NO debe ser referenciado en documentación formal (README, PRODUCT, ARCHITECTURE, DEVELOPMENT, CONTRIBUTING)
 
 ---
 
@@ -56,7 +242,7 @@ Validación en `EventBusinessRules`. Configuración externa en JSON.
 
 **4. SQLite vs PostgreSQL**
 MVP: SQLite (gratuito, FTS5 integrado) | Producción: PostgreSQL si escala
-**Ver**: `docs/ARCHITECTURE.md` ADR-003 (líneas 593-610) y `docs/BACKUP_CONCEPTS.md` (líneas 17-18)
+**Ver**: `docs/ARCHITECTURE.md` ADR-003
 
 ---
 
@@ -80,15 +266,20 @@ interface IEventRepository {}
 class TicketmasterSource implements IDataSource {}
 class PrismaEventRepository implements IEventRepository {}
 
-// Services: sufijo Service
+// Services: sufijo Service (Planificado Fase 2+)
 class EventService {}
 class SearchService {}
 
-// Mappers: sufijo Mapper
-class TicketmasterMapper implements IEventMapper {}
+// Mappers: sufijo Mapper (métodos estáticos, sin interface)
+class TicketmasterMapper {
+  static toRawEvent(apiEvent): RawEvent {}
+  static toRawEvents(apiEvents): RawEvent[] {}
+}
 
-// Business Rules: sufijo Rules
-class EventBusinessRules implements IEventBusinessRules {}
+// Business Rules: sufijo Rules (Planificado Fase 2)
+class EventBusinessRules {
+  isAcceptable(event: RawEvent): boolean {}
+}
 ```
 
 ### Estructura de Carpetas
@@ -115,17 +306,35 @@ import { env } from '@/shared/infrastructure/config/env';
 
 ## Testing Requirements
 
-### Cobertura Objetivo
+### ⛔ REGLA CRÍTICA: ZERO TOLERANCE PARA TESTS FALLANDO
 
-| Capa | Cobertura | Prioridad |
-|------|-----------|-----------|
-| Domain (Business Rules) | >80% | 🔴 CRÍTICO |
-| Data (Repositories) | >70% | 🟡 IMPORTANTE |
-| Data (Scrapers) | >60% | 🟡 IMPORTANTE |
-| UI (Componentes) | >60% | 🟢 DESEABLE |
-| E2E (Flujos críticos) | 100% happy paths | 🔴 CRÍTICO |
+**TODOS los tests deben pasar SIEMPRE antes de commit.**
 
-**Testing Stack**: Vitest (unitarios) + Playwright (E2E) + React Testing Library (UI) + MSW (mocking)
+```bash
+✅ TypeScript: 0 errors (OBLIGATORIO)
+✅ Tests: 152/152 passing (OBLIGATORIO)
+✅ Lint: 0 warnings (OBLIGATORIO)
+```
+
+**NO commitear si:**
+- Aunque sea 1 test falla
+- Hay errores de TypeScript
+- Tests están comentados/skipeados
+
+**Ver [CONTRIBUTING.md#testing-requirements](docs/CONTRIBUTING.md#testing-requirements) para detalles completos.**
+
+### Cobertura Objetivo (Metas Finales)
+
+| Capa | Cobertura | Prioridad | Estado Actual |
+|------|-----------|-----------|---------------|
+| Domain (Business Rules) | >80% | 🔴 CRÍTICO | 🔴 0% (Fase 2) |
+| Data (Repositories) | >70% | 🟡 IMPORTANTE | ✅ 100% (Fase 1) |
+| Data (Scrapers) | >60% | 🟡 IMPORTANTE | ✅ 100% (Fase 1) |
+| UI (Componentes) | >60% | 🟢 DESEABLE | 🔴 0% (Fase 3+) |
+| E2E (Flujos críticos) | 100% happy paths | 🔴 CRÍTICO | 🔴 0% (Fase 7) |
+
+**Testing Stack Actual**: Vitest (unitarios) + React Testing Library (UI)
+**Planificado**: Playwright (E2E en Fase 7)
 
 **Ver `docs/examples/testing-example.ts` para ejemplos completos.**
 
@@ -179,39 +388,33 @@ import { env } from '@/shared/infrastructure/config/env';
 
 ## Git Workflow
 
-### Enfoque Híbrido
+### Trunk-Based Development
 
-**Commits directos a `main`** (para cambios menores):
-- Bug fixes pequeños (<100 líneas)
-- Tests nuevos
-- Refactoring menor
-- Docs y configs
-
-**Feature branches + PR** (para cambios mayores):
-- Features nuevas (>100 líneas)
-- Cambios arquitectónicos
-- Nuevas integraciones (APIs, scrapers)
-- Cambios en schema de BD
+**Durante implementación del MVP**: Commits directos a `main` después de cada fase completada.
 
 ```bash
-# Para cambios mayores: crear feature branch
-git checkout -b feature/nueva-funcionalidad
+# Después de completar cada fase del roadmap
+git add .
+git commit -m "feat: [descripción de la fase]"
+git push origin main
 
-# Commits pequeños con convenciones
-git commit -m "feat: add nueva funcionalidad"
-git commit -m "test: add tests para nueva funcionalidad"
-
-# Push y PR
-git push origin feature/nueva-funcionalidad
+# Ejemplos:
+git commit -m "feat: initial setup with Next.js, Prisma, and Clean Architecture folders"
+git commit -m "feat: first vertical slice - Ticketmaster to UI"
+git commit -m "feat: business rules and deduplication"
 ```
 
 **Commit conventions**:
-- `feat:` nueva funcionalidad
+- `feat:` nueva funcionalidad (cada fase del roadmap)
 - `fix:` bug fix
 - `refactor:` refactoring sin cambio funcional
 - `test:` agregar/mejorar tests
 - `docs:` documentación
 - `chore:` cambios menores (deps, config)
+
+**Post-MVP** (cuando hay usuarios en producción):
+- Cambios pequeños: commit directo a `main`
+- Features grandes: feature branches + PR para code review
 
 ---
 
@@ -228,6 +431,22 @@ git push origin feature/nueva-funcionalidad
 
 ## Variables de Entorno
 
+> **Archivo a usar**: `.env.local` (desarrollo local)
+> **❌ NO usar**: `.env` (para evitar confusión)
+
+### Setup Rápido
+
+```bash
+# 1. Copiar template
+cp .env.example .env.local
+
+# 2. Generar ADMIN_API_KEY (32+ caracteres)
+openssl rand -base64 32
+# O: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+
+# 3. Editar .env.local con valores reales
+```
+
 ### Requeridas (Mínimas)
 
 ```bash
@@ -242,23 +461,34 @@ NEXT_PUBLIC_APP_NAME="EnVivo"
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="..."  # Opcional
 ```
 
-**Ver `docs/examples/env-example.ts` para lista completa con validación Zod.**
+**Referencias**:
+- Setup detallado: [docs/DEVELOPMENT.md#setup-de-variables-de-entorno](docs/DEVELOPMENT.md#setup-de-variables-de-entorno)
+- Template: `.env.example`
+- Validación Zod: `docs/examples/env-example.ts`
 
 ---
 
-## Estado Actual del Proyecto
+## Estrategia de Implementación
 
-### ✅ Completado
-- Plan completo del proyecto
-- Arquitectura definida (Clean Architecture + SOLID)
-- Decisiones técnicas documentadas
-- User stories y roadmap
-- Testing strategy, security guidelines, CI/CD workflows
+**Enfoque**: **Vertical Slices** (features end-to-end) en lugar de horizontal (capas completas)
 
-### 🚧 En Progreso
-- Ninguna implementación iniciada
+**Ventajas**:
+- ✅ Valor inmediato: algo funcional en 1-2 días
+- ✅ Feedback rápido: UI con datos reales desde Fase 1
+- ✅ Deploy temprano y continuo (Fase 6)
+- ✅ Commit y push al trunk (`main`) después de cada fase completada
 
-**Ver `docs/PRODUCT.md` (líneas 250-365) para roadmap detallado de implementación (Días 1-10).**
+**Roadmap**: Ver `docs/PRODUCT.md` (líneas 360-587) para roadmap detallado con 8 fases incrementales.
+
+**Prioridad de Fases**:
+1. **Fase 0** (4-6h): Setup inicial → `npm run dev` funciona
+2. **Fase 1** (1-2 días): Ticketmaster → BD → UI → **PRIMER VALOR** 🎉
+3. **Fase 2** (1 día): Business Rules + Deduplicación
+4. **Fase 3** (1-2 días): Búsqueda + Filtros (US1.1, US1.2)
+5. **Fase 4** (1 día): Orchestrator asíncrono
+6. **Fase 5** (1 día): Segunda fuente + Detalle (US2.1)
+7. **Fase 6** (1 día): Scraping automático + Deploy
+8. **Fase 7** (1 día): Tests E2E + Pulido final
 
 ---
 
