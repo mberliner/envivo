@@ -17,9 +17,9 @@ if (!ADMIN_API_KEY) {
   process.exit(1);
 }
 
-console.log('🔧 Fixing preferences first...\n');
+console.log('🔧 Checking preferences...\n');
 
-// First, fix preferences
+// Check and fix preferences if needed
 const fixReq = http.request({
   hostname: 'localhost',
   port: 3000,
@@ -36,16 +36,23 @@ const fixReq = http.request({
     try {
       const result = JSON.parse(data);
       if (result.success) {
-        console.log('✅ Preferences fixed!');
+        console.log('✅ Preferences OK!');
         console.log('   allowedCategories:', result.preferences.allowedCategories);
         console.log('');
-        console.log('⚠️  IMPORTANTE: Debes reiniciar el servidor para que el cache se actualice:');
-        console.log('   1. Presiona Ctrl+C en la terminal donde corre "npm run dev"');
-        console.log('   2. Ejecuta "npm run dev" de nuevo');
-        console.log('   3. Vuelve a ejecutar este script\n');
-        process.exit(0);
+
+        // Check if "Concierto" is in allowed categories
+        const hasConcierto = result.preferences.allowedCategories.includes('Concierto');
+
+        if (hasConcierto) {
+          console.log('🚀 Iniciando scraping de LivePass (Café Berlín)...\n');
+          runScraping();
+        } else {
+          console.log('⚠️  Error: "Concierto" no está en allowedCategories.');
+          console.log('   Esto no debería pasar. Por favor reinicia el servidor.\n');
+          process.exit(1);
+        }
       } else {
-        console.error('❌ Failed to fix preferences:', result.error);
+        console.error('❌ Failed to check preferences:', result.error);
         process.exit(1);
       }
     } catch (error) {
@@ -56,7 +63,7 @@ const fixReq = http.request({
 });
 
 fixReq.on('error', (error) => {
-  console.error('❌ Error fixing preferences:', error.message);
+  console.error('❌ Error checking preferences:', error.message);
   process.exit(1);
 });
 
