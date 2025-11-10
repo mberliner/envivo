@@ -80,7 +80,7 @@ Verifica que `.env.local` tenga:
 ADMIN_API_KEY="tu-api-key-aqui"
 ```
 
-> Ver [docs/ENV_SETUP.md](ENV_SETUP.md) para guía completa de configuración.
+> Ver [DEVELOPMENT.md#setup-de-variables-de-entorno](DEVELOPMENT.md#setup-de-variables-de-entorno) para guía completa de configuración.
 
 ### Error: "No se puede conectar al servidor"
 

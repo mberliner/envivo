@@ -495,11 +495,10 @@ src/app/api/admin/scraper/sync/
 - `9da088e` - fix: TypeScript errors in PrismaEventRepository tests
 
 **Testing Manual** (Opcional - Requiere API Keys):
-- Ver guía completa en `TESTING_FASE4_MANUAL.md`
-- Requiere: `TICKETMASTER_API_KEY` y `ADMIN_API_KEY` en `.env.local`
+- Requiere: `TICKETMASTER_API_KEY` y `ADMIN_API_KEY` en `.env.local` (ver [docs/DEVELOPMENT.md#setup-de-variables-de-entorno](docs/DEVELOPMENT.md#setup-de-variables-de-entorno))
 - Endpoint: `POST /api/admin/scraper/sync`
 - Respuesta incluye métricas del orchestrator: `sources[]`, `totalEvents`, `totalProcessed`, `totalDuplicates`, etc.
-- Instrucciones paso a paso para: scraping manual, verificar BD, validar deduplicación, troubleshooting
+- Testing cubierto por 18 tests unitarios del orchestrator (todos pasando ✅)
 
 ---
 
