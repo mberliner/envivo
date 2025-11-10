@@ -20,10 +20,12 @@ export async function POST(request: NextRequest) {
 
     console.log('[ResetDatabase] ⚠️  Iniciando limpieza completa de la BD...');
 
-    // Contar antes de borrar
+    // Contar antes de borrar (convertir BigInt a Number para JSON)
+    const blacklistCount = (await prisma.$queryRawUnsafe<any[]>('SELECT COUNT(*) as count FROM event_blacklist'))[0].count;
+
     const countsBefore = {
       events: await prisma.event.count(),
-      blacklist: (await prisma.$queryRawUnsafe<any[]>('SELECT COUNT(*) as count FROM event_blacklist'))[0].count,
+      blacklist: Number(blacklistCount), // BigInt -> Number
       venues: await prisma.venue.count(),
       artists: await prisma.artist.count(),
     };
