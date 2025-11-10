@@ -1,6 +1,6 @@
 # Roadmap de Implementación - EnVivo
 
-> **Última actualización**: 9 de Noviembre de 2025 (Fase 4 COMPLETADA)
+> **Última actualización**: 10 de Noviembre de 2025 (Fase 5 COMPLETADA)
 > **Branch actual**: `claude/project-overview-011CUqdqHGiRRDdpktZ4Ef7M`
 > **Estrategia**: Vertical Slices (features end-to-end)
 
@@ -503,7 +503,103 @@ src/app/api/admin/scraper/sync/
 
 ---
 
-### Fase 5: Segunda Fuente + Detalle
+### ✅ Fase 5: Curación de Contenido (US3.2 - Ocultar Eventos) - **COMPLETADA**
+
+**Duración real**: ~6 horas
+**Objetivo**: Usuarios pueden ocultar eventos no deseados y evitar que regresen ✅
+
+**Tareas completadas**:
+1. [x] Crear tabla `EventBlacklist` en Prisma schema
+   - [x] Campos: id, source, externalId, reason, createdAt
+   - [x] Unique constraint en (source, externalId)
+   - [x] Índice en (source, externalId)
+2. [x] Crear migración SQL manual (workaround para Prisma client generation issue)
+3. [x] Implementar API endpoint DELETE `/api/events/:id`
+   - [x] Autenticación no requerida (feature pública)
+   - [x] Transacción atómica: delete Event + insert EventBlacklist
+   - [x] Usar raw SQL para EventBlacklist (workaround)
+   - [x] Manejo de errores (evento no encontrado, sin externalId)
+4. [x] Modificar `EventCard` component
+   - [x] Botón eliminar (X roja) en esquina superior izquierda
+   - [x] Estado de loading (isDeleting)
+   - [x] Optimistic UI (desaparece inmediatamente)
+   - [x] Confirmación con diálogo nativo
+   - [x] Callback onDelete para actualizar lista padre
+5. [x] Modificar `EventsPage` component
+   - [x] Manejar callback de eliminación
+   - [x] Actualizar lista de eventos filtrada
+6. [x] Implementar filtrado en `EventService.processEvents()`
+   - [x] Método `isBlacklisted(source, externalId)` con raw SQL
+   - [x] Check antes de validación de business rules
+   - [x] Incrementar contador de rejected
+   - [x] Agregar error descriptivo
+7. [x] Agregar endpoint `/api/admin/reset-database` para testing
+8. [x] Crear scripts de debugging:
+   - [x] `debug-blacklist-simple.js` - Verificar estado de blacklist
+   - [x] `reset-database.js` - Limpiar BD para testing
+
+**Bugs Resueltos**:
+- 🐛 **Bug crítico en PrismaEventRepository.ts línea 125**:
+  - **Problema**: Repository buscaba `_source` en Events (que tienen campo `source`)
+  - **Root Cause**: EventService convierte RawEvent (con `_source`) → Event (con `source`). Repository recibía Events pero buscaba `_source`
+  - **Resultado**: Todos los eventos se guardaban con `source='unknown'` y blacklist no matcheaba
+  - **Fix**: Cambiar `(rawEvent as any)._source` a `rawEvent.source` en repository
+  - **Commit**: `e1eaefa` - fix: use source field instead of _source in repository upsert
+
+**Commits**:
+- `d9f7ffa` - fix: convert BigInt to Number in reset-database endpoint
+- `0fcf6e8` - feat: add reset database endpoint and script
+- `9778a34` - debug: add temporary logging to track source field extraction
+- `e1eaefa` - fix: use source field instead of _source in repository upsert (CRÍTICO)
+- `2e50415` - chore: cleanup US3.2 implementation - remove debug code and docs
+
+**Archivos Creados/Modificados**:
+```
+prisma/
+└── schema.prisma ✅ (EventBlacklist model)
+
+src/
+├── app/api/
+│   ├── events/[id]/route.ts ✅ (DELETE endpoint)
+│   └── admin/reset-database/route.ts ✅ (testing)
+├── features/events/
+│   ├── domain/services/
+│   │   └── EventService.ts ✅ (blacklist filtering)
+│   ├── data/repositories/
+│   │   └── PrismaEventRepository.ts ✅ (fix crítico: source field)
+│   └── ui/components/
+│       ├── EventCard.tsx ✅ (delete button)
+│       └── EventsPage.tsx ✅ (delete callback)
+
+scripts/
+├── debug-blacklist-simple.js ✅ (mantenido para debugging)
+├── reset-database.js ✅ (testing helper)
+├── verify-us3.2.js ❌ (eliminado - no necesario)
+└── fix-event-sources.js ❌ (eliminado - no necesario)
+
+docs/
+└── VERIFICATION_US3.2.md ❌ (eliminado - no necesario)
+```
+
+**Tests**: Tests manuales pasando ✅
+- ✅ Eliminar evento desde UI (X roja)
+- ✅ Evento desaparece inmediatamente (optimistic UI)
+- ✅ Evento se guarda en EventBlacklist
+- ✅ Evento se elimina de Event table
+- ✅ Scraping posterior filtra eventos blacklisteados (Errores: 1)
+- ✅ Evento eliminado NO regresa después de scraping
+
+**TypeScript**: 0 errores ✅
+
+**Entregable**:
+- ✅ US3.2 completada y funcional
+- ✅ Eventos ocultos no regresan en scrapings
+- ✅ Optimistic UI para mejor UX
+- ✅ Blacklist persiste correctamente por (source, externalId)
+
+---
+
+### Fase 6: Segunda Fuente + Detalle
 **Duración estimada**: 1 día  
 **Objetivo**: Validar orchestrator + US2.1 (Detalle de evento)
 
@@ -690,6 +786,8 @@ chore: cambios menores (deps, config)
 **Fase 1**: ✅ **COMPLETADA**
 **Fase 2**: ✅ **COMPLETADA**
 **Fase 3**: ✅ **COMPLETADA**
+**Fase 4**: ✅ **COMPLETADA**
+**Fase 5**: ✅ **COMPLETADA**
 
 **Progreso actual**:
 - ✅ Setup completo (Prisma, TypeScript, Clean Architecture)
@@ -699,30 +797,35 @@ chore: cambios menores (deps, config)
 - ✅ Búsqueda y filtros (frontend) - SearchBar + EventFilters + URL persistence
 - ✅ Database indexes optimizados
 - ✅ Database seed con 15 eventos realistas
-- ✅ 152/152 tests pasando (backend)
+- ✅ 170/170 tests pasando (backend)
 - ✅ Custom hooks (useDebounce, useQueryParams)
+- ✅ DataSourceOrchestrator con scraping paralelo (Promise.allSettled)
+- ✅ US3.2: Ocultar eventos no deseados (EventBlacklist + filtrado)
 
-**Siguiente paso**: **Iniciar Fase 4 - Orchestrator Asíncrono**
+**Siguiente paso**: **Iniciar Fase 6 - Segunda Fuente + Detalle**
 
-**Fase 4 - Tareas**:
-1. Crear DataSourceOrchestrator para ejecutar múltiples fuentes en paralelo
-2. Implementar Promise.allSettled para manejo robusto de errores
-3. Integrar EventService para procesamiento batch
-4. Rate limiting y retry logic
-5. Actualizar API Route /api/admin/scraper/sync para usar orchestrator
-6. Tests del orchestrator
+**Fase 6 - Tareas pendientes**:
+1. Implementar segunda fuente (Eventbrite API o scraper local)
+2. Crear mapper correspondiente
+3. Registrar en orchestrator
+4. Verificar deduplicación entre fuentes
+5. Crear página `/eventos/[id]/page.tsx`
+6. Crear componente `EventDetail`
+7. Link "Volver a resultados" (preserva query params)
+8. Tests de nueva fuente
+9. Tests E2E básicos (home → detalle)
 
 **Opciones alternativas**:
-- **Opción A**: Iniciar Fase 4 (Orchestrator) - Prepara para múltiples fuentes
-- **Opción B**: Saltar a Fase 5 (Segunda fuente de datos - Eventbrite)
-- **Opción C**: Saltar a Fase 6 (Deploy + Scraping automático)
+- **Opción A**: Iniciar Fase 6 (Segunda fuente + Detalle)
+- **Opción B**: Saltar a Fase 7 (Deploy + Scraping automático)
+- **Opción C**: Agregar más fuentes locales (sitios argentinos)
 
 ---
 
-**Estado del Proyecto**: 🟢 **FASE 3 COMPLETADA - LISTO PARA FASE 4**
+**Estado del Proyecto**: 🟢 **FASE 5 COMPLETADA - LISTO PARA FASE 6**
 
 **Branch**: `claude/project-overview-011CUqdqHGiRRDdpktZ4Ef7M`
-**Última actualización**: 8 de Noviembre de 2025
-**Tests**: 152 passed (152) ✅ (backend)
-**TypeScript**: Errores menores en tests (no bloqueantes) ⚠️
-**Fases completadas**: 3/8 (Fase 0, 1, 2, 3)
+**Última actualización**: 10 de Noviembre de 2025
+**Tests**: 170 passed (170) ✅ (backend) + Tests manuales US3.2 ✅
+**TypeScript**: 0 errores ✅
+**Fases completadas**: 5/8 (Fase 0, 1, 2, 3, 4, 5)
