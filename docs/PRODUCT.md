@@ -462,7 +462,7 @@ Organizadas por valor entregado a usuarios. Cada fuente de datos es una user sto
 
 ---
 
-#### US3.2: Ocultar Eventos No Deseados (Fase 5)
+#### US3.2: Ocultar Eventos No Deseados (Fase 5) ✅ COMPLETADA
 
 **Como** usuario
 **Quiero** poder ocultar eventos que no me interesan
@@ -471,20 +471,24 @@ Organizadas por valor entregado a usuarios. Cada fuente de datos es una user sto
 **Valor**: Curación personalizada del contenido sin intervención manual
 
 **Criterios de Aceptación**:
-- [ ] Cada evento tiene un botón "Ocultar" o ícono de eliminar
-- [ ] Al hacer clic en "Ocultar", el evento desaparece inmediatamente de la lista
-- [ ] El evento no vuelve a aparecer en el siguiente scraping automático
-- [ ] Si cambio de filtros o hago búsquedas, los eventos ocultos permanecen ocultos
-- [ ] La acción es permanente hasta que decida restaurarlo (post-MVP)
-- [ ] Recibo confirmación visual cuando oculto un evento
+- [x] Cada evento tiene un botón "Ocultar" o ícono de eliminar (X roja en esquina superior izquierda)
+- [x] Al hacer clic en "Ocultar", el evento desaparece inmediatamente de la lista (optimistic UI)
+- [x] El evento no vuelve a aparecer en el siguiente scraping automático (blacklist funcional)
+- [x] Si cambio de filtros o hago búsquedas, los eventos ocultos permanecen ocultos
+- [x] La acción es permanente hasta que decida restaurarlo (post-MVP)
+- [x] Recibo confirmación visual cuando oculto un evento (diálogo de confirmación)
 
 **Prioridad**: 🟡 IMPORTANTE
 
 **Implementación Técnica** (Opción 3 - Blacklist):
-- Tabla `EventBlacklist` que guarda `source + externalId` de eventos eliminados
-- Hard delete del evento en tabla `Event`
-- Antes de procesar eventos en scraping, filtrar contra blacklist
-- API endpoint DELETE `/api/events/:id` para eliminar desde UI
+- ✅ Tabla `EventBlacklist` que guarda `source + externalId` de eventos eliminados
+- ✅ Hard delete del evento en tabla `Event`
+- ✅ Antes de procesar eventos en scraping, filtrar contra blacklist
+- ✅ API endpoint DELETE `/api/events/:id` para eliminar desde UI
+
+**Notas de Implementación**:
+- Fix crítico: `PrismaEventRepository` usaba `_source` en lugar de `source` (Events usan `source`, RawEvents usan `_source`)
+- Script útil: `scripts/debug-blacklist-simple.js` para verificar estado de blacklist
 
 ---
 
