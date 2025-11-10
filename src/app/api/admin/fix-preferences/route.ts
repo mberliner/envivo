@@ -25,13 +25,13 @@ export async function POST(request: NextRequest) {
 
     // Upsert default preferences with correct allowedCategories
     const result = await prisma.globalPreferences.upsert({
-      where: { id: 'default' },
+      where: { id: 'singleton' },
       update: {
         allowedCategories: JSON.stringify(['Concierto', 'Festival', 'Teatro', 'Stand-up']),
         updatedAt: new Date(),
       },
       create: {
-        id: 'default',
+        id: 'singleton',
         allowedCountries: JSON.stringify(['AR', 'UY', 'CL', 'BR']),
         allowedCities: JSON.stringify(['Buenos Aires', 'Ciudad de Buenos Aires', 'CABA', 'Montevideo', 'Santiago']),
         allowedGenres: JSON.stringify(['Rock', 'Pop', 'Jazz', 'Metal', 'Indie', 'Electrónica']),
