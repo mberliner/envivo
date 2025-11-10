@@ -215,8 +215,6 @@ export class EventService {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-
-    return event;
   }
 
   /**
