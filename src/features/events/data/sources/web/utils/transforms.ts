@@ -372,8 +372,16 @@ export function parseLivepassDateTime(dateTimeString: string): Date | undefined 
     const hour = parseInt(hourStr);
     const minute = parseInt(minuteStr);
 
-    if (!isNaN(day) && !isNaN(month) && !isNaN(year) && !isNaN(hour) && !isNaN(minute)) {
+    // Validar rangos antes de crear el Date
+    if (
+      day >= 1 && day <= 31 &&
+      month >= 1 && month <= 12 &&
+      year >= 1900 && year <= 2100 &&
+      hour >= 0 && hour <= 23 &&
+      minute >= 0 && minute <= 59
+    ) {
       const date = new Date(year, month - 1, day, hour, minute);
+      // Validar que la fecha sea válida (por ej. 31/02 no es válida)
       if (!isNaN(date.getTime())) {
         return date;
       }
