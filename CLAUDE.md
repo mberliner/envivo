@@ -432,7 +432,7 @@ git commit -m "feat: business rules and deduplication"
 ## Variables de Entorno
 
 > **Archivo a usar**: `.env.local` (desarrollo local)
-> **Documentación completa**: [docs/ENV_SETUP.md](docs/ENV_SETUP.md)
+> **❌ NO usar**: `.env` (para evitar confusión)
 
 ### Setup Rápido
 
@@ -440,28 +440,31 @@ git commit -m "feat: business rules and deduplication"
 # 1. Copiar template
 cp .env.example .env.local
 
-# 2. Editar .env.local con valores reales
+# 2. Generar ADMIN_API_KEY (32+ caracteres)
+openssl rand -base64 32
+# O: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+
+# 3. Editar .env.local con valores reales
 ```
 
 ### Requeridas (Mínimas)
 
 ```bash
-# .env.local
 DATABASE_URL="file:./dev.db"
 TICKETMASTER_API_KEY="..."
 EVENTBRITE_API_KEY="..."  # Opcional
 ADMIN_API_KEY="..." # mínimo 32 caracteres
 
-# Públicas (expuestas al cliente - usar SOLO cuando sea necesario)
+# Públicas (expuestas al cliente)
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 NEXT_PUBLIC_APP_NAME="EnVivo"
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="..."  # Opcional
 ```
 
 **Referencias**:
+- Setup detallado: [docs/DEVELOPMENT.md#setup-de-variables-de-entorno](docs/DEVELOPMENT.md#setup-de-variables-de-entorno)
 - Template: `.env.example`
 - Validación Zod: `docs/examples/env-example.ts`
-- Guía completa: `docs/ENV_SETUP.md`
 
 ---
 

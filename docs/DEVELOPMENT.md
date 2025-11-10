@@ -288,19 +288,39 @@ src/
 
 ### Archivos de Entorno
 
-```
-.env.local          # Desarrollo local (NO commitear - en .gitignore)
-.env.example        # Template (SÍ commitear)
-.env.test           # Testing (solo si difiere de .env.local)
+| Archivo | Propósito | Git | Prioridad Next.js |
+|---------|-----------|-----|-------------------|
+| **`.env.example`** | Template con variables de ejemplo | ✅ Commiteado | - |
+| **`.env.local`** | Valores reales para desarrollo local | ❌ Gitignored | **Alta** |
+
+**❌ NO usar `.env`** - Para evitar confusión entre dev y production. Usar solo `.env.local`.
+
+### Setup Inicial
+
+```bash
+# 1. Copiar template
+cp .env.example .env.local
+
+# 2. Generar ADMIN_API_KEY seguro (32+ caracteres)
+# Opción A - OpenSSL (Linux/Mac)
+openssl rand -base64 32
+
+# Opción B - Node.js (cualquier OS)
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+
+# Opción C - PowerShell (Windows)
+[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))
+
+# 3. Editar .env.local con valores reales
 ```
 
 ### Variables Requeridas
 
 ```bash
-# .env.local (mínimo)
+# .env.local (mínimo para desarrollo)
 DATABASE_URL="file:./dev.db"
 TICKETMASTER_API_KEY="tu-api-key-aqui"
-ADMIN_API_KEY="min-32-caracteres-random-string"
+ADMIN_API_KEY="clave-segura-generada-arriba"
 
 # Públicas (expuestas al cliente con NEXT_PUBLIC_)
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
@@ -325,6 +345,13 @@ export const env = envSchema.parse(process.env);
 ```
 
 **Si una variable falta o es inválida, la app falla al iniciar con error claro.**
+
+### Seguridad
+
+- ✅ Usar `.env.local` para desarrollo local
+- ✅ Usar `NEXT_PUBLIC_*` SOLO para variables que DEBEN ser públicas
+- ❌ NUNCA commitear `.env.local` a Git
+- ❌ NUNCA usar `NEXT_PUBLIC_*` para secretos o API keys
 
 **Ver [docs/examples/env-example.ts](examples/env-example.ts) para lista completa de variables.**
 
