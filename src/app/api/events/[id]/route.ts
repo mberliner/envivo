@@ -25,7 +25,7 @@ export async function DELETE(
   context: RouteContext
 ): Promise<NextResponse> {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
 
     // Buscar el evento antes de eliminarlo (necesitamos source + externalId)
     const event = await prisma.event.findUnique({
