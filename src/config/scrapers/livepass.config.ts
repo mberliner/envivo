@@ -48,6 +48,7 @@ export const livepassConfig: ScraperConfig = {
     // Campos sin selector (usamos defaultValues)
     venue: undefined,
     city: undefined,
+    country: undefined,
     address: undefined,
     price: undefined,
     category: undefined,
