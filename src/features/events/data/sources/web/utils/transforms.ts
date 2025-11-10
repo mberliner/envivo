@@ -283,6 +283,119 @@ export function cleanLivepassTitle(title: string): string {
 }
 
 /**
+ * Parse fechas de LivePass con hora incluida
+ *
+ * Soporta múltiples formatos comunes en páginas de eventos:
+ * - "Sábado 9 de Noviembre - 21:00 hs"
+ * - "9 de noviembre de 2025 a las 21:00"
+ * - "09/11/2025 21:00"
+ * - "09/11/2025 - 21:00hs"
+ * - "2025-11-09T21:00:00" (ISO)
+ *
+ * @param dateTimeString - String con fecha y hora
+ * @returns Date object o undefined si no se puede parsear
+ */
+export function parseLivepassDateTime(dateTimeString: string): Date | undefined {
+  if (!dateTimeString || typeof dateTimeString !== 'string') {
+    return undefined;
+  }
+
+  const normalized = dateTimeString.toLowerCase().trim();
+
+  // Formato ISO (más común en atributos datetime)
+  // "2025-11-09T21:00:00" o "2025-11-09 21:00"
+  if (normalized.match(/\d{4}-\d{2}-\d{2}/)) {
+    const date = new Date(dateTimeString);
+    if (!isNaN(date.getTime())) {
+      return date;
+    }
+  }
+
+  // Formato: "9 de noviembre de 2025 a las 21:00"
+  const fullSpanishMatch = normalized.match(
+    /(\d{1,2})\s+de\s+([a-z]+)\s+de\s+(\d{4})\s+(?:a las|-)?\s*(\d{1,2}):(\d{2})/
+  );
+  if (fullSpanishMatch) {
+    const [, dayStr, monthName, yearStr, hourStr, minuteStr] = fullSpanishMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const year = parseInt(yearStr);
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+
+    if (month !== undefined && !isNaN(day) && !isNaN(year) && !isNaN(hour) && !isNaN(minute)) {
+      const date = new Date(year, month, day, hour, minute);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+  }
+
+  // Formato: "Sábado 9 de Noviembre - 21:00" (sin año)
+  const shortSpanishMatch = normalized.match(
+    /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s*-?\s*(\d{1,2}):(\d{2})/
+  );
+  if (shortSpanishMatch) {
+    const [, dayStr, monthName, hourStr, minuteStr] = shortSpanishMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+
+    if (month !== undefined && !isNaN(day) && !isNaN(hour) && !isNaN(minute)) {
+      // Inferir año (igual que parseLivepassDate)
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+
+      let year = currentYear;
+      if (month < currentMonth || (month === currentMonth && day < now.getDate())) {
+        year = currentYear + 1;
+      }
+
+      const date = new Date(year, month, day, hour, minute);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+  }
+
+  // Formato: "09/11/2025 21:00" o "09/11/2025 - 21:00hs"
+  const numericMatch = normalized.match(
+    /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})\s*-?\s*(\d{1,2}):(\d{2})/
+  );
+  if (numericMatch) {
+    const [, dayStr, monthStr, yearStr, hourStr, minuteStr] = numericMatch;
+    const day = parseInt(dayStr);
+    const month = parseInt(monthStr);
+    const year = parseInt(yearStr);
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+
+    if (!isNaN(day) && !isNaN(month) && !isNaN(year) && !isNaN(hour) && !isNaN(minute)) {
+      const date = new Date(year, month - 1, day, hour, minute);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+  }
+
+  // Fallback: intentar parseSpanishDate (sin hora) si no hay hora en el string
+  const dateOnly = parseSpanishDate(dateTimeString);
+  if (dateOnly) {
+    return dateOnly;
+  }
+
+  // Último intento: Date.parse
+  const parsed = Date.parse(dateTimeString);
+  if (!isNaN(parsed)) {
+    return new Date(parsed);
+  }
+
+  return undefined;
+}
+
+/**
  * Mapeo de nombres de transformaciones a funciones
  *
  * Usado por GenericWebScraper para aplicar transformaciones por nombre.
@@ -294,6 +407,7 @@ export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: strin
   cleanWhitespace: (value: string) => cleanWhitespace(value),
   toAbsoluteUrl: (value: string, baseUrl?: string) => toAbsoluteUrl(value, baseUrl || ''),
   parseLivepassDate: (value: string) => parseLivepassDate(value),
+  parseLivepassDateTime: (value: string) => parseLivepassDateTime(value),
   cleanLivepassTitle: (value: string) => cleanLivepassTitle(value),
 };
 

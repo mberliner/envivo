@@ -97,6 +97,55 @@ export const livepassConfig: ScraperConfig = {
     Accept: 'text/html,application/xhtml+xml',
     'Accept-Language': 'es-AR,es;q=0.9',
   },
+
+  // Configuración para scraping de página de detalles
+  detailPage: {
+    enabled: true,
+    delayBetweenRequests: 500, // 500ms entre requests de detalles
+
+    selectors: {
+      // Fecha completa con hora (selectores comunes en páginas de eventos)
+      // Intentamos múltiples selectores porque el HTML puede variar
+      date: '.event-date, .datetime, time, .fecha, .date-time, [itemprop="startDate"]',
+
+      // Venue/lugar completo
+      venue: '.venue-name, .location-name, .lugar, [itemprop="location"]',
+
+      // Dirección del venue
+      address: '.venue-address, .address, .direccion, [itemprop="address"]',
+
+      // Precio (puede no estar en el listado)
+      price: '.price, .ticket-price, .precio, [itemprop="price"]',
+
+      // Descripción completa del evento
+      description: '.event-description, .description, .descripcion, article, [itemprop="description"]',
+
+      // Otros campos opcionales que pueden estar en detalles
+      title: 'h1, .event-title, .titulo',
+      image: '.event-image@src, [itemprop="image"]@src, .main-image@src',
+    },
+
+    defaultValues: {
+      // Si no encuentra venue en la página, usar default
+      venue: 'Café Berlín',
+      city: 'Buenos Aires',
+      country: 'AR',
+    },
+
+    transforms: {
+      // Transform específico para parsear fecha + hora completa
+      date: 'parseLivepassDateTime',
+
+      // Limpiar descripción HTML
+      description: 'sanitizeHtml',
+
+      // Extraer precio numérico
+      price: 'extractPrice',
+
+      // URLs absolutas
+      image: 'toAbsoluteUrl',
+    },
+  },
 };
 
 /**

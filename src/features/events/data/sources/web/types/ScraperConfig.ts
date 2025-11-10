@@ -91,6 +91,24 @@ export interface ListingConfig {
 }
 
 /**
+ * Configuración de página de detalles
+ * Para scrapers que necesitan obtener información adicional
+ * de una página separada por cada evento
+ */
+export interface DetailPageConfig {
+  /** Si está habilitado el scraping de detalles */
+  enabled: boolean;
+  /** Selectores específicos para la página de detalles */
+  selectors: EventSelectors;
+  /** Valores por defecto específicos para detalles */
+  defaultValues?: DefaultValues;
+  /** Transformaciones específicas para campos de detalles */
+  transforms?: TransformFunctions;
+  /** Delay entre requests de detalles (ms) - default 500ms */
+  delayBetweenRequests?: number;
+}
+
+/**
  * Funciones de transformación para campos extraídos
  * Las keys deben coincidir con las keys de EventSelectors
  */
@@ -146,12 +164,14 @@ export interface ScraperConfig {
   baseUrl: string;
   /** Configuración del listado de eventos */
   listing: ListingConfig;
-  /** Selectores CSS para extraer datos */
+  /** Selectores CSS para extraer datos del listado */
   selectors: EventSelectors;
   /** Valores por defecto para campos sin selector */
   defaultValues?: DefaultValues;
   /** Funciones de transformación (nombre de función en transforms.ts) */
   transforms?: TransformFunctions;
+  /** Configuración de página de detalles (opcional) */
+  detailPage?: DetailPageConfig;
   /** Rate limiting */
   rateLimit?: RateLimitConfig;
   /** Manejo de errores */
