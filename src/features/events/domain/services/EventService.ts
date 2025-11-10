@@ -80,6 +80,16 @@ export class EventService {
         // 0. Verificar blacklist (US3.2)
         // IMPORTANTE: GenericWebScraper usa _source (no source)
         const source = (rawEvent as any)._source || rawEvent.source || 'unknown';
+
+        // DEBUG: Log source extraction (TEMPORAL)
+        if (eventsToUpsert.length === 0) { // Log solo el primer evento
+          console.log('[EventService] DEBUG - First event source extraction:');
+          console.log('  rawEvent._source:', (rawEvent as any)._source);
+          console.log('  rawEvent.source:', rawEvent.source);
+          console.log('  extracted source:', source);
+          console.log('  externalId:', rawEvent.externalId);
+        }
+
         if (await this.isBlacklisted(source, rawEvent.externalId)) {
           result.rejected++;
           result.errors.push({
@@ -214,6 +224,11 @@ export class EventService {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+
+    // DEBUG: Log source guardado (TEMPORAL)
+    console.log(`[EventService] DEBUG - Saving event "${event.title}" with source: "${event.source}"`);
+
+    return event;
   }
 
   /**
