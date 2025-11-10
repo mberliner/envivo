@@ -122,7 +122,7 @@ export class PrismaEventRepository implements IEventRepository {
           price: rawEvent.price ?? null,
           priceMax: rawEvent.priceMax ?? null,
           currency: rawEvent.currency || 'USD',
-          source: (rawEvent as any)._source || 'unknown', // Por ahora hardcodeado
+          source: rawEvent.source || 'unknown', // Fix: usar source (Events ya tienen source, no _source)
           externalId: rawEvent.externalId || null,
         };
 
