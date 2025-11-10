@@ -17,7 +17,51 @@ if (!ADMIN_API_KEY) {
   process.exit(1);
 }
 
-console.log('🚀 Iniciando scraping de LivePass (Café Berlín)...\n');
+console.log('🔧 Fixing preferences first...\n');
+
+// First, fix preferences
+const fixReq = http.request({
+  hostname: 'localhost',
+  port: 3000,
+  path: '/api/admin/fix-preferences',
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${ADMIN_API_KEY}`,
+    'Content-Type': 'application/json',
+  },
+}, (res) => {
+  let data = '';
+  res.on('data', (chunk) => { data += chunk; });
+  res.on('end', () => {
+    try {
+      const result = JSON.parse(data);
+      if (result.success) {
+        console.log('✅ Preferences fixed!');
+        console.log('   allowedCategories:', result.preferences.allowedCategories);
+        console.log('');
+        console.log('🚀 Iniciando scraping de LivePass (Café Berlín)...\n');
+
+        // Now run the actual scraping
+        runScraping();
+      } else {
+        console.error('❌ Failed to fix preferences:', result.error);
+        process.exit(1);
+      }
+    } catch (error) {
+      console.error('❌ Error parsing fix-preferences response:', error.message);
+      process.exit(1);
+    }
+  });
+});
+
+fixReq.on('error', (error) => {
+  console.error('❌ Error fixing preferences:', error.message);
+  process.exit(1);
+});
+
+fixReq.end();
+
+function runScraping() {
 
 const options = {
   hostname: 'localhost',
@@ -81,3 +125,5 @@ req.on('error', (error) => {
 });
 
 req.end();
+
+} // End of runScraping function
