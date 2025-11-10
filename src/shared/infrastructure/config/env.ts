@@ -9,7 +9,8 @@ const envSchema = z.object({
 
   // API Keys
   TICKETMASTER_API_KEY: z.string().optional(),
-  EVENTBRITE_API_KEY: z.string().optional(),
+  LIVEPASS_API_KEY: z.string().optional(), // LivePass uses web scraping, API key optional
+  EVENTBRITE_API_KEY: z.string().optional(), // Optional - for future expansion
 
   // Admin
   ADMIN_API_KEY: z

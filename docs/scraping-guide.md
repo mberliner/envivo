@@ -161,9 +161,8 @@ Ver documentación en `docs/PRODUCT.md` (Fase 6: Deployment).
 
 1. ✅ **Scraper funcionando** (LivePass - Café Berlín)
 2. ⏳ **Agregar más fuentes**:
-   - Eventbrite Argentina
    - Passline
-   - Otros venues locales
+   - Otros venues locales (ND Ateneo, Niceto Club, etc.)
 3. ⏳ **Automatizar** con cron jobs o Vercel Cron
 4. ⏳ **Monitoring** y alertas si scraping falla
 

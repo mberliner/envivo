@@ -26,7 +26,7 @@ Ordenadas por criticidad desde perspectiva de **Vertical Slices** - fundamentos 
 | **Deduplicación inteligente** | Detectar duplicados con fuzzy matching entre todas las fuentes | 🔴 CRÍTICO | Fase 2 |
 | **Búsqueda por texto** | Buscar eventos por título, artista o venue | 🔴 CRÍTICO | Fase 3 |
 | **Filtros combinables** | Filtrar por ciudad, fecha, categoría (combinables y persistentes en URL) | 🔴 CRÍTICO | Fase 3 |
-| **Múltiples fuentes** | Eventbrite + mínimo 2 sitios locales scrapeados | 🟡 IMPORTANTE | Fase 4 |
+| **Múltiples fuentes** | LivePass + mínimo 2 sitios locales scrapeados | 🟡 IMPORTANTE | Fase 4 |
 | **Ocultar eventos** | Usuarios pueden eliminar eventos no deseados (no regresan en scrapings) | 🟡 IMPORTANTE | Fase 5 |
 | **Detalle de evento** | Página con información completa + link directo a compra de entradas | 🔴 CRÍTICO | Fase 6 |
 | **Actualización automática** | Scraping diario automático con cron job | 🔴 CRÍTICO | Fase 7 |
@@ -82,7 +82,7 @@ En **vertical slices**, la criticidad no solo viene del valor inmediato al usuar
 
 **¿Por qué son críticas?**
 - ❌ **Sin validación**: Basura en BD (fechas inválidas, ubicaciones vacías, eventos sin información)
-- ❌ **Sin deduplicación**: Cuando agregues Eventbrite (Fase 4), usuarios verán duplicados
+- ❌ **Sin deduplicación**: Cuando agregues LivePass (Fase 4), usuarios verán duplicados
 - ✅ **Fundamentos primero**: Construir sobre base sólida = menos refactoring después
 
 **🔴 Fase 3, 6-7 (UX y Producción - CRÍTICO)**
@@ -121,7 +121,7 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 | Fase 1 | US1.0 (Ticketmaster)<br>US2.0 (Info básica) | Ver eventos de Ticketmaster en UI |
 | Fase 2 | US3.1 (Calidad datos) | Sin duplicados, eventos válidos |
 | Fase 3 | US1.3 (Búsqueda)<br>US1.4 (Filtros) | Encontrar eventos específicos |
-| Fase 4 | US1.1 (Eventbrite)<br>US1.2 (Sitios locales) | Más cobertura de eventos |
+| Fase 4 | US1.1 (LivePass)<br>US1.2 (Sitios locales) | Más cobertura de eventos |
 | Fase 5 | US3.2 (Ocultar eventos) | Curar contenido personalizado |
 | Fase 6 | US2.1 (Info completa) | Detalles + compra de entradas |
 | Fase 7 | US3.0 (Actualización auto) | Datos siempre frescos |
@@ -195,13 +195,13 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 **Objetivo**: Mayor cobertura de eventos
 
 **User Stories a Implementar**:
-- US1.1: Ver eventos de Eventbrite
+- US1.1: Ver eventos de LivePass
 - US1.2: Ver eventos de sitios locales
 
 **Valor Entregado**: Acceso a eventos locales y de nicho que no están en Ticketmaster
 
 **Tareas**:
-- Implementar integración con Eventbrite API
+- Implementar integración con LivePass API
 - Implementar scraper de 1-2 sitios locales
 - Verificar deduplicación entre todas las fuentes
 - Tests de nuevas fuentes
@@ -304,19 +304,19 @@ Organizadas por valor entregado a usuarios. Cada fuente de datos es una user sto
 
 ---
 
-#### US1.1: Ver Eventos de Eventbrite (Fase 4)
+#### US1.1: Ver Eventos de LivePass (Fase 4)
 
 **Como** usuario
-**Quiero** ver eventos de Eventbrite
+**Quiero** ver eventos de LivePass
 **Para** descubrir shows locales, eventos pequeños e independientes que no están en Ticketmaster
 
 **Valor**: Acceso a eventos locales y de nicho que no aparecen en plataformas grandes
 
 **Criterios de Aceptación**:
-- [ ] Puedo ver eventos de Eventbrite mezclados con eventos de otras fuentes
-- [ ] No veo eventos duplicados entre Eventbrite y Ticketmaster
-- [ ] Los eventos de Eventbrite tienen la misma calidad de información
-- [ ] El sistema actualiza eventos de Eventbrite automáticamente
+- [ ] Puedo ver eventos de LivePass mezclados con eventos de otras fuentes
+- [ ] No veo eventos duplicados entre LivePass y Ticketmaster
+- [ ] Los eventos de LivePass tienen la misma calidad de información
+- [ ] El sistema actualiza eventos de LivePass automáticamente
 
 **Prioridad**: 🟡 IMPORTANTE
 

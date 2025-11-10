@@ -58,7 +58,7 @@
 - ✅ Validación de rangos de fechas (pasado/futuro)
 - ✅ Normalización automática (ciudad → Title Case, país → ISO-2, categorías)
 - ✅ Deduplicación con fuzzy matching (>85% similaridad)
-- ✅ Detección cross-source (mismo evento en Ticketmaster y Eventbrite)
+- ✅ Detección cross-source (mismo evento en múltiples fuentes)
 - ✅ Estrategia de actualización inteligente (fuente más confiable)
 - ✅ EventService para procesamiento batch con reportes detallados
 
@@ -603,7 +603,7 @@ docs/
 **Objetivo**: Validar orchestrator + US2.1 (Detalle de evento)
 
 **Tareas pendientes**:
-1. [ ] Implementar segunda fuente (Eventbrite API o scraper local)
+1. [ ] Implementar segunda fuente (scraper local de venue adicional)
 2. [ ] Crear mapper correspondiente
 3. [ ] Registrar en orchestrator
 4. [ ] Verificar deduplicación entre fuentes
@@ -804,7 +804,7 @@ chore: cambios menores (deps, config)
 **Siguiente paso**: **Iniciar Fase 6 - Segunda Fuente + Detalle**
 
 **Fase 6 - Tareas pendientes**:
-1. Implementar segunda fuente (Eventbrite API o scraper local)
+1. Implementar segunda fuente (scraper local de venue adicional)
 2. Crear mapper correspondiente
 3. Registrar en orchestrator
 4. Verificar deduplicación entre fuentes

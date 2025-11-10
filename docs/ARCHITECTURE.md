@@ -56,7 +56,7 @@ Scrapear 5+ fuentes secuencialmente: **~20 segundos**
 ```typescript
 // ❌ LENTO
 const t1 = await scrapeTicketmaster();  // 3s
-const t2 = await scrapeEventbrite();    // 3s
+const t2 = await scrapeLivePass();      // 3s
 const t3 = await scrapeVenue1();        // 4s
 // Total: 10+ segundos
 ```
@@ -68,7 +68,7 @@ Scraping paralelo: **~4 segundos** (tiempo del más lento)
 // ✅ RÁPIDO
 const results = await Promise.allSettled([
   scrapeTicketmaster(),
-  scrapeEventbrite(),
+  scrapeLivePass(),
   scrapeVenue1()
 ]);
 // Total: ~4 segundos
@@ -88,7 +88,7 @@ const results = await Promise.allSettled([
 const orchestrator = new DataSourceOrchestrator();
 
 orchestrator.register(new TicketmasterSource());
-orchestrator.register(new EventbriteSource());
+orchestrator.register(new LivePassSource());
 orchestrator.register(new LocalVenueScraper());
 
 const result = await orchestrator.fetchAll({
@@ -167,7 +167,7 @@ async fetch(): Promise<RawEvent[]> {
 
 ### Naming Convention
 
-- **Clase**: `{Source}Mapper` (ej: `TicketmasterMapper`, `EventbriteMapper`)
+- **Clase**: `{Source}Mapper` (ej: `TicketmasterMapper`, `LivePassMapper`)
 - **Métodos**: `toRawEvent()`, `toRawEvents()`, `toDTO()`, etc.
 - **Sin interfaces**: Los mappers son funciones puras, no hay necesidad de polimorfismo
 

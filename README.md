@@ -89,7 +89,7 @@ envivo/
 
 ## 🎯 Features del MVP
 
-- **Descubrir eventos** - Agregación de eventos de múltiples fuentes (Ticketmaster, Eventbrite, sitios locales)
+- **Descubrir eventos** - Agregación de eventos de múltiples fuentes (Ticketmaster, LivePass, sitios locales)
 - **Búsqueda inteligente** - Buscar por artista, título, venue con filtros (ciudad, fecha, categoría)
 - **Información completa** - Detalles de eventos, precios, links a compra de entradas
 - **Datos actualizados** - Scraping automático diario con validación y deduplicación

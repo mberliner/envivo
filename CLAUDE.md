@@ -208,7 +208,7 @@
 **Stack**: Next.js 14 + TypeScript + Prisma + SQLite + Tailwind CSS
 
 ### Objetivos del MVP
-1. Scrapear eventos de APIs públicas (Ticketmaster, Eventbrite) y sitios locales
+1. Scrapear eventos de APIs públicas (Ticketmaster, LivePass) y sitios locales
 2. Ofrecer búsqueda y filtrado de eventos musicales
 3. Validar y deduplicar eventos automáticamente
 4. Deploy gratuito en Vercel con scraping diario automático
@@ -452,7 +452,8 @@ openssl rand -base64 32
 ```bash
 DATABASE_URL="file:./dev.db"
 TICKETMASTER_API_KEY="..."
-EVENTBRITE_API_KEY="..."  # Opcional
+LIVEPASS_API_KEY="..."     # Opcional - LivePass usa web scraping, no API
+EVENTBRITE_API_KEY="..."   # Opcional - para expansión futura
 ADMIN_API_KEY="..." # mínimo 32 caracteres
 
 # Públicas (expuestas al cliente)

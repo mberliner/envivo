@@ -252,7 +252,7 @@ src/
 │       │   ├── interfaces/    # IDataSource, IEventRepository
 │       │   └── services/      # EventService (planificado Fase 2+)
 │       ├── data/              # Implementaciones I/O
-│       │   ├── sources/       # TicketmasterSource, EventbriteSource
+│       │   ├── sources/       # TicketmasterSource, LivePassSource
 │       │   ├── mappers/       # TicketmasterMapper (API → Domain)
 │       │   ├── repositories/  # PrismaEventRepository
 │       │   └── orchestrator/  # DataSourceOrchestrator (planificado Fase 4)
