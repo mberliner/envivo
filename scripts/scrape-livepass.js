@@ -39,10 +39,11 @@ const fixReq = http.request({
         console.log('✅ Preferences fixed!');
         console.log('   allowedCategories:', result.preferences.allowedCategories);
         console.log('');
-        console.log('🚀 Iniciando scraping de LivePass (Café Berlín)...\n');
-
-        // Now run the actual scraping
-        runScraping();
+        console.log('⚠️  IMPORTANTE: Debes reiniciar el servidor para que el cache se actualice:');
+        console.log('   1. Presiona Ctrl+C en la terminal donde corre "npm run dev"');
+        console.log('   2. Ejecuta "npm run dev" de nuevo');
+        console.log('   3. Vuelve a ejecutar este script\n');
+        process.exit(0);
       } else {
         console.error('❌ Failed to fix preferences:', result.error);
         process.exit(1);
