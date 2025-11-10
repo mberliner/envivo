@@ -51,6 +51,8 @@ export interface OrchestratorResult {
   totalDuplicates: number;
   /** Total de errores durante procesamiento */
   totalErrors: number;
+  /** Detalle de errores */
+  errors: Array<{ event: RawEvent; reason: string }>;
   /** Duración total en ms */
   duration: number;
   /** Timestamp de ejecución */
@@ -168,12 +170,14 @@ export class DataSourceOrchestrator {
     let totalProcessed = 0;
     let totalDuplicates = 0;
     let totalErrors = 0;
+    let errors: Array<{ event: RawEvent; reason: string }> = [];
 
     if (allEvents.length > 0) {
       const processResult = await this.eventService.processEvents(allEvents);
       totalProcessed = processResult.accepted + processResult.updated;
       totalDuplicates = processResult.duplicates;
       totalErrors = processResult.errors.length;
+      errors = processResult.errors;
     }
 
     const totalDuration = Date.now() - startTime;
@@ -184,6 +188,7 @@ export class DataSourceOrchestrator {
       totalProcessed,
       totalDuplicates,
       totalErrors,
+      errors,
       duration: totalDuration,
       timestamp: new Date(),
     };

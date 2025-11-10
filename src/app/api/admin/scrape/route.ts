@@ -52,6 +52,14 @@ export async function POST(request: NextRequest) {
       duration: `${result.duration}ms`,
     });
 
+    // Log first 5 errors for debugging
+    if (result.totalErrors > 0 && result.errors.length > 0) {
+      console.log('[Scraper] First 5 errors:');
+      result.errors.slice(0, 5).forEach((err, i) => {
+        console.log(`  ${i + 1}. "${err.event?.title || 'Unknown'}": ${err.reason}`);
+      });
+    }
+
     return NextResponse.json({
       success: true,
       result: {
@@ -62,6 +70,11 @@ export async function POST(request: NextRequest) {
         totalErrors: result.totalErrors,
         duration: result.duration,
         timestamp: result.timestamp,
+        // Include first 5 errors in response for debugging
+        errors: result.errors.slice(0, 5).map((e) => ({
+          title: e.event?.title || 'Unknown',
+          reason: e.reason,
+        })),
       },
     });
   } catch (error: unknown) {
