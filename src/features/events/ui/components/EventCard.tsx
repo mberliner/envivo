@@ -1,14 +1,56 @@
 import { Event } from '@/features/events/domain/entities/Event';
+import { useState } from 'react';
 
 export interface EventCardProps {
   event: Event;
+  onDelete?: (eventId: string) => void;
 }
 
 /**
  * Tarjeta de evento individual
  * Muestra información básica del evento con diseño responsive
  */
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({ event, onDelete }: EventCardProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
+
+  /**
+   * Handle event deletion
+   */
+  const handleDelete = async () => {
+    if (!confirm(`¿Estás seguro que querés ocultar "${event.title}"?\n\nEste evento no volverá a aparecer en futuros scrapings.`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      const response = await fetch(`/api/events/${event.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete event');
+      }
+
+      // Optimistic update: hide card immediately
+      setIsDeleted(true);
+
+      // Notify parent component
+      if (onDelete) {
+        onDelete(event.id);
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      alert('Error al eliminar el evento. Por favor intentá de nuevo.');
+      setIsDeleting(false);
+    }
+  };
+
+  // Don't render if deleted
+  if (isDeleted) {
+    return null;
+  }
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('es-AR', {
       weekday: 'short',
@@ -43,7 +85,7 @@ export function EventCard({ event }: EventCardProps) {
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 bg-white">
+    <div className={`border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 bg-white ${isDeleting ? 'opacity-50' : ''}`}>
       {/* Imagen del evento */}
       {event.imageUrl && (
         <div className="relative h-48 w-full bg-gray-100">
@@ -53,11 +95,35 @@ export function EventCard({ event }: EventCardProps) {
             className="w-full h-full object-cover"
           />
           {/* Badge de categoría */}
-          <div className="absolute top-2 right-2">
+          <div className="absolute top-2 right-2 flex gap-2">
             <span className="bg-purple-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
               {event.category}
             </span>
           </div>
+
+          {/* Botón de eliminar */}
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="absolute top-2 left-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Ocultar este evento"
+            aria-label="Ocultar evento"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
       )}
 

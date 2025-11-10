@@ -13,6 +13,7 @@
 import { Event, RawEvent } from '../entities/Event';
 import { IEventRepository } from '../interfaces/IEventRepository';
 import { EventBusinessRules } from './EventBusinessRules';
+import { prisma } from '@/shared/infrastructure/database/prisma';
 
 export interface ProcessEventsResult {
   accepted: number;
@@ -32,7 +33,31 @@ export class EventService {
   ) {}
 
   /**
+   * Verifica si un evento está en la blacklist
+   * @param source - Fuente del evento (e.g., "livepass", "ticketmaster")
+   * @param externalId - ID externo del evento
+   * @returns true si está blacklisted, false si no
+   */
+  private async isBlacklisted(source: string, externalId?: string): Promise<boolean> {
+    if (!externalId) {
+      return false; // Si no tiene externalId, no puede estar blacklisted
+    }
+
+    const blacklisted = await prisma.eventBlacklist.findUnique({
+      where: {
+        source_externalId: {
+          source,
+          externalId,
+        },
+      },
+    });
+
+    return blacklisted !== null;
+  }
+
+  /**
    * Procesa eventos entrantes aplicando reglas de negocio:
+   * 0. Filtrar eventos blacklisted (ocultos por usuario)
    * 1. Validación (campos requeridos, fechas, ubicación)
    * 2. Normalización (ciudad, país, categoría)
    * 3. Deduplicación (fuzzy matching con eventos existentes)
@@ -53,6 +78,23 @@ export class EventService {
     const eventsToUpsert: Event[] = [];
 
     for (const rawEvent of rawEvents) {
+      try {
+        // 0. Verificar blacklist (US3.2)
+        if (await this.isBlacklisted(rawEvent.source, rawEvent.externalId)) {
+          result.rejected++;
+          result.errors.push({
+            event: rawEvent,
+            reason: 'Evento en blacklist (oculto por usuario)',
+          });
+          continue;
+        }
+      } catch (error) {
+        // Si falla la consulta de blacklist, continuar sin bloquear
+        console.warn('[EventService] Error checking blacklist:', error);
+      }
+
+      // Continuar con validación normal
+
       try {
         // Convertir RawEvent a Event para validación
         const event = this.rawEventToEvent(rawEvent);

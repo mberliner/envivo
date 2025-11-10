@@ -150,6 +150,15 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
     }
   }, [offset, limit]);
 
+  /**
+   * Handle event deletion
+   */
+  const handleEventDelete = useCallback((eventId: string) => {
+    // Remove event from local state immediately (optimistic update)
+    setEvents((prevEvents) => prevEvents.filter((e) => e.id !== eventId));
+    setTotal((prevTotal) => Math.max(0, prevTotal - 1));
+  }, []);
+
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -219,7 +228,7 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {events.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventCard key={event.id} event={event} onDelete={handleEventDelete} />
               ))}
             </div>
 

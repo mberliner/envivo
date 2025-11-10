@@ -164,3 +164,22 @@ model VenueMetadata {
   @@index([name, city])
   @@map("venue_metadata")
 }
+
+// ============================================================================
+// EVENT BLACKLIST (US3.2 - Ocultar Eventos)
+// ============================================================================
+// Tabla para eventos que el usuario decidió ocultar/eliminar
+// Evita que regresen en futuros scrapings usando source + externalId
+
+model EventBlacklist {
+  id         String   @id @default(cuid())
+  source     String   // "livepass", "ticketmaster", etc.
+  externalId String   // ID del evento en la fuente externa
+  reason     String?  // "usuario lo eliminó", "spam", "duplicado", etc.
+  createdAt  DateTime @default(now())
+
+  // Índice único para evitar duplicados en blacklist
+  @@unique([source, externalId])
+  @@index([source, externalId]) // Búsqueda rápida durante scraping
+  @@map("event_blacklist")
+}
