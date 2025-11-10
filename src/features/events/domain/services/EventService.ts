@@ -43,17 +43,14 @@ export class EventService {
       return false; // Si no tiene externalId, no puede estar blacklisted
     }
 
-    // @ts-ignore - eventBlacklist will exist after migration
-    const blacklisted = await prisma.eventBlacklist.findUnique({
-      where: {
-        source_externalId: {
-          source,
-          externalId,
-        },
-      },
-    });
+    // Usar raw SQL hasta que se regenere el Prisma client
+    const result: any = await prisma.$queryRawUnsafe(
+      `SELECT id FROM event_blacklist WHERE source = ? AND externalId = ? LIMIT 1`,
+      source,
+      externalId
+    );
 
-    return blacklisted !== null;
+    return Array.isArray(result) && result.length > 0;
   }
 
   /**

@@ -65,16 +65,17 @@ export async function DELETE(
 
     // Usar transacción para garantizar atomicidad
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      // 1. Agregar a blacklist
-      // @ts-ignore - eventBlacklist will exist after migration
-      await tx.eventBlacklist.create({
-        data: {
-          id: nanoid(),
-          source: event.source,
-          externalId: event.externalId!,
-          reason: 'Usuario lo eliminó desde UI',
-        },
-      });
+      // 1. Agregar a blacklist usando raw SQL
+      // Workaround: usar raw SQL hasta que se regenere el Prisma client
+      await tx.$executeRawUnsafe(
+        `INSERT INTO event_blacklist (id, source, externalId, reason, createdAt)
+         VALUES (?, ?, ?, ?, ?)`,
+        nanoid(),
+        event.source,
+        event.externalId!,
+        'Usuario lo eliminó desde UI',
+        new Date().toISOString()
+      );
 
       // 2. Eliminar el evento (hard delete)
       await tx.event.delete({
