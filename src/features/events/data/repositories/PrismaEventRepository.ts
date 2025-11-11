@@ -5,6 +5,7 @@ import {
 import { Event } from '@/features/events/domain/entities/Event';
 import { RawEvent } from '@/features/events/domain/entities/Event';
 import { prisma } from '@/shared/infrastructure/database/prisma';
+import { Prisma } from '@prisma/client';
 
 /**
  * Implementación de IEventRepository usando Prisma ORM
@@ -42,7 +43,7 @@ export class PrismaEventRepository implements IEventRepository {
    * Busca eventos aplicando filtros
    */
   async findByFilters(filters: EventFilters): Promise<Event[]> {
-    const where: any = {};
+    const where: Prisma.EventWhereInput = {};
 
     // Filtro por ciudad (exact match - viene de dropdown)
     if (filters.city) {
@@ -164,7 +165,7 @@ export class PrismaEventRepository implements IEventRepository {
   /**
    * Convierte modelo de Prisma a entidad de dominio
    */
-  private toDomainEvent(prismaEvent: any): Event {
+  private toDomainEvent(prismaEvent: Prisma.EventGetPayload<Record<string, never>>): Event {
     return {
       id: prismaEvent.id,
       title: prismaEvent.title,

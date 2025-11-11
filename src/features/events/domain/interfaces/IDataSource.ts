@@ -76,7 +76,7 @@ export interface IToggleable {
 /**
  * Capacidad opcional: Configuración
  */
-export interface IConfigurable<T = any> {
+export interface IConfigurable<T = unknown> {
   configure(config: T): void;
   getConfig(): T;
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import axios, { type AxiosResponse } from 'axios';
+import axios from 'axios';
 
 // Mock env module BEFORE importing TicketmasterSource
 vi.mock('@/shared/infrastructure/config/env', () => ({
@@ -96,7 +96,7 @@ describe('TicketmasterSource', () => {
         },
       };
 
-      axiosGetSpy.mockResolvedValueOnce(mockApiResponse as any);
+      axiosGetSpy.mockResolvedValueOnce(mockApiResponse as unknown as typeof mockApiResponse);
 
       const events = await source.fetch();
 
@@ -125,7 +125,7 @@ describe('TicketmasterSource', () => {
         data: {
           _embedded: undefined,
         },
-      } as any);
+      } as unknown as typeof axiosGetSpy);
 
       const events = await source.fetch();
 
@@ -185,7 +185,7 @@ describe('TicketmasterSource', () => {
         data: {
           _embedded: { events: [] },
         },
-      } as any);
+      } as unknown as typeof axiosGetSpy);
 
       await source.fetch({ city: 'Cordoba', country: 'AR' });
 

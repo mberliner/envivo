@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Event } from '@/features/events/domain/entities/Event';
 import { sanitizeHTML, isSafeURL } from '@/shared/utils/sanitize';
 
@@ -99,10 +100,11 @@ export function EventDetail({ event }: EventDetailProps) {
         {/* Hero Image */}
         {event.imageUrl && (
           <div className="relative w-full aspect-video bg-gray-200 rounded-lg overflow-hidden shadow-lg mb-6">
-            <img
+            <Image
               src={event.imageUrl}
               alt={event.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
             />
             {/* Category Badge */}
             <div className="absolute top-4 right-4">

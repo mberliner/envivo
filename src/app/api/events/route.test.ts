@@ -4,7 +4,7 @@
  * Tests de la API pública de búsqueda de eventos
  */
 
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, vi } from 'vitest';
 import { GET } from './route';
 import { NextRequest } from 'next/server';
 import { mockEvents } from '@/test/fixtures/events.fixtures';

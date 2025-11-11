@@ -114,7 +114,7 @@ export class EventBusinessRules {
     const { requiredFields, minTitleLength } = this.config.contentRules;
 
     for (const field of requiredFields) {
-      const value = (event as any)[field];
+      const value = (event as Record<string, unknown>)[field];
 
       if (value === undefined || value === null || value === '') {
         return {

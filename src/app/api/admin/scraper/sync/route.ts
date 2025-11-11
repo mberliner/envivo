@@ -36,14 +36,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Parsear parámetros opcionales del body
-    let country: string | undefined;
-    let city: string | undefined;
-
+    // 2. Parsear parámetros opcionales del body (actualmente no se usan)
     try {
-      const body = await req.json();
-      country = body.country;
-      city = body.city;
+      await req.json();
+      // En el futuro, se podrían usar parámetros como country y city
     } catch {
       // Body vacío o inválido - usar defaults
     }

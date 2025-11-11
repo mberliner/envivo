@@ -184,7 +184,7 @@ describe('EventService', () => {
     });
 
     test('normaliza categoría', async () => {
-      const rawEvents = [createRawEvent({ category: 'concert' as any })];
+      const rawEvents = [createRawEvent({ category: 'concert' as unknown })];
 
       await service.processEvents(rawEvents);
 

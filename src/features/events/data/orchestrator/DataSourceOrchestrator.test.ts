@@ -30,7 +30,6 @@ import { DataSourceOrchestrator } from './DataSourceOrchestrator';
 import type { IDataSource } from '@/features/events/domain/interfaces/IDataSource';
 import type { RawEvent } from '@/features/events/domain/entities/Event';
 import type { IEventRepository } from '@/features/events/domain/interfaces/IEventRepository';
-import { EventService } from '@/features/events/domain/services/EventService';
 
 describe('DataSourceOrchestrator', () => {
   let orchestrator: DataSourceOrchestrator;

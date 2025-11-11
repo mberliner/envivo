@@ -17,7 +17,6 @@ import { Event } from '../entities/Event';
 import {
   GlobalPreferences,
   VenueSize,
-  DEFAULT_PREFERENCES,
 } from '../entities/GlobalPreferences';
 import { IPreferencesRepository } from '../interfaces/IPreferencesRepository';
 

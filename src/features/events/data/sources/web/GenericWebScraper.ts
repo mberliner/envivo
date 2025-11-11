@@ -118,7 +118,7 @@ export class GenericWebScraper implements IDataSource {
 
     $items.each((_, element) => {
       const $item = $(element);
-      const promise = this.extractEventData($item, $).catch((error: unknown) => {
+      const promise = this.extractEventData($item).catch((error: unknown) => {
         if (this.config.errorHandling?.skipFailedEvents) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           console.warn(
@@ -149,8 +149,7 @@ export class GenericWebScraper implements IDataSource {
    * Extrae datos de un evento individual (desde el listado)
    */
   private async extractEventData(
-    $item: cheerio.Cheerio<any>,
-    $: cheerio.CheerioAPI
+    $item: cheerio.Cheerio<cheerio.AnyNode>
   ): Promise<RawEvent | null> {
     const { selectors, transforms, defaultValues } = this.config;
 
@@ -193,7 +192,7 @@ export class GenericWebScraper implements IDataSource {
     });
 
     // Aplicar transformaciones (solo a campos extraídos, no a defaults)
-    let transformedData: Record<string, any> = { ...rawData };
+    let transformedData: Record<string, unknown> = { ...rawData };
 
     if (transforms) {
       Object.entries(transforms).forEach(([field, transformName]) => {
@@ -289,7 +288,7 @@ export class GenericWebScraper implements IDataSource {
   /**
    * Scrapea la página de detalles de un evento
    */
-  private async scrapeDetailPage(url: string): Promise<Record<string, any>> {
+  private async scrapeDetailPage(url: string): Promise<Record<string, unknown>> {
     if (!this.config.detailPage) {
       return {};
     }
@@ -346,7 +345,7 @@ export class GenericWebScraper implements IDataSource {
     });
 
     // Aplicar transformaciones específicas de detailPage
-    const transformedData: Record<string, any> = { ...rawData };
+    const transformedData: Record<string, unknown> = { ...rawData };
 
     if (transforms) {
       Object.entries(transforms).forEach(([field, transformName]) => {
@@ -373,7 +372,7 @@ export class GenericWebScraper implements IDataSource {
   /**
    * Genera external ID único para evento
    */
-  private generateExternalId(data: Record<string, any>): string {
+  private generateExternalId(data: Record<string, unknown>): string {
     // Usar link si existe, sino combinar title + date + venue
     if (data.link) {
       return data.link;
@@ -409,9 +408,10 @@ export class GenericWebScraper implements IDataSource {
           retries: retryConfig.maxRetries,
           minTimeout: retryConfig.initialDelay,
           factor: retryConfig.backoffMultiplier,
-          onFailedAttempt: (error: any) => {
+          onFailedAttempt: (error: unknown) => {
+            const failedAttemptError = error as { attemptNumber: number; retriesLeft: number };
             console.warn(
-              `[${this.name}] Attempt ${error.attemptNumber} failed for ${url}. ${error.retriesLeft} retries left.`
+              `[${this.name}] Attempt ${failedAttemptError.attemptNumber} failed for ${url}. ${failedAttemptError.retriesLeft} retries left.`
             );
           },
         }

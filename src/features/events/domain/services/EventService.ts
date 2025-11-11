@@ -11,7 +11,7 @@
  */
 
 import { Event, RawEvent } from '../entities/Event';
-import { IEventRepository } from '../interfaces/IEventRepository';
+import { IEventRepository, EventFilters } from '../interfaces/IEventRepository';
 import { EventBusinessRules } from './EventBusinessRules';
 import { prisma } from '@/shared/infrastructure/database/prisma';
 
@@ -44,7 +44,7 @@ export class EventService {
     }
 
     // Usar raw SQL hasta que se regenere el Prisma client
-    const result: any = await prisma.$queryRawUnsafe(
+    const result = await prisma.$queryRawUnsafe<Array<{ id: string }>>(
       `SELECT id FROM event_blacklist WHERE source = ? AND externalId = ? LIMIT 1`,
       source,
       externalId
@@ -79,7 +79,7 @@ export class EventService {
       try {
         // 0. Verificar blacklist (US3.2)
         // IMPORTANTE: GenericWebScraper usa _source (no source)
-        const source = (rawEvent as any)._source || rawEvent.source || 'unknown';
+        const source = (rawEvent as Record<string, unknown>)._source as string || rawEvent.source || 'unknown';
 
         if (await this.isBlacklisted(source, rawEvent.externalId)) {
           result.rejected++;
@@ -210,7 +210,7 @@ export class EventService {
       priceMax: rawEvent.priceMax,
       currency: rawEvent.currency || 'ARS',
       venueCapacity: rawEvent.venueCapacity,
-      source: (rawEvent as any)._source || rawEvent.source || 'unknown', // Fix: usar _source del scraper
+      source: (rawEvent as Record<string, unknown>)._source as string || rawEvent.source || 'unknown', // Fix: usar _source del scraper
       externalId: rawEvent.externalId,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -246,7 +246,7 @@ export class EventService {
   /**
    * Busca eventos aplicando filtros (pasa directo al repository)
    */
-  async findByFilters(filters: any): Promise<Event[]> {
+  async findByFilters(filters: EventFilters): Promise<Event[]> {
     return this.repository.findByFilters(filters);
   }
 
