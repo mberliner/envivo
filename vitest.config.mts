@@ -4,9 +4,10 @@ import path from 'path';
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'node', // Cambiado de jsdom a node (más simple)
-    include: ['**/*.test.ts', '**/*.spec.ts'],
+    environment: 'jsdom', // jsdom for React component testing
+    include: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/.next/**'],
+    setupFiles: ['./src/test/setup.ts'],
   },
   resolve: {
     alias: {
