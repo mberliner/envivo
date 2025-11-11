@@ -5,9 +5,9 @@ import { EventDetail } from '@/features/events/ui/components/EventDetail';
 import { stripHTML, truncateText } from '@/shared/utils/sanitize';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 /**
@@ -37,7 +37,8 @@ async function getEvent(id: string) {
  * - Structured data for search engines
  */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const event = await getEvent(params.id);
+  const { id } = await params;
+  const event = await getEvent(id);
 
   if (!event) {
     return {
@@ -92,7 +93,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
  * @route /eventos/[id]
  */
 export default async function EventDetailPage({ params }: PageProps) {
-  const event = await getEvent(params.id);
+  const { id } = await params;
+  const event = await getEvent(id);
 
   if (!event) {
     notFound();
