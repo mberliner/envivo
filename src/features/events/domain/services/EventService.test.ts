@@ -18,7 +18,8 @@ import { Event, RawEvent } from '../entities/Event';
 
 const mockPreferencesService = {
   shouldAcceptEvent: vi.fn().mockResolvedValue({ valid: true }),
-} as unknown as PreferencesService;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any as PreferencesService;
 
 const mockRepository: IEventRepository = {
   findAll: vi.fn().mockResolvedValue([]),
@@ -184,7 +185,8 @@ describe('EventService', () => {
     });
 
     test('normaliza categoría', async () => {
-      const rawEvents = [createRawEvent({ category: 'concert' as unknown })];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const rawEvents = [createRawEvent({ category: 'concert' as any })];
 
       await service.processEvents(rawEvents);
 

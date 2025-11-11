@@ -44,11 +44,11 @@ export class EventService {
     }
 
     // Usar raw SQL hasta que se regenere el Prisma client
-    const result = await prisma.$queryRawUnsafe<Array<{ id: string }>>(
+    const result = (await prisma.$queryRawUnsafe(
       `SELECT id FROM event_blacklist WHERE source = ? AND externalId = ? LIMIT 1`,
       source,
       externalId
-    );
+    )) as Array<{ id: string }>;
 
     return Array.isArray(result) && result.length > 0;
   }
@@ -79,7 +79,8 @@ export class EventService {
       try {
         // 0. Verificar blacklist (US3.2)
         // IMPORTANTE: GenericWebScraper usa _source (no source)
-        const source = (rawEvent as Record<string, unknown>)._source as string || rawEvent.source || 'unknown';
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const source = (rawEvent as any)._source || rawEvent.source || 'unknown';
 
         if (await this.isBlacklisted(source, rawEvent.externalId)) {
           result.rejected++;
@@ -210,7 +211,8 @@ export class EventService {
       priceMax: rawEvent.priceMax,
       currency: rawEvent.currency || 'ARS',
       venueCapacity: rawEvent.venueCapacity,
-      source: (rawEvent as Record<string, unknown>)._source as string || rawEvent.source || 'unknown', // Fix: usar _source del scraper
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      source: (rawEvent as any)._source || rawEvent.source || 'unknown', // Fix: usar _source del scraper
       externalId: rawEvent.externalId,
       createdAt: new Date(),
       updatedAt: new Date(),

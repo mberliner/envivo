@@ -76,5 +76,6 @@ export interface RawEvent {
   currency?: string;
   venueCapacity?: number;
   externalId?: string;
-  [key: string]: unknown; // Permite propiedades adicionales específicas de la fuente
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any; // Permite propiedades adicionales específicas de la fuente
 }

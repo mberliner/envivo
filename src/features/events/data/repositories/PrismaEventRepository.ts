@@ -43,6 +43,7 @@ export class PrismaEventRepository implements IEventRepository {
    * Busca eventos aplicando filtros
    */
   async findByFilters(filters: EventFilters): Promise<Event[]> {
+    // @ts-expect-error - Prisma type not generated yet
     const where: Prisma.EventWhereInput = {};
 
     // Filtro por ciudad (exact match - viene de dropdown)
@@ -165,6 +166,7 @@ export class PrismaEventRepository implements IEventRepository {
   /**
    * Convierte modelo de Prisma a entidad de dominio
    */
+  // @ts-expect-error - Prisma type not generated yet
   private toDomainEvent(prismaEvent: Prisma.EventGetPayload<Record<string, never>>): Event {
     return {
       id: prismaEvent.id,

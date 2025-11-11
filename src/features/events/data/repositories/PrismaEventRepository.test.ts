@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RawEvent } from '@/features/events/domain/entities/Event';
-import { Prisma } from '@prisma/client';
 
 // Mock Prisma Client - usar factory function
 vi.mock('@/shared/infrastructure/database/prisma', () => ({
@@ -59,7 +58,8 @@ describe('PrismaEventRepository', () => {
         },
       ];
 
-      mockPrismaEvent.findMany.mockResolvedValueOnce(mockEvents as Prisma.EventGetPayload<Record<string, never>>[]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockPrismaEvent.findMany.mockResolvedValueOnce(mockEvents as any[]);
 
       const events = await repository.findAll();
 
@@ -89,7 +89,8 @@ describe('PrismaEventRepository', () => {
         updatedAt: new Date(),
       };
 
-      mockPrismaEvent.findUnique.mockResolvedValueOnce(mockEvent as Prisma.EventGetPayload<Record<string, never>>);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockPrismaEvent.findUnique.mockResolvedValueOnce(mockEvent as any);
 
       const event = await repository.findById('event1');
 
@@ -124,7 +125,8 @@ describe('PrismaEventRepository', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
-      ] as Prisma.EventGetPayload<Record<string, never>>[]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ] as any[]);
 
       const events = await repository.findByFilters({ city: 'Buenos Aires' });
 
@@ -195,7 +197,8 @@ describe('PrismaEventRepository', () => {
       mockPrismaEvent.create.mockResolvedValueOnce({
         id: 'new-id',
         ...rawEvents[0],
-      } as Prisma.EventGetPayload<Record<string, never>>);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
 
       const count = await repository.upsertMany(rawEvents);
 
@@ -226,11 +229,13 @@ describe('PrismaEventRepository', () => {
         title: 'Old Title',
       };
 
-      mockPrismaEvent.findFirst.mockResolvedValueOnce(existingEvent as Prisma.EventGetPayload<Record<string, never>>);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockPrismaEvent.findFirst.mockResolvedValueOnce(existingEvent as any);
       mockPrismaEvent.update.mockResolvedValueOnce({
         ...existingEvent,
         title: 'Updated Event',
-      } as Prisma.EventGetPayload<Record<string, never>>);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
 
       const count = await repository.upsertMany(rawEvents);
 
@@ -262,7 +267,8 @@ describe('PrismaEventRepository', () => {
       mockPrismaEvent.findFirst.mockResolvedValueOnce(null);
       mockPrismaEvent.create.mockRejectedValueOnce(new Error('DB error')); // Falla el primero
       mockPrismaEvent.findFirst.mockResolvedValueOnce(null);
-      mockPrismaEvent.create.mockResolvedValueOnce({ id: 'event2-id' } as Prisma.EventGetPayload<Record<string, never>>); // Éxito el segundo
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockPrismaEvent.create.mockResolvedValueOnce({ id: 'event2-id' } as any); // Éxito el segundo
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -280,7 +286,8 @@ describe('PrismaEventRepository', () => {
 
   describe('deleteById', () => {
     it('should delete event by id', async () => {
-      mockPrismaEvent.delete.mockResolvedValueOnce({ id: 'event1' } as Prisma.EventGetPayload<Record<string, never>>);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockPrismaEvent.delete.mockResolvedValueOnce({ id: 'event1' } as any);
 
       await repository.deleteById('event1');
 

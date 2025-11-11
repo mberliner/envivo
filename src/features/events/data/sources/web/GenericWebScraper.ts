@@ -149,7 +149,8 @@ export class GenericWebScraper implements IDataSource {
    * Extrae datos de un evento individual (desde el listado)
    */
   private async extractEventData(
-    $item: cheerio.Cheerio<cheerio.AnyNode>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    $item: cheerio.Cheerio<any>
   ): Promise<RawEvent | null> {
     const { selectors, transforms, defaultValues } = this.config;
 
@@ -192,7 +193,8 @@ export class GenericWebScraper implements IDataSource {
     });
 
     // Aplicar transformaciones (solo a campos extraídos, no a defaults)
-    let transformedData: Record<string, unknown> = { ...rawData };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let transformedData: Record<string, any> = { ...rawData };
 
     if (transforms) {
       Object.entries(transforms).forEach(([field, transformName]) => {
@@ -225,7 +227,7 @@ export class GenericWebScraper implements IDataSource {
           venue: detailData.venue,
           address: detailData.address,
           price: detailData.price,
-          description: detailData.description ? `${detailData.description.substring(0, 50)}...` : undefined,
+          description: detailData.description ? `${(detailData.description as string).substring(0, 50)}...` : undefined,
         });
 
         // Mergear datos: detalles tienen prioridad sobre listado
@@ -345,7 +347,8 @@ export class GenericWebScraper implements IDataSource {
     });
 
     // Aplicar transformaciones específicas de detailPage
-    const transformedData: Record<string, unknown> = { ...rawData };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const transformedData: Record<string, any> = { ...rawData };
 
     if (transforms) {
       Object.entries(transforms).forEach(([field, transformName]) => {
@@ -372,7 +375,8 @@ export class GenericWebScraper implements IDataSource {
   /**
    * Genera external ID único para evento
    */
-  private generateExternalId(data: Record<string, unknown>): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private generateExternalId(data: Record<string, any>): string {
     // Usar link si existe, sino combinar title + date + venue
     if (data.link) {
       return data.link;

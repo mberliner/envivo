@@ -108,8 +108,10 @@ describe('parseSpanishDate', () => {
     });
 
     it('should return undefined for non-string input', () => {
-      expect(parseSpanishDate(null as unknown)).toBeUndefined();
-      expect(parseSpanishDate(undefined as unknown)).toBeUndefined();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(parseSpanishDate(null as any)).toBeUndefined();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(parseSpanishDate(undefined as any)).toBeUndefined();
     });
 
     it('should handle case insensitivity', () => {
@@ -202,8 +204,10 @@ describe('extractPrice', () => {
     });
 
     it('should return undefined for non-string input', () => {
-      expect(extractPrice(null as unknown)).toBeUndefined();
-      expect(extractPrice(undefined as unknown)).toBeUndefined();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(extractPrice(null as any)).toBeUndefined();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(extractPrice(undefined as any)).toBeUndefined();
     });
 
     it('should handle whitespace', () => {
@@ -250,8 +254,10 @@ describe('sanitizeHtml', () => {
   });
 
   it('should handle non-string input', () => {
-    expect(sanitizeHtml(null as unknown)).toBe('');
-    expect(sanitizeHtml(undefined as unknown)).toBe('');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(sanitizeHtml(null as any)).toBe('');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(sanitizeHtml(undefined as any)).toBe('');
   });
 });
 
@@ -277,8 +283,10 @@ describe('cleanWhitespace', () => {
   });
 
   it('should handle non-string input', () => {
-    expect(cleanWhitespace(null as unknown)).toBe('');
-    expect(cleanWhitespace(undefined as unknown)).toBe('');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(cleanWhitespace(null as any)).toBe('');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(cleanWhitespace(undefined as any)).toBe('');
   });
 });
 
@@ -388,8 +396,10 @@ describe('parseLivepassDate', () => {
     });
 
     it('should return undefined for non-string input', () => {
-      expect(parseLivepassDate(null as unknown)).toBeUndefined();
-      expect(parseLivepassDate(undefined as unknown)).toBeUndefined();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(parseLivepassDate(null as any)).toBeUndefined();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(parseLivepassDate(undefined as any)).toBeUndefined();
     });
 
     it('should handle case insensitivity', () => {
@@ -446,8 +456,10 @@ describe('cleanLivepassTitle', () => {
     });
 
     it('should handle non-string input', () => {
-      expect(cleanLivepassTitle(null as unknown)).toBe('');
-      expect(cleanLivepassTitle(undefined as unknown)).toBe('');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(cleanLivepassTitle(null as any)).toBe('');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(cleanLivepassTitle(undefined as any)).toBe('');
     });
 
     it('should trim whitespace after removal', () => {
@@ -647,8 +659,10 @@ describe('parseLivepassDateTime', () => {
     });
 
     it('should return undefined for non-string input', () => {
-      expect(parseLivepassDateTime(null as unknown)).toBeUndefined();
-      expect(parseLivepassDateTime(undefined as unknown)).toBeUndefined();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(parseLivepassDateTime(null as any)).toBeUndefined();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(parseLivepassDateTime(undefined as any)).toBeUndefined();
     });
 
     it('should handle case insensitivity', () => {
@@ -700,7 +714,7 @@ describe('applyTransform', () => {
   it('should apply parseLivepassDate transform', () => {
     const result = applyTransform('parseLivepassDate', '09 NOV');
     expect(result).toBeInstanceOf(Date);
-    expect(result?.getMonth()).toBe(10);
+    expect((result as Date)?.getMonth()).toBe(10);
   });
 
   it('should apply cleanLivepassTitle transform', () => {
@@ -711,8 +725,8 @@ describe('applyTransform', () => {
   it('should apply parseLivepassDateTime transform', () => {
     const result = applyTransform('parseLivepassDateTime', '9 de noviembre - 21:00');
     expect(result).toBeInstanceOf(Date);
-    expect(result?.getMonth()).toBe(10);
-    expect(result?.getHours()).toBe(21);
+    expect((result as Date)?.getMonth()).toBe(10);
+    expect((result as Date)?.getHours()).toBe(21);
   });
 
   it('should apply extractLivepassVenue transform', () => {
@@ -759,12 +773,14 @@ describe('extractLivepassVenue', () => {
   });
 
   it('should handle undefined input', () => {
-    const result = extractLivepassVenue(undefined as unknown);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = extractLivepassVenue(undefined as any);
     expect(result).toBeUndefined();
   });
 
   it('should handle null input', () => {
-    const result = extractLivepassVenue(null as unknown);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = extractLivepassVenue(null as any);
     expect(result).toBeUndefined();
   });
 });

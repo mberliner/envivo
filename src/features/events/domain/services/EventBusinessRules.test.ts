@@ -15,7 +15,8 @@ const mockPreferencesService = {
   applyFilters: vi.fn(),
   savePreferences: vi.fn(),
   getPreferences: vi.fn(),
-} as unknown as PreferencesService;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any as PreferencesService;
 
 describe('EventBusinessRules', () => {
   let rules: EventBusinessRules;
@@ -80,7 +81,8 @@ describe('EventBusinessRules', () => {
     });
 
     test('rechaza evento sin fecha', async () => {
-      const event = createValidEvent({ date: null as unknown });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const event = createValidEvent({ date: null as any });
       const result = await rules.isAcceptable(event);
       expect(result.valid).toBe(false);
       expect(result.reason).toContain('Campo requerido faltante: date');
@@ -180,15 +182,21 @@ describe('EventBusinessRules', () => {
     });
 
     test('normaliza categoría a formato estándar', () => {
-      expect(rules.normalize(createValidEvent({ category: 'concert' as unknown })).category).toBe('Concierto');
-      expect(rules.normalize(createValidEvent({ category: 'festival' as unknown })).category).toBe('Festival');
-      expect(rules.normalize(createValidEvent({ category: 'teatro' as unknown })).category).toBe('Teatro');
-      expect(rules.normalize(createValidEvent({ category: 'stand-up' as unknown })).category).toBe('Stand-up');
-      expect(rules.normalize(createValidEvent({ category: 'opera' as unknown })).category).toBe('Ópera');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(rules.normalize(createValidEvent({ category: 'concert' as any })).category).toBe('Concierto');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(rules.normalize(createValidEvent({ category: 'festival' as any })).category).toBe('Festival');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(rules.normalize(createValidEvent({ category: 'teatro' as any })).category).toBe('Teatro');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(rules.normalize(createValidEvent({ category: 'stand-up' as any })).category).toBe('Stand-up');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(rules.normalize(createValidEvent({ category: 'opera' as any })).category).toBe('Ópera');
     });
 
     test('normaliza categoría desconocida a "Otro"', () => {
-      const event = createValidEvent({ category: 'evento_raro' as unknown });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const event = createValidEvent({ category: 'evento_raro' as any });
       expect(rules.normalize(event).category).toBe('Otro');
     });
 
@@ -344,8 +352,10 @@ describe('EventBusinessRules', () => {
     });
 
     test('maneja eventos sin venueName en isDuplicate', () => {
-      const event1 = createValidEvent({ venueName: null as unknown });
-      const event2 = createValidEvent({ venueName: null as unknown });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const event1 = createValidEvent({ venueName: null as any });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const event2 = createValidEvent({ venueName: null as any });
       // Debería comparar solo por título y fecha
       expect(rules.isDuplicate(event1, event2)).toBe(true);
     });
@@ -412,7 +422,8 @@ describe('EventBusinessRules', () => {
       const rawEvent = createValidEvent({
         city: 'BUENOS AIRES  ', // Uppercase + espacios
         country: 'argentina', // Nombre completo
-        category: 'concert' as unknown, // Inglés
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        category: 'concert' as any, // Inglés
         title: '  Metallica en Argentina  ', // Espacios
       });
 
