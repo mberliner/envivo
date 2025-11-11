@@ -12,6 +12,7 @@ import {
   parseLivepassDate,
   parseLivepassDateTime,
   cleanLivepassTitle,
+  extractLivepassVenue,
   applyTransform,
 } from './transforms';
 
@@ -635,9 +636,56 @@ describe('applyTransform', () => {
     expect(result?.getHours()).toBe(21);
   });
 
+  it('should apply extractLivepassVenue transform', () => {
+    const result = applyTransform('extractLivepassVenue', 'Recinto: Café Berlín');
+    expect(result).toBe('Café Berlín');
+  });
+
   it('should throw error for unknown transform', () => {
     expect(() => applyTransform('unknownTransform', 'value')).toThrow(
       'Unknown transform function: unknownTransform'
     );
+  });
+});
+
+describe('extractLivepassVenue', () => {
+  it('should extract venue from "Recinto: Café Berlín"', () => {
+    const result = extractLivepassVenue('Recinto: Café Berlín');
+    expect(result).toBe('Café Berlín');
+  });
+
+  it('should extract venue from "Recinto:Café Berlín" (no space)', () => {
+    const result = extractLivepassVenue('Recinto:Café Berlín');
+    expect(result).toBe('Café Berlín');
+  });
+
+  it('should extract venue from "RECINTO: Café Berlín" (uppercase)', () => {
+    const result = extractLivepassVenue('RECINTO: Café Berlín');
+    expect(result).toBe('Café Berlín');
+  });
+
+  it('should handle venue with extra whitespace', () => {
+    const result = extractLivepassVenue('Recinto:   Café Berlín   ');
+    expect(result).toBe('Café Berlín');
+  });
+
+  it('should return trimmed text if no "Recinto:" pattern found', () => {
+    const result = extractLivepassVenue('  Café Berlín  ');
+    expect(result).toBe('Café Berlín');
+  });
+
+  it('should handle empty string', () => {
+    const result = extractLivepassVenue('');
+    expect(result).toBeUndefined();
+  });
+
+  it('should handle undefined input', () => {
+    const result = extractLivepassVenue(undefined as any);
+    expect(result).toBeUndefined();
+  });
+
+  it('should handle null input', () => {
+    const result = extractLivepassVenue(null as any);
+    expect(result).toBeUndefined();
   });
 });

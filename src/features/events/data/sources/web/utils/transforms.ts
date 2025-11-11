@@ -404,6 +404,37 @@ export function parseLivepassDateTime(dateTimeString: string): Date | undefined 
 }
 
 /**
+ * Extrae el nombre del venue de texto con formato "Recinto: Nombre del Venue"
+ *
+ * LivePass usa el formato "Recinto: Café Berlín" en sus páginas.
+ * Esta función extrae solo el nombre del venue.
+ *
+ * @param text - Texto que contiene el venue (ej: "Recinto: Café Berlín")
+ * @returns Nombre del venue sin prefijo
+ *
+ * @example
+ * extractLivepassVenue("Recinto: Café Berlín")
+ * // => "Café Berlín"
+ *
+ * extractLivepassVenue("Recinto:Café Berlín")
+ * // => "Café Berlín"
+ */
+export function extractLivepassVenue(text: string): string | undefined {
+  if (!text || typeof text !== 'string') {
+    return undefined;
+  }
+
+  // Buscar patrón "Recinto:" seguido del nombre
+  const match = text.match(/recinto:\s*(.+)/i);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+
+  // Si no coincide, devolver el texto original limpio
+  return text.trim();
+}
+
+/**
  * Mapeo de nombres de transformaciones a funciones
  *
  * Usado por GenericWebScraper para aplicar transformaciones por nombre.
@@ -417,6 +448,7 @@ export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: strin
   parseLivepassDate: (value: string) => parseLivepassDate(value),
   parseLivepassDateTime: (value: string) => parseLivepassDateTime(value),
   cleanLivepassTitle: (value: string) => cleanLivepassTitle(value),
+  extractLivepassVenue: (value: string) => extractLivepassVenue(value),
 };
 
 /**

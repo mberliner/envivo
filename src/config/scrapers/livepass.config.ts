@@ -99,30 +99,31 @@ export const livepassConfig: ScraperConfig = {
   },
 
   // Configuración para scraping de página de detalles
+  // LivePass usa JSON-LD (schema.org) para datos estructurados
   detailPage: {
     enabled: true,
     delayBetweenRequests: 500, // 500ms entre requests de detalles
 
     selectors: {
-      // Fecha completa con hora (selectores comunes en páginas de eventos)
-      // Intentamos múltiples selectores porque el HTML puede variar
-      date: '.event-date, .datetime, time, .fecha, .date-time, [itemprop="startDate"]',
+      // LivePass tiene la fecha en meta description: "Martes 11 NOV - 20:45 hrs"
+      // También en texto visible
+      date: 'meta[name="description"]@content',
 
-      // Venue/lugar completo
-      venue: '.venue-name, .location-name, .lugar, [itemprop="location"]',
+      // Venue está en el texto: "Recinto: Café Berlín"
+      venue: 'p:contains("Recinto:")',
 
-      // Dirección del venue
-      address: '.venue-address, .address, .direccion, [itemprop="address"]',
+      // Dirección completa está en varios lugares
+      address: 'meta[name="description"]@content',
 
-      // Precio (puede no estar en el listado)
-      price: '.price, .ticket-price, .precio, [itemprop="price"]',
+      // Precio está en meta tag og:product:price:amount
+      price: 'meta[property="og:product:price:amount"]@content',
 
-      // Descripción completa del evento
-      description: '.event-description, .description, .descripcion, article, [itemprop="description"]',
+      // Descripción está en la tabla de precios
+      description: '.description-content',
 
-      // Otros campos opcionales que pueden estar en detalles
-      title: 'h1, .event-title, .titulo',
-      image: '.event-image@src, [itemprop="image"]@src, .main-image@src',
+      // Título y imagen
+      title: 'h1',
+      image: 'meta[property="og:image"]@content',
     },
 
     defaultValues: {
@@ -133,14 +134,17 @@ export const livepassConfig: ScraperConfig = {
     },
 
     transforms: {
-      // Transform específico para parsear fecha + hora completa
+      // Transform específico para parsear "Martes 11 NOV - 20:45 hrs"
       date: 'parseLivepassDateTime',
+
+      // Extraer venue de "Recinto: Café Berlín" → "Café Berlín"
+      venue: 'extractLivepassVenue',
 
       // Limpiar descripción HTML
       description: 'sanitizeHtml',
 
-      // Extraer precio numérico
-      price: 'extractPrice',
+      // El precio ya viene como número en el meta tag
+      // price: 'extractPrice', // No necesario, ya es numérico
 
       // URLs absolutas
       image: 'toAbsoluteUrl',
