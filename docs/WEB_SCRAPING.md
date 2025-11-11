@@ -7,6 +7,7 @@
 ## 📋 Tabla de Contenidos
 
 - [Overview](#overview)
+- [Scraping Manual](#scraping-manual)
 - [Arquitectura](#arquitectura)
 - [Quick Start](#quick-start)
 - [Agregar un Nuevo Sitio](#agregar-un-nuevo-sitio)
@@ -39,6 +40,210 @@ El sistema de web scraping permite extraer eventos de sitios web HTML usando **c
 |-------|--------|--------|
 | LivePass.com.ar | 🟡 Template (requiere actualizar selectores) | `src/config/scrapers/livepass.config.ts` |
 | _Agregar más aquí_ | - | - |
+
+---
+
+## Scraping Manual
+
+Existen **tres métodos** para ejecutar scraping manualmente en desarrollo o producción.
+
+### Método 1: API Endpoint - Ticketmaster (curl)
+
+Ejecuta scraping de **Ticketmaster** únicamente.
+
+**Endpoint**: `POST /api/admin/scraper/sync`
+
+```bash
+curl -X POST http://localhost:3000/api/admin/scraper/sync \
+  -H "x-api-key: YOUR_ADMIN_API_KEY"
+```
+
+**Autenticación**: Header `x-api-key` con valor de `ADMIN_API_KEY` del `.env.local`
+
+**Respuesta exitosa**:
+```json
+{
+  "success": true,
+  "sources": [
+    {
+      "name": "ticketmaster",
+      "success": true,
+      "eventsCount": 45,
+      "duration": 2300
+    }
+  ],
+  "totalEvents": 45,
+  "totalProcessed": 42,
+  "totalDuplicates": 3,
+  "totalErrors": 0,
+  "duration": 2350,
+  "timestamp": "2025-11-11T16:30:00.000Z"
+}
+```
+
+**Casos de uso**:
+- ✅ Poblar base de datos después de setup inicial
+- ✅ Actualizar eventos de Ticketmaster manualmente
+- ✅ Testing de integración en CI/CD
+- ✅ Cron jobs automáticos (GitHub Actions, Vercel Cron)
+
+---
+
+### Método 2: API Endpoint - LivePass (curl)
+
+Ejecuta scraping de **LivePass (Café Berlín)** únicamente.
+
+**Endpoint**: `POST /api/admin/scrape`
+
+```bash
+curl -X POST http://localhost:3000/api/admin/scrape \
+  -H "Authorization: Bearer YOUR_ADMIN_API_KEY"
+```
+
+**⚠️ Nota**: Este endpoint usa `Authorization: Bearer` (diferente del endpoint de Ticketmaster que usa `x-api-key`).
+
+**Autenticación**: Header `Authorization: Bearer YOUR_ADMIN_API_KEY`
+
+**Respuesta exitosa**:
+```json
+{
+  "success": true,
+  "result": {
+    "sources": [
+      {
+        "name": "livepass",
+        "success": true,
+        "eventsCount": 12,
+        "duration": 1800
+      }
+    ],
+    "totalEvents": 12,
+    "totalProcessed": 10,
+    "totalDuplicates": 2,
+    "totalErrors": 0,
+    "duration": 1850,
+    "timestamp": "2025-11-11T16:35:00.000Z",
+    "errors": []
+  }
+}
+```
+
+**Casos de uso**:
+- ✅ Scraping de sitios web HTML (LivePass, otros sitios locales)
+- ✅ Testing de configuraciones de scraper
+- ✅ Desarrollo de nuevos scrapers
+
+---
+
+### Método 3: Node.js Script (Recomendado para Desarrollo)
+
+Script interactivo con validación de preferencias y output detallado.
+
+**Ubicación**: `scripts/scrape-livepass.js`
+
+**Uso**:
+```bash
+# 1. Asegúrate de que el servidor esté corriendo
+npm run dev
+
+# 2. En otra terminal, ejecuta el script
+node scripts/scrape-livepass.js
+```
+
+**Características**:
+- ✅ Valida y corrige preferencias automáticamente antes de scrapear
+- ✅ Output formateado con emojis y estadísticas detalladas
+- ✅ Manejo de errores con mensajes claros
+- ✅ Verifica que el servidor esté corriendo
+
+**Output de ejemplo**:
+```bash
+🔧 Checking preferences...
+
+✅ Preferences OK!
+   allowedCategories: [ 'Concierto', 'Festival', 'Teatro' ]
+
+🚀 Iniciando scraping de LivePass (Café Berlín)...
+
+✅ Scraping completado exitosamente!
+
+📊 Resultados:
+   • Total eventos scrapeados: 12
+   • Eventos procesados: 10
+   • Duplicados detectados: 2
+   • Errores: 0
+   • Duración: 1850ms
+
+📋 Detalle por fuente:
+   ✅ livepass: 12 eventos (1800ms)
+```
+
+**Requisitos**:
+- `ADMIN_API_KEY` configurado en `.env.local`
+- Servidor Next.js corriendo en `localhost:3000`
+- Node.js instalado
+
+**Casos de uso**:
+- ✅ **Desarrollo local**: mejor experiencia de usuario que curl
+- ✅ **Debugging**: output detallado ayuda a identificar problemas
+- ✅ **Testing manual**: validación rápida de cambios en scrapers
+
+---
+
+### Comparación de Métodos
+
+| Característica | Ticketmaster (curl) | LivePass (curl) | Script Node.js |
+|----------------|---------------------|-----------------|----------------|
+| **Comando** | `curl + x-api-key` | `curl + Authorization` | `node scripts/...` |
+| **Fuente** | Ticketmaster API | LivePass scraper | LivePass scraper |
+| **Validación de preferencias** | No | No | ✅ Sí (automática) |
+| **Output formateado** | JSON crudo | JSON crudo | ✅ Emojis + colores |
+| **Requiere servidor corriendo** | ✅ Sí | ✅ Sí | ✅ Sí |
+| **Uso en CI/CD** | ✅ Ideal | ✅ Posible | ❌ No recomendado |
+| **Debugging** | ⚠️ Básico | ⚠️ Básico | ✅ Excelente |
+
+---
+
+### ❌ Parámetros NO Soportados
+
+El endpoint `/api/admin/scraper/sync` **NO soporta parámetros** como `country` o `city` en el body.
+
+```bash
+# ❌ ESTO NO FUNCIONA (parámetros ignorados)
+curl -X POST http://localhost:3000/api/admin/scraper/sync \
+  -H "x-api-key: YOUR_ADMIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"country": "AR", "city": "Buenos Aires"}'
+```
+
+Los filtros se configuran mediante **Global Preferences** (ver [ARCHITECTURE.md](ARCHITECTURE.md#preferencias-globales-global-preferences)).
+
+---
+
+### Scraping Automático (Producción)
+
+Para scraping automático diario en producción, usar:
+
+- **GitHub Actions** con cron jobs (ver `docs/examples/cicd-example.yml`)
+- **Vercel Cron** (requiere plan Pro)
+
+Ejemplo GitHub Actions:
+```yaml
+name: Daily Scraping
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Diario a las 2 AM UTC
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scrape Ticketmaster
+        run: |
+          curl -X POST ${{ secrets.APP_URL }}/api/admin/scraper/sync \
+            -H "x-api-key: ${{ secrets.ADMIN_API_KEY }}"
+```
 
 ---
 
