@@ -76,5 +76,5 @@ export interface RawEvent {
   currency?: string;
   venueCapacity?: number;
   externalId?: string;
-  [key: string]: any; // Permite propiedades adicionales específicas de la fuente
+  [key: string]: unknown; // Permite propiedades adicionales específicas de la fuente
 }

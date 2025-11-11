@@ -6,7 +6,7 @@
  * @module Data/Repositories
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import {
   GlobalPreferences,
   DEFAULT_PREFERENCES,
@@ -103,9 +103,9 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
   /**
    * Convierte de modelo Prisma a entidad de dominio
    */
-  private toDomain(prismaPrefs: any): GlobalPreferences {
+  private toDomain(prismaPrefs: Prisma.GlobalPreferencesGetPayload<Record<string, never>>): GlobalPreferences {
     // Helper para parsear JSON arrays con fallback
-    const parseArray = (value: any, fallback: any[] = []): any[] => {
+    const parseArray = (value: string | unknown[], fallback: unknown[] = []): unknown[] => {
       try {
         return typeof value === 'string' ? JSON.parse(value) : value;
       } catch {
@@ -120,7 +120,7 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
         typeof prismaPrefs.venueSizeThresholds === 'string'
           ? JSON.parse(prismaPrefs.venueSizeThresholds)
           : prismaPrefs.venueSizeThresholds;
-    } catch (error) {
+    } catch {
       // Fallback a valores por defecto si falla el parsing
       thresholds = DEFAULT_PREFERENCES.venueSizeThresholds;
     }
@@ -143,8 +143,8 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
   /**
    * Convierte de entidad de dominio a modelo Prisma
    */
-  private toPrisma(preferences: Partial<GlobalPreferences>): any {
-    const data: any = {};
+  private toPrisma(preferences: Partial<GlobalPreferences>): Partial<Prisma.GlobalPreferencesCreateInput> {
+    const data: Partial<Prisma.GlobalPreferencesCreateInput> = {};
 
     if (preferences.allowedCountries !== undefined) {
       data.allowedCountries = JSON.stringify(preferences.allowedCountries);

@@ -497,7 +497,7 @@ export function extractLivepassVenue(text: string): string | undefined {
  *
  * Usado por GenericWebScraper para aplicar transformaciones por nombre.
  */
-export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: string) => any> = {
+export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: string) => unknown> = {
   parseSpanishDate: (value: string) => parseSpanishDate(value),
   extractPrice: (value: string) => extractPrice(value),
   sanitizeHtml: (value: string) => sanitizeHtml(value),
@@ -521,7 +521,7 @@ export function applyTransform(
   transformName: string,
   value: string,
   baseUrl?: string
-): any {
+): unknown {
   const transformFn = TRANSFORM_FUNCTIONS[transformName];
 
   if (!transformFn) {

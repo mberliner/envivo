@@ -122,7 +122,7 @@ describe('GenericWebScraper', () => {
     mockedAxios.create = vi.fn(() => {
       return {
         get: vi.fn(),
-      } as any;
+      } as unknown;
     });
   });
 
@@ -165,7 +165,7 @@ describe('GenericWebScraper', () => {
     it('should extract single event correctly', async () => {
       // Mock HTTP response BEFORE creating scraper
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(BASE_CONFIG);
       const events = await scraper.fetch();
@@ -195,7 +195,7 @@ describe('GenericWebScraper', () => {
   describe('Scraping - Multiple Events', () => {
     it('should extract multiple events correctly', async () => {
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_MULTIPLE_EVENTS });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(BASE_CONFIG);
 
@@ -209,7 +209,7 @@ describe('GenericWebScraper', () => {
 
     it('should parse different price formats', async () => {
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_MULTIPLE_EVENTS });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(BASE_CONFIG);
 
@@ -224,7 +224,7 @@ describe('GenericWebScraper', () => {
   describe('Validation', () => {
     it('should skip events with missing required fields', async () => {
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_MISSING_FIELDS });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(BASE_CONFIG);
 
@@ -236,7 +236,7 @@ describe('GenericWebScraper', () => {
 
     it('should validate title, date, and venue are required', async () => {
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_MISSING_FIELDS });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(BASE_CONFIG);
 
@@ -264,7 +264,7 @@ describe('GenericWebScraper', () => {
       const mockGet = vi.fn();
       mockGet.mockResolvedValueOnce({ data: MOCK_HTML_SINGLE_EVENT }); // Page 1
       mockGet.mockResolvedValueOnce({ data: MOCK_HTML_SINGLE_EVENT }); // Page 2
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(config);
 
@@ -287,7 +287,7 @@ describe('GenericWebScraper', () => {
       };
 
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(config);
 
@@ -308,7 +308,7 @@ describe('GenericWebScraper', () => {
 
       // Mix of valid and invalid HTML
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_MULTIPLE_EVENTS });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(config);
 
@@ -333,7 +333,7 @@ describe('GenericWebScraper', () => {
       };
 
       const mockGet = vi.fn().mockRejectedValue(new Error('Network error'));
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(config);
 
@@ -344,7 +344,7 @@ describe('GenericWebScraper', () => {
   describe('External ID Generation', () => {
     it('should use link as external ID when available', async () => {
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(BASE_CONFIG);
 
@@ -363,7 +363,7 @@ describe('GenericWebScraper', () => {
       };
 
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(config);
 
@@ -378,7 +378,7 @@ describe('GenericWebScraper', () => {
   describe('Transformations', () => {
     it('should apply date transformation', async () => {
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(BASE_CONFIG);
 
@@ -389,7 +389,7 @@ describe('GenericWebScraper', () => {
 
     it('should apply price transformation', async () => {
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(BASE_CONFIG);
 
@@ -401,7 +401,7 @@ describe('GenericWebScraper', () => {
 
     it('should convert relative URLs to absolute', async () => {
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(BASE_CONFIG);
 
@@ -415,7 +415,7 @@ describe('GenericWebScraper', () => {
   describe('Selectors', () => {
     it('should extract text from CSS selectors', async () => {
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(BASE_CONFIG);
 
@@ -427,7 +427,7 @@ describe('GenericWebScraper', () => {
 
     it('should extract attributes with @ syntax', async () => {
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(BASE_CONFIG);
 
@@ -449,7 +449,7 @@ describe('GenericWebScraper', () => {
       };
 
       const mockGet = vi.fn().mockResolvedValue({ data: MOCK_HTML_SINGLE_EVENT });
-      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+      (mockedAxios.create as unknown).mockReturnValue({ get: mockGet });
 
       const scraper = new GenericWebScraper(config);
 

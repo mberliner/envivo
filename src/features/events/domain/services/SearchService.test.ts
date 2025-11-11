@@ -79,7 +79,7 @@ describe('SearchService', () => {
     test('ignora queries muy cortas (<2 caracteres)', async () => {
       mockRepository.findByFilters = vi.fn().mockResolvedValue(mockEvents);
 
-      const result = await service.search({ q: 'M' });
+      await service.search({ q: 'M' });
 
       // No debe filtrar por búsqueda si es muy corta
       expect(mockRepository.findByFilters).toHaveBeenCalledWith({});
@@ -391,7 +391,7 @@ describe('SearchService', () => {
     test('maneja query vacía', async () => {
       mockRepository.findByFilters = vi.fn().mockResolvedValue(mockEvents);
 
-      const result = await service.search({ q: '' });
+      await service.search({ q: '' });
 
       // No debe aplicar filtro de búsqueda
       expect(mockRepository.findByFilters).toHaveBeenCalledWith({});

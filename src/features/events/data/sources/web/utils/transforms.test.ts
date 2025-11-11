@@ -108,8 +108,8 @@ describe('parseSpanishDate', () => {
     });
 
     it('should return undefined for non-string input', () => {
-      expect(parseSpanishDate(null as any)).toBeUndefined();
-      expect(parseSpanishDate(undefined as any)).toBeUndefined();
+      expect(parseSpanishDate(null as unknown)).toBeUndefined();
+      expect(parseSpanishDate(undefined as unknown)).toBeUndefined();
     });
 
     it('should handle case insensitivity', () => {
@@ -202,8 +202,8 @@ describe('extractPrice', () => {
     });
 
     it('should return undefined for non-string input', () => {
-      expect(extractPrice(null as any)).toBeUndefined();
-      expect(extractPrice(undefined as any)).toBeUndefined();
+      expect(extractPrice(null as unknown)).toBeUndefined();
+      expect(extractPrice(undefined as unknown)).toBeUndefined();
     });
 
     it('should handle whitespace', () => {
@@ -250,8 +250,8 @@ describe('sanitizeHtml', () => {
   });
 
   it('should handle non-string input', () => {
-    expect(sanitizeHtml(null as any)).toBe('');
-    expect(sanitizeHtml(undefined as any)).toBe('');
+    expect(sanitizeHtml(null as unknown)).toBe('');
+    expect(sanitizeHtml(undefined as unknown)).toBe('');
   });
 });
 
@@ -277,8 +277,8 @@ describe('cleanWhitespace', () => {
   });
 
   it('should handle non-string input', () => {
-    expect(cleanWhitespace(null as any)).toBe('');
-    expect(cleanWhitespace(undefined as any)).toBe('');
+    expect(cleanWhitespace(null as unknown)).toBe('');
+    expect(cleanWhitespace(undefined as unknown)).toBe('');
   });
 });
 
@@ -388,8 +388,8 @@ describe('parseLivepassDate', () => {
     });
 
     it('should return undefined for non-string input', () => {
-      expect(parseLivepassDate(null as any)).toBeUndefined();
-      expect(parseLivepassDate(undefined as any)).toBeUndefined();
+      expect(parseLivepassDate(null as unknown)).toBeUndefined();
+      expect(parseLivepassDate(undefined as unknown)).toBeUndefined();
     });
 
     it('should handle case insensitivity', () => {
@@ -446,8 +446,8 @@ describe('cleanLivepassTitle', () => {
     });
 
     it('should handle non-string input', () => {
-      expect(cleanLivepassTitle(null as any)).toBe('');
-      expect(cleanLivepassTitle(undefined as any)).toBe('');
+      expect(cleanLivepassTitle(null as unknown)).toBe('');
+      expect(cleanLivepassTitle(undefined as unknown)).toBe('');
     });
 
     it('should trim whitespace after removal', () => {
@@ -647,8 +647,8 @@ describe('parseLivepassDateTime', () => {
     });
 
     it('should return undefined for non-string input', () => {
-      expect(parseLivepassDateTime(null as any)).toBeUndefined();
-      expect(parseLivepassDateTime(undefined as any)).toBeUndefined();
+      expect(parseLivepassDateTime(null as unknown)).toBeUndefined();
+      expect(parseLivepassDateTime(undefined as unknown)).toBeUndefined();
     });
 
     it('should handle case insensitivity', () => {
@@ -759,12 +759,12 @@ describe('extractLivepassVenue', () => {
   });
 
   it('should handle undefined input', () => {
-    const result = extractLivepassVenue(undefined as any);
+    const result = extractLivepassVenue(undefined as unknown);
     expect(result).toBeUndefined();
   });
 
   it('should handle null input', () => {
-    const result = extractLivepassVenue(null as any);
+    const result = extractLivepassVenue(null as unknown);
     expect(result).toBeUndefined();
   });
 });

@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     console.log(`[FixEventSources] ✅ ${result.count} eventos actualizados`);
 
     // También actualizar blacklist
-    const blacklistResult: any = await prisma.$executeRawUnsafe(
+    const blacklistResult = await prisma.$executeRawUnsafe(
       `UPDATE event_blacklist SET source = 'livepass' WHERE source = 'unknown'`
     );
 

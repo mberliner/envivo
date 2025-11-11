@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     console.log('[DebugBlacklist] Gathering debug info...');
 
     // 1. Ver blacklist
-    const blacklist: any = await prisma.$queryRawUnsafe(
+    const blacklist = await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(
       `SELECT * FROM event_blacklist ORDER BY createdAt DESC`
     );
 

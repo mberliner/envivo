@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     console.log('[CleanBlacklist] Eliminando todos los registros de blacklist...');
 
     // Usar raw SQL para eliminar todos los registros
-    const result: any = await prisma.$executeRawUnsafe(
+    const result = await prisma.$executeRawUnsafe(
       `DELETE FROM event_blacklist`
     );
 

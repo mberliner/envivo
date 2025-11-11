@@ -10,7 +10,6 @@ import { DataSourceOrchestrator } from '@/features/events/data/orchestrator/Data
 import { PrismaEventRepository } from '@/features/events/data/repositories/PrismaEventRepository';
 import { GenericWebScraper } from '@/features/events/data/sources/web/GenericWebScraper';
 import { livepassConfig } from '@/config/scrapers/livepass.config';
-import { prisma } from '@/shared/infrastructure/database/prisma';
 import { env } from '@/shared/infrastructure/config/env';
 
 /**

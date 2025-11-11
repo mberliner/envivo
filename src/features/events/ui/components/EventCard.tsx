@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Event } from '@/features/events/domain/entities/Event';
 import { useState } from 'react';
 
@@ -91,10 +92,11 @@ export function EventCard({ event, onDelete }: EventCardProps) {
       {event.imageUrl && (
         <div className="relative h-48 w-full bg-gray-100">
           <Link href={`/eventos/${event.id}`}>
-            <img
+            <Image
               src={event.imageUrl}
               alt={event.title}
-              className="w-full h-full object-cover cursor-pointer"
+              fill
+              className="object-cover cursor-pointer"
             />
           </Link>
           {/* Badge de categoría */}
