@@ -731,11 +731,38 @@ CALIDAD GENERAL:        ██████████████████�
 - ✅ Tests comprehensivos con cobertura >95%
 - ✅ Documentación completa (audit report, implementation guide)
 
-**Tareas Pendientes de Fase 6**:
-- [ ] Agregar segunda fuente de datos (otro scraper o API)
-- [ ] Implementar vista de detalle de evento en UI
-- [ ] Tests E2E para flujo completo (Scraping → BD → UI)
-- [ ] Considerar extracción de JSON-LD de LivePass (más confiable que CSS selectors)
+**Estado de Fase 6 Completa**:
+
+La Fase 6 consta de **3 componentes independientes**:
+
+```
+1. ✅ LivePass Detail Scraping               70% (EN PROGRESO)
+   ├── ✅ Scraping de detalles implementado  100%
+   ├── ✅ Transforms y tests                 100%
+   └── ⏳ Tests E2E                            0%
+
+2. ⏳ Segunda Fuente + Vista de Detalle       0% (PENDIENTE)
+   ├── ❌ Segunda fuente de datos             0%
+   ├── ❌ Página /eventos/[id]                0%
+   └── ❌ Componente EventDetail              0%
+
+3. ⏳ Scraping Automático + Deploy            0% (PENDIENTE)
+   ├── ❌ GitHub Action (cron diario)         0%
+   ├── ❌ Logging estructurado                0%
+   └── ❌ Deploy a Vercel                     0%
+
+FASE 6 TOTAL: ~23% completado (1 de 3 componentes al 70%)
+```
+
+**Tareas Pendientes para Completar Fase 6**:
+- [ ] **Tests E2E** para LivePass scraping (2-3h) → completar componente 1 al 100%
+- [ ] **Segunda fuente de datos** (scraper/API adicional) + tests (4-6h)
+- [ ] **Vista de detalle UI** en `/eventos/[id]` + componente EventDetail (4-6h)
+- [ ] **GitHub Action** para scraping automático diario (2-3h)
+- [ ] **Logging estructurado** con Pino + redacción de secrets (2h)
+- [ ] **Deploy a Vercel** + configuración de env vars en producción (2-3h)
+
+**Estimado para Fase 6 completa**: ~2-3 días adicionales
 
 ---
 
