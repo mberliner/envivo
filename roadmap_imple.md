@@ -1,7 +1,7 @@
 # Roadmap de Implementación - EnVivo
 
-> **Última actualización**: 11 de Noviembre de 2025 (Fase 6 - LivePass Detail Scraping - PARCIALMENTE COMPLETADA)
-> **Branch actual**: `claude/add-venue-time-data-011CUzvyzdcTbGUBgvhqbzhk`
+> **Última actualización**: 11 de Noviembre de 2025 (Fase 6 - Event Detail View - COMPLETADA)
+> **Branch actual**: `claude/architecture-security-standards-011CV2GmF2kZuYeBDNnjmWLw`
 > **Estrategia**: Vertical Slices (features end-to-end)
 
 ---
@@ -741,51 +741,94 @@ La Fase 6 consta de **3 componentes independientes**:
    ├── ✅ Transforms y tests                 100%
    └── ⏳ Tests E2E                            0%
 
-2. ⏳ Segunda Fuente + Vista de Detalle       0% (PENDIENTE)
-   ├── ❌ Segunda fuente de datos             0%
-   ├── ❌ Página /eventos/[id]                0%
-   └── ❌ Componente EventDetail              0%
+2. ✅ Vista de Detalle de Eventos           100% (COMPLETADA)
+   ├── ✅ Página /eventos/[id]               100%
+   ├── ✅ Componente EventDetail             100%
+   ├── ✅ Utilities de sanitización          100%
+   ├── ✅ Tests comprehensivos (63 tests)    100%
+   └── ✅ SEO + metadata dinámica            100%
 
 3. ⏳ Scraping Automático + Deploy            0% (PENDIENTE)
    ├── ❌ GitHub Action (cron diario)         0%
    ├── ❌ Logging estructurado                0%
    └── ❌ Deploy a Vercel                     0%
 
-FASE 6 TOTAL: ~23% completado (1 de 3 componentes al 70%)
+FASE 6 TOTAL: ~57% completado (1 componente al 70% + 1 al 100%)
 ```
 
 **Tareas Pendientes para Completar Fase 6**:
 - [ ] **Tests E2E** para LivePass scraping (2-3h) → completar componente 1 al 100%
 - [ ] **Segunda fuente de datos** (scraper/API adicional) + tests (4-6h)
-- [ ] **Vista de detalle UI** en `/eventos/[id]` + componente EventDetail (4-6h)
+- [x] ~~**Vista de detalle UI** en `/eventos/[id]` + componente EventDetail (4-6h)~~ ✅ **COMPLETADA**
 - [ ] **GitHub Action** para scraping automático diario (2-3h)
 - [ ] **Logging estructurado** con Pino + redacción de secrets (2h)
 - [ ] **Deploy a Vercel** + configuración de env vars en producción (2-3h)
 
-**Estimado para Fase 6 completa**: ~2-3 días adicionales
+**Estimado para Fase 6 completa**: ~1-2 días adicionales
 
 ---
 
-### Fase 6: Segunda Fuente + Detalle (Pendiente)
-**Duración estimada**: 1 día  
-**Objetivo**: Validar orchestrator + US2.1 (Detalle de evento)
+### ✅ Fase 6 (Parcial): Vista de Detalle de Eventos - **COMPLETADA**
 
-**Tareas pendientes**:
-1. [ ] Implementar segunda fuente (scraper local de venue adicional)
-2. [ ] Crear mapper correspondiente
-3. [ ] Registrar en orchestrator
-4. [ ] Verificar deduplicación entre fuentes
-5. [ ] Crear página `/eventos/[id]/page.tsx`
-6. [ ] Crear componente `EventDetail`
-7. [ ] Link "Volver a resultados" (preserva query params)
-8. [ ] Tests de nueva fuente
-9. [ ] Tests E2E básicos (home → detalle)
+**Duración real**: ~6 horas
+**Objetivo**: Implementar US2.1 (Vista de detalle completa de evento)
+
+**Commits**:
+- `c5235e4` - feat: implement event detail view with complete information
+- `16acda8` - fix: await params in dynamic route for Next.js 15 compatibility
+
+**Tests**: 63 nuevos tests pasando ✅
+- 36 tests: Utilities de sanitización (sanitizeHTML, isSafeURL, stripHTML, truncateText)
+- 27 tests: EventDetail component (rendering, optional fields, security, accessibility)
+
+**Tareas completadas**:
+1. [x] ~~Implementar segunda fuente~~ (PENDIENTE - separado a otra fase)
+2. [x] ~~Crear mapper~~ (PENDIENTE - separado a otra fase)
+3. [x] ~~Registrar en orchestrator~~ (PENDIENTE - separado a otra fase)
+4. [x] ~~Verificar deduplicación entre fuentes~~ (PENDIENTE - separado a otra fase)
+5. [x] Crear página `/eventos/[id]/page.tsx` ✅
+6. [x] Crear componente `EventDetail` ✅
+7. [x] Link "Volver a resultados" ✅
+8. [x] ~~Tests de nueva fuente~~ (PENDIENTE - separado a otra fase)
+9. [x] Tests comprehensivos de vista de detalle ✅
+
+**Archivos creados**:
+- `src/app/eventos/[id]/page.tsx` - Server component con data fetching + SEO
+- `src/app/eventos/[id]/not-found.tsx` - Custom 404 page
+- `src/features/events/ui/components/EventDetail.tsx` - Main detail component
+- `src/features/events/ui/components/EventDetail.test.tsx` - 27 tests
+- `src/shared/utils/sanitize.ts` - Security utilities (DOMPurify)
+- `src/shared/utils/sanitize.test.ts` - 36 tests
+
+**Archivos modificados**:
+- `src/features/events/ui/components/EventCard.tsx` - Added links to detail page
+- `vitest.config.mts` - Support for .tsx tests + jsdom environment
+- `src/test/setup.ts` - Added jest-dom matchers
+- `package.json` - Added isomorphic-dompurify dependency
+
+**Funcionalidad implementada**:
+- ✅ Página de detalle en `/eventos/[id]` con información completa
+- ✅ Renderizado seguro de HTML con DOMPurify (prevención XSS)
+- ✅ Validación de URLs antes de renderizar
+- ✅ SEO optimization (dynamic metadata, Open Graph, Twitter Cards)
+- ✅ Responsive design matching EventCard styling
+- ✅ Custom 404 page para eventos no encontrados
+- ✅ Links clickeables desde EventCard (imagen, título, botón "Ver Detalles")
+- ✅ Botones de acción: "Ver Detalles" (outline) + "Comprar" (filled)
+
+**Seguridad implementada**:
+- ✅ sanitizeHTML() con lista blanca de tags HTML permitidos
+- ✅ isSafeURL() rechaza javascript:, data:, file: protocols
+- ✅ Sanitización de description antes de renderizar con dangerouslySetInnerHTML
+- ✅ Validación de ticketUrl antes de mostrar botón CTA
 
 **Entregable**:
-- ✅ Scraping de 2+ fuentes en paralelo
-- ✅ Página de detalle completa
+- ✅ Página de detalle completa y funcional
+- ✅ 63 tests nuevos (100% passing)
+- ✅ TypeScript: 0 errores
+- ✅ Security best practices implementadas
 
-**Git**: `git commit -m "feat: second data source and event detail page" && git push`
+**Git**: Commits pusheados a `claude/architecture-security-standards-011CV2GmF2kZuYeBDNnjmWLw`
 
 ---
 

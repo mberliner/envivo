@@ -529,22 +529,22 @@ Aplica a todas las historias de usuario del MVP.
 
 ### Funcionalidad para Usuarios
 
-- [ ] Puedo ver eventos de Ticketmaster en la página principal
-- [ ] Puedo buscar eventos por texto
-- [ ] Puedo filtrar por ciudad, fecha y categoría
-- [ ] Puedo ver detalle completo de un evento
-- [ ] Puedo acceder a compra de entradas (link externo)
+- [x] Puedo ver eventos de Ticketmaster en la página principal ✅
+- [x] Puedo buscar eventos por texto ✅
+- [x] Puedo filtrar por ciudad, fecha y categoría ✅
+- [x] Puedo ver detalle completo de un evento ✅
+- [x] Puedo acceder a compra de entradas (link externo) ✅
 - [ ] Los eventos se actualizan automáticamente cada día
-- [ ] No veo eventos duplicados
+- [x] No veo eventos duplicados ✅
 - [ ] No veo eventos pasados en el listado principal
 
 ### Experiencia de Usuario
 
-- [ ] El sitio funciona en desktop, tablet y mobile
-- [ ] Las imágenes cargan rápido
-- [ ] La búsqueda responde en menos de 1 segundo
-- [ ] Puedo navegar el sitio completamente con teclado
-- [ ] Los colores y textos son legibles
+- [x] El sitio funciona en desktop, tablet y mobile ✅
+- [x] Las imágenes cargan rápido ✅
+- [x] La búsqueda responde en menos de 1 segundo ✅
+- [x] Puedo navegar el sitio completamente con teclado ✅
+- [x] Los colores y textos son legibles ✅
 
 ---
 

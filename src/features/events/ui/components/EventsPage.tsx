@@ -288,14 +288,25 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
             <p className="mt-1 text-sm text-gray-500">
               {searchQuery || cityFilter || categoryFilter || dateFromFilter || dateToFilter
                 ? 'Intentá con otros filtros'
-                : 'Ejecutá el scraping manual para obtener eventos desde Ticketmaster.'}
+                : 'Ejecutá el scraping manual para obtener eventos.'}
             </p>
             {!searchQuery && !cityFilter && !categoryFilter && !dateFromFilter && !dateToFilter && (
-              <div className="mt-6">
-                <code className="bg-gray-100 text-sm text-gray-800 px-4 py-2 rounded-md inline-block">
+              <div className="mt-6 space-y-2">
+                <code className="bg-gray-100 text-xs text-gray-800 px-4 py-2 rounded-md inline-block">
                   curl -X POST http://localhost:3000/api/admin/scraper/sync \<br />
                   &nbsp;&nbsp;-H &quot;x-api-key: YOUR_ADMIN_API_KEY&quot;
                 </code>
+                <p className="text-xs text-gray-500">
+                  Más métodos en{' '}
+                  <a
+                    href="/docs/WEB_SCRAPING.md#scraping-manual"
+                    className="text-purple-600 hover:text-purple-700 underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    docs/WEB_SCRAPING.md
+                  </a>
+                </p>
               </div>
             )}
           </div>

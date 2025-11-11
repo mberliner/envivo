@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Event } from '@/features/events/domain/entities/Event';
 import { useState } from 'react';
 
@@ -89,11 +90,13 @@ export function EventCard({ event, onDelete }: EventCardProps) {
       {/* Imagen del evento */}
       {event.imageUrl && (
         <div className="relative h-48 w-full bg-gray-100">
-          <img
-            src={event.imageUrl}
-            alt={event.title}
-            className="w-full h-full object-cover"
-          />
+          <Link href={`/eventos/${event.id}`}>
+            <img
+              src={event.imageUrl}
+              alt={event.title}
+              className="w-full h-full object-cover cursor-pointer"
+            />
+          </Link>
           {/* Badge de categoría */}
           <div className="absolute top-2 right-2 flex gap-2">
             <span className="bg-purple-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
@@ -105,7 +108,7 @@ export function EventCard({ event, onDelete }: EventCardProps) {
           <button
             onClick={handleDelete}
             disabled={isDeleting}
-            className="absolute top-2 left-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute top-2 left-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed z-10"
             title="Ocultar este evento"
             aria-label="Ocultar evento"
           >
@@ -130,9 +133,11 @@ export function EventCard({ event, onDelete }: EventCardProps) {
       {/* Contenido */}
       <div className="p-4">
         {/* Título */}
-        <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">
-          {event.title}
-        </h3>
+        <Link href={`/eventos/${event.id}`}>
+          <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2 hover:text-purple-600 transition-colors cursor-pointer">
+            {event.title}
+          </h3>
+        </Link>
 
         {/* Fecha */}
         <div className="flex items-center text-sm text-gray-600 mb-2">
@@ -199,23 +204,32 @@ export function EventCard({ event, onDelete }: EventCardProps) {
           </div>
         )}
 
-        {/* Precio y botón */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <div>
-            <p className="text-xs text-gray-500">Precio</p>
-            <p className="text-sm font-semibold text-gray-900">
-              {formatPrice(event.price, event.priceMax)}
-            </p>
-          </div>
+        {/* Precio */}
+        <div className="pt-3 border-t border-gray-100 mb-3">
+          <p className="text-xs text-gray-500">Precio</p>
+          <p className="text-sm font-semibold text-gray-900">
+            {formatPrice(event.price, event.priceMax)}
+          </p>
+        </div>
+
+        {/* Botones de acción */}
+        <div className="flex gap-2">
+          <Link
+            href={`/eventos/${event.id}`}
+            className="flex-1 bg-white hover:bg-gray-50 text-purple-600 border border-purple-600 text-sm font-medium px-4 py-2 rounded-md transition-colors duration-200 text-center"
+          >
+            Ver Detalles
+          </Link>
 
           {event.ticketUrl && (
             <a
               href={event.ticketUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-4 py-2 rounded-md transition-colors duration-200"
+              className="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-4 py-2 rounded-md transition-colors duration-200 text-center"
+              onClick={(e) => e.stopPropagation()}
             >
-              Ver Entradas
+              Comprar
             </a>
           )}
         </div>

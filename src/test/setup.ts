@@ -1,5 +1,5 @@
 // Test setup file for Vitest
-// Minimal setup - no DOM dependencies
+import '@testing-library/jest-dom/vitest';
 
 // Mock environment variables for tests
 if (typeof process !== 'undefined' && process.env) {

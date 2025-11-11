@@ -39,12 +39,12 @@ npx prisma db push
 # 5. Iniciar servidor de desarrollo
 npm run dev
 
-# 6. Poblar base de datos con scraping inicial (en otra terminal)
-curl -X POST http://localhost:3000/api/admin/scraper/sync \
-  -H "x-api-key: tu-clave-del-env-ADMIN_API_KEY"
+# 6. Poblar base de datos con scraping inicial
+# Ver docs/WEB_SCRAPING.md#scraping-manual para métodos disponibles
 ```
 
 **Nota**: La BD inicia vacía. El paso 6 es **obligatorio** para tener datos iniciales.
+**Ver [docs/WEB_SCRAPING.md#scraping-manual](docs/WEB_SCRAPING.md#scraping-manual) para ejecutar scraping (3 métodos disponibles).**
 
 Abrir [http://localhost:3000](http://localhost:3000)
 
@@ -106,18 +106,24 @@ envivo/
 ## 🧪 Testing
 
 ```bash
-# Tests unitarios (35 tests, 100% passing)
+# Tests unitarios
 npm run test
 
 # Tests con UI interactiva
 npm run test:ui
 
+# Coverage report
+npm run test:coverage
+
 # Type checking
 npm run type-check
 ```
 
-**Cobertura actual**: Data layer (mappers, sources, repositories) - 28 tests
+**Stack**: Vitest + React Testing Library + jsdom
+**Cobertura**: Data layer, security utilities, UI components
 **Planificado**: E2E tests con Playwright en Fase 7
+
+**Ver [docs/DEVELOPMENT.md#testing](docs/DEVELOPMENT.md#testing) para objetivos de cobertura por capa.**
 
 ## 🔒 Seguridad
 
@@ -153,18 +159,9 @@ npm run format
 npx prisma studio          # UI para base de datos
 npx prisma migrate dev     # Crear migración
 
-# Scraping manual (endpoint disponible en Fase 1)
-curl -X POST http://localhost:3000/api/admin/scraper/sync \
-  -H "x-api-key: YOUR_ADMIN_API_KEY"
-
-# Scraping con parámetros opcionales
-curl -X POST http://localhost:3000/api/admin/scraper/sync \
-  -H "x-api-key: YOUR_ADMIN_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"country": "AR", "city": "Buenos Aires"}'
+# Scraping manual
+# Ver docs/WEB_SCRAPING.md#scraping-manual para métodos completos
 ```
-
-**Nota**: La configuración de preferencias globales y re-scraping avanzado están planificados para Fase 2.
 
 ## 🚀 Estado del Proyecto
 
