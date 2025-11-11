@@ -97,6 +97,59 @@ export const livepassConfig: ScraperConfig = {
     Accept: 'text/html,application/xhtml+xml',
     'Accept-Language': 'es-AR,es;q=0.9',
   },
+
+  // Configuración para scraping de página de detalles
+  // LivePass usa JSON-LD (schema.org) para datos estructurados
+  detailPage: {
+    enabled: true,
+    delayBetweenRequests: 500, // 500ms entre requests de detalles
+
+    selectors: {
+      // LivePass tiene la fecha en meta description: "Martes 11 NOV - 20:45 hrs"
+      // También en texto visible
+      date: 'meta[name="description"]@content',
+
+      // Venue está en el texto: "Recinto: Café Berlín"
+      venue: 'p:contains("Recinto:")',
+
+      // Dirección completa está en varios lugares
+      address: 'meta[name="description"]@content',
+
+      // Precio está en meta tag og:product:price:amount
+      price: 'meta[property="og:product:price:amount"]@content',
+
+      // Descripción está en la tabla de precios
+      description: '.description-content',
+
+      // Título y imagen
+      title: 'h1',
+      image: 'meta[property="og:image"]@content',
+    },
+
+    defaultValues: {
+      // Si no encuentra venue en la página, usar default
+      venue: 'Café Berlín',
+      city: 'Buenos Aires',
+      country: 'AR',
+    },
+
+    transforms: {
+      // Transform específico para parsear "Martes 11 NOV - 20:45 hrs"
+      date: 'parseLivepassDateTime',
+
+      // Extraer venue de "Recinto: Café Berlín" → "Café Berlín"
+      venue: 'extractLivepassVenue',
+
+      // Limpiar descripción HTML
+      description: 'sanitizeHtml',
+
+      // Convertir precio de string a número (viene como "22400.0" del meta tag)
+      price: 'extractPrice',
+
+      // URLs absolutas
+      image: 'toAbsoluteUrl',
+    },
+  },
 };
 
 /**

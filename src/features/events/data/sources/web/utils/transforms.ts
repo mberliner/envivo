@@ -131,11 +131,25 @@ export function extractPrice(priceString: string): number | undefined {
     return 0;
   }
 
-  // Extraer todos los dígitos (ignora separadores de miles)
+  // Extraer todos los dígitos con separadores
   const digitsMatch = normalized.match(/\d[\d.,]*/);
   if (digitsMatch) {
-    // Remover puntos (separadores de miles) y convertir comas a puntos (decimales)
-    const cleanNumber = digitsMatch[0].replace(/\./g, '').replace(/,/g, '.');
+    const numberString = digitsMatch[0];
+
+    // Detectar formato: ¿punto decimal o separador de miles?
+    // Si hay UN SOLO punto seguido de 1-2 dígitos al final, es formato decimal (ej: "22400.0", "22400.50")
+    // Si hay múltiples puntos o punto con más de 2 decimales, es formato argentino (ej: "1.500", "10.500")
+    const decimalFormatMatch = numberString.match(/^\d+\.\d{1,2}$/);
+
+    let cleanNumber: string;
+    if (decimalFormatMatch) {
+      // Formato decimal inglés/JSON: "22400.0" o "22400.50"
+      cleanNumber = numberString; // Mantener el punto como decimal
+    } else {
+      // Formato argentino: remover puntos (separadores de miles) y convertir comas a puntos (decimales)
+      cleanNumber = numberString.replace(/\./g, '').replace(/,/g, '.');
+    }
+
     const price = parseFloat(cleanNumber);
 
     if (!isNaN(price) && price >= 0) {
@@ -283,6 +297,202 @@ export function cleanLivepassTitle(title: string): string {
 }
 
 /**
+ * Parse fechas de LivePass con hora incluida
+ *
+ * Soporta múltiples formatos comunes en páginas de eventos:
+ * - "Sábado 9 de Noviembre - 21:00 hs"
+ * - "9 de noviembre de 2025 a las 21:00"
+ * - "09/11/2025 21:00"
+ * - "09/11/2025 - 21:00hs"
+ * - "2025-11-09T21:00:00" (ISO)
+ *
+ * @param dateTimeString - String con fecha y hora
+ * @returns Date object o undefined si no se puede parsear
+ */
+export function parseLivepassDateTime(dateTimeString: string): Date | undefined {
+  if (!dateTimeString || typeof dateTimeString !== 'string') {
+    return undefined;
+  }
+
+  const normalized = dateTimeString.toLowerCase().trim();
+
+  // Formato ISO (más común en atributos datetime)
+  // "2025-11-09T21:00:00" o "2025-11-09 21:00"
+  if (normalized.match(/\d{4}-\d{2}-\d{2}/)) {
+    const date = new Date(dateTimeString);
+    if (!isNaN(date.getTime())) {
+      return date;
+    }
+  }
+
+  // Formato: "9 de noviembre de 2025 a las 21:00"
+  const fullSpanishMatch = normalized.match(
+    /(\d{1,2})\s+de\s+([a-z]+)\s+de\s+(\d{4})\s+(?:a las|-)?\s*(\d{1,2}):(\d{2})/
+  );
+  if (fullSpanishMatch) {
+    const [, dayStr, monthName, yearStr, hourStr, minuteStr] = fullSpanishMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const year = parseInt(yearStr);
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+
+    if (month !== undefined && !isNaN(day) && !isNaN(year) && !isNaN(hour) && !isNaN(minute)) {
+      const date = new Date(year, month, day, hour, minute);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+  }
+
+  // Formato: "Martes 11 NOV - 20:45 hrs" (abreviado, sin "de", sin año)
+  // Común en meta descriptions de LivePass
+  const abbreviatedMatch = normalized.match(
+    /(?:\w+\s+)?(\d{1,2})\s+([a-z]+)\s*-\s*(\d{1,2}):(\d{2})/
+  );
+  if (abbreviatedMatch) {
+    const [, dayStr, monthName, hourStr, minuteStr] = abbreviatedMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+
+    if (month !== undefined && !isNaN(day) && !isNaN(hour) && !isNaN(minute)) {
+      // Inferir año (igual que parseLivepassDate)
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+
+      let year = currentYear;
+      if (month < currentMonth || (month === currentMonth && day < now.getDate())) {
+        year = currentYear + 1;
+      }
+
+      // Validar rangos antes de crear el Date
+      if (
+        day >= 1 && day <= 31 &&
+        hour >= 0 && hour <= 23 &&
+        minute >= 0 && minute <= 59
+      ) {
+        const date = new Date(year, month, day, hour, minute);
+        if (!isNaN(date.getTime())) {
+          return date;
+        }
+      }
+    }
+  }
+
+  // Formato: "Sábado 9 de Noviembre - 21:00" (con "de", sin año)
+  const shortSpanishMatch = normalized.match(
+    /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s*-?\s*(\d{1,2}):(\d{2})/
+  );
+  if (shortSpanishMatch) {
+    const [, dayStr, monthName, hourStr, minuteStr] = shortSpanishMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+
+    if (month !== undefined && !isNaN(day) && !isNaN(hour) && !isNaN(minute)) {
+      // Inferir año (igual que parseLivepassDate)
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+
+      let year = currentYear;
+      if (month < currentMonth || (month === currentMonth && day < now.getDate())) {
+        year = currentYear + 1;
+      }
+
+      // Validar rangos antes de crear el Date
+      if (
+        day >= 1 && day <= 31 &&
+        hour >= 0 && hour <= 23 &&
+        minute >= 0 && minute <= 59
+      ) {
+        const date = new Date(year, month, day, hour, minute);
+        if (!isNaN(date.getTime())) {
+          return date;
+        }
+      }
+    }
+  }
+
+  // Formato: "09/11/2025 21:00" o "09/11/2025 - 21:00hs"
+  const numericMatch = normalized.match(
+    /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})\s*-?\s*(\d{1,2}):(\d{2})/
+  );
+  if (numericMatch) {
+    const [, dayStr, monthStr, yearStr, hourStr, minuteStr] = numericMatch;
+    const day = parseInt(dayStr);
+    const month = parseInt(monthStr);
+    const year = parseInt(yearStr);
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+
+    // Validar rangos antes de crear el Date
+    if (
+      day >= 1 && day <= 31 &&
+      month >= 1 && month <= 12 &&
+      year >= 1900 && year <= 2100 &&
+      hour >= 0 && hour <= 23 &&
+      minute >= 0 && minute <= 59
+    ) {
+      const date = new Date(year, month - 1, day, hour, minute);
+      // Validar que la fecha sea válida (por ej. 31/02 no es válida)
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+  }
+
+  // Fallback: intentar parseSpanishDate (sin hora) si no hay hora en el string
+  const dateOnly = parseSpanishDate(dateTimeString);
+  if (dateOnly) {
+    return dateOnly;
+  }
+
+  // Último intento: Date.parse
+  const parsed = Date.parse(dateTimeString);
+  if (!isNaN(parsed)) {
+    return new Date(parsed);
+  }
+
+  return undefined;
+}
+
+/**
+ * Extrae el nombre del venue de texto con formato "Recinto: Nombre del Venue"
+ *
+ * LivePass usa el formato "Recinto: Café Berlín" en sus páginas.
+ * Esta función extrae solo el nombre del venue.
+ *
+ * @param text - Texto que contiene el venue (ej: "Recinto: Café Berlín")
+ * @returns Nombre del venue sin prefijo
+ *
+ * @example
+ * extractLivepassVenue("Recinto: Café Berlín")
+ * // => "Café Berlín"
+ *
+ * extractLivepassVenue("Recinto:Café Berlín")
+ * // => "Café Berlín"
+ */
+export function extractLivepassVenue(text: string): string | undefined {
+  if (!text || typeof text !== 'string') {
+    return undefined;
+  }
+
+  // Buscar patrón "Recinto:" seguido del nombre
+  const match = text.match(/recinto:\s*(.+)/i);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+
+  // Si no coincide, devolver el texto original limpio
+  return text.trim();
+}
+
+/**
  * Mapeo de nombres de transformaciones a funciones
  *
  * Usado por GenericWebScraper para aplicar transformaciones por nombre.
@@ -294,7 +504,9 @@ export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: strin
   cleanWhitespace: (value: string) => cleanWhitespace(value),
   toAbsoluteUrl: (value: string, baseUrl?: string) => toAbsoluteUrl(value, baseUrl || ''),
   parseLivepassDate: (value: string) => parseLivepassDate(value),
+  parseLivepassDateTime: (value: string) => parseLivepassDateTime(value),
   cleanLivepassTitle: (value: string) => cleanLivepassTitle(value),
+  extractLivepassVenue: (value: string) => extractLivepassVenue(value),
 };
 
 /**

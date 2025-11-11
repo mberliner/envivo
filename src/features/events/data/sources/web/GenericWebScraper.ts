@@ -113,24 +113,32 @@ export class GenericWebScraper implements IDataSource {
       ? $(containerSelector).find(itemSelector)
       : $(itemSelector);
 
-    // Extraer datos de cada item
-    $items.each((_, element) => {
-      try {
-        const $item = $(element);
-        const eventData = this.extractEventData($item, $);
+    // Extraer datos de cada item (ahora async)
+    const eventPromises: Promise<RawEvent | null>[] = [];
 
-        if (eventData) {
-          events.push(eventData);
-        }
-      } catch (error: unknown) {
+    $items.each((_, element) => {
+      const $item = $(element);
+      const promise = this.extractEventData($item, $).catch((error: unknown) => {
         if (this.config.errorHandling?.skipFailedEvents) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           console.warn(
             `[${this.name}] Failed to extract event from item: ${errorMessage}`
           );
+          return null;
         } else {
           throw error;
         }
+      });
+      eventPromises.push(promise);
+    });
+
+    // Esperar a que todos los eventos se procesen
+    const extractedEvents = await Promise.all(eventPromises);
+
+    // Filtrar nulls
+    extractedEvents.forEach(event => {
+      if (event) {
+        events.push(event);
       }
     });
 
@@ -138,15 +146,15 @@ export class GenericWebScraper implements IDataSource {
   }
 
   /**
-   * Extrae datos de un evento individual
+   * Extrae datos de un evento individual (desde el listado)
    */
-  private extractEventData(
+  private async extractEventData(
     $item: cheerio.Cheerio<any>,
     $: cheerio.CheerioAPI
-  ): RawEvent | null {
+  ): Promise<RawEvent | null> {
     const { selectors, transforms, defaultValues } = this.config;
 
-    // Extraer todos los campos
+    // Extraer todos los campos del listado
     const rawData: Record<string, string> = {};
 
     Object.entries(selectors).forEach(([field, selector]) => {
@@ -185,7 +193,7 @@ export class GenericWebScraper implements IDataSource {
     });
 
     // Aplicar transformaciones (solo a campos extraídos, no a defaults)
-    const transformedData: Record<string, any> = { ...rawData };
+    let transformedData: Record<string, any> = { ...rawData };
 
     if (transforms) {
       Object.entries(transforms).forEach(([field, transformName]) => {
@@ -204,6 +212,44 @@ export class GenericWebScraper implements IDataSource {
           }
         }
       });
+    }
+
+    // Si detailPage está habilitado, scrapear detalles adicionales
+    if (this.config.detailPage?.enabled && transformedData.link) {
+      try {
+        const detailUrl = toAbsoluteUrl(transformedData.link, this.config.baseUrl);
+        console.log(`[${this.name}] 🔍 Scraping detail page: ${detailUrl}`);
+
+        const detailData = await this.scrapeDetailPage(detailUrl);
+        console.log(`[${this.name}] ✅ Detail data scraped:`, {
+          date: detailData.date,
+          venue: detailData.venue,
+          address: detailData.address,
+          price: detailData.price,
+          description: detailData.description ? `${detailData.description.substring(0, 50)}...` : undefined,
+        });
+
+        // Mergear datos: detalles tienen prioridad sobre listado
+        transformedData = { ...transformedData, ...detailData };
+
+        // Delay entre requests de detalles
+        const delay = this.config.detailPage.delayBetweenRequests || 500;
+        await this.sleep(delay);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.warn(
+          `[${this.name}] ❌ Failed to scrape detail page for ${transformedData.link}: ${errorMessage}`
+        );
+        // Continuar con datos del listado solamente
+      }
+    } else {
+      // Debug: por qué no se está scrapeando la página de detalles?
+      if (!this.config.detailPage?.enabled) {
+        console.log(`[${this.name}] ⚠️  Detail page scraping is DISABLED`);
+      }
+      if (!transformedData.link) {
+        console.log(`[${this.name}] ⚠️  No link found for event: ${transformedData.title}`);
+      }
     }
 
     // Validar campos obligatorios
@@ -238,6 +284,90 @@ export class GenericWebScraper implements IDataSource {
         ? toAbsoluteUrl(transformedData.link, this.config.baseUrl)
         : undefined,
     };
+  }
+
+  /**
+   * Scrapea la página de detalles de un evento
+   */
+  private async scrapeDetailPage(url: string): Promise<Record<string, any>> {
+    if (!this.config.detailPage) {
+      return {};
+    }
+
+    const { selectors, transforms, defaultValues } = this.config.detailPage;
+
+    // Fetch HTML de la página de detalles
+    const html = await this.fetchWithRetry(url);
+    const $ = cheerio.load(html);
+
+    const rawData: Record<string, string> = {};
+
+    // Extraer campos usando selectores de detailPage
+    console.log(`[${this.name}]   Trying ${Object.keys(selectors).length} selectors...`);
+    Object.entries(selectors).forEach(([field, selector]) => {
+      if (!selector) {
+        // Si no hay selector, usar valor por defecto si existe
+        if (defaultValues && field in defaultValues) {
+          const defaultValue = defaultValues[field as keyof typeof defaultValues];
+          if (defaultValue) {
+            rawData[field] = defaultValue;
+            console.log(`[${this.name}]   ℹ️  ${field}: using default value`);
+          }
+        }
+        return;
+      }
+
+      let value: string | undefined;
+
+      // Extraer valor según el tipo de selector
+      if (selector.includes('@')) {
+        // Atributo (ej: ".event-img@src", "a@href")
+        const [cssSelector, attrName] = selector.split('@');
+        value = $(cssSelector).attr(attrName);
+      } else {
+        // Texto
+        value = $(selector).text().trim();
+      }
+
+      if (value) {
+        rawData[field] = cleanWhitespace(value);
+        console.log(`[${this.name}]   ✅ ${field}: found via "${selector.substring(0, 40)}"`);
+      } else {
+        console.log(`[${this.name}]   ❌ ${field}: NOT found with "${selector.substring(0, 40)}"`);
+        if (defaultValues && field in defaultValues) {
+          // Si no se encontró valor, usar default si existe
+          const defaultValue = defaultValues[field as keyof typeof defaultValues];
+          if (defaultValue) {
+            rawData[field] = defaultValue;
+            console.log(`[${this.name}]   ℹ️  ${field}: using default value`);
+          }
+        }
+      }
+    });
+
+    // Aplicar transformaciones específicas de detailPage
+    const transformedData: Record<string, any> = { ...rawData };
+
+    if (transforms) {
+      Object.entries(transforms).forEach(([field, transformName]) => {
+        if (rawData[field] && transformName) {
+          try {
+            transformedData[field] = applyTransform(
+              transformName,
+              rawData[field],
+              this.config.baseUrl
+            );
+          } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            console.warn(
+              `[${this.name}] Failed to transform detail field ${field}: ${errorMessage}`
+            );
+          }
+        }
+      });
+    }
+
+    return transformedData;
   }
 
   /**

@@ -10,7 +10,9 @@ import {
   cleanWhitespace,
   toAbsoluteUrl,
   parseLivepassDate,
+  parseLivepassDateTime,
   cleanLivepassTitle,
+  extractLivepassVenue,
   applyTransform,
 } from './transforms';
 
@@ -143,6 +145,28 @@ describe('extractPrice', () => {
 
     it('should parse "$1.500,50" (decimals)', () => {
       expect(extractPrice('$1.500,50')).toBe(1501); // Rounded
+    });
+  });
+
+  describe('Decimal formats (English/JSON)', () => {
+    it('should parse "22400.0" (LivePass format)', () => {
+      expect(extractPrice('22400.0')).toBe(22400);
+    });
+
+    it('should parse "22400.50" (with cents)', () => {
+      expect(extractPrice('22400.50')).toBe(22401); // Rounded
+    });
+
+    it('should parse "1234.5"', () => {
+      expect(extractPrice('1234.5')).toBe(1235); // Rounded
+    });
+
+    it('should parse "100.99"', () => {
+      expect(extractPrice('100.99')).toBe(101); // Rounded
+    });
+
+    it('should parse "5000.0" (single zero after decimal)', () => {
+      expect(extractPrice('5000.0')).toBe(5000);
     });
   });
 
@@ -438,6 +462,215 @@ describe('cleanLivepassTitle', () => {
   });
 });
 
+describe('parseLivepassDateTime', () => {
+  describe('ISO format with time', () => {
+    it('should parse "2025-11-09T21:00:00" (ISO format)', () => {
+      const result = parseLivepassDateTime('2025-11-09T21:00:00');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getFullYear()).toBe(2025);
+      expect(result?.getMonth()).toBe(10); // November = 10
+      expect(result?.getDate()).toBe(9);
+      expect(result?.getHours()).toBe(21);
+      expect(result?.getMinutes()).toBe(0);
+    });
+
+    it('should parse "2025-11-09 21:00" (ISO-like without T)', () => {
+      const result = parseLivepassDateTime('2025-11-09 21:00');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getHours()).toBe(21);
+    });
+  });
+
+  describe('Spanish format with full year and time', () => {
+    it('should parse "9 de noviembre de 2025 a las 21:00"', () => {
+      const result = parseLivepassDateTime('9 de noviembre de 2025 a las 21:00');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getFullYear()).toBe(2025);
+      expect(result?.getMonth()).toBe(10); // November
+      expect(result?.getDate()).toBe(9);
+      expect(result?.getHours()).toBe(21);
+      expect(result?.getMinutes()).toBe(0);
+    });
+
+    it('should parse "15 de marzo de 2025 - 20:30"', () => {
+      const result = parseLivepassDateTime('15 de marzo de 2025 - 20:30');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(2); // March
+      expect(result?.getHours()).toBe(20);
+      expect(result?.getMinutes()).toBe(30);
+    });
+
+    it('should parse "1 de enero de 2025 21:15" (no separator)', () => {
+      const result = parseLivepassDateTime('1 de enero de 2025 21:15');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(0); // January
+      expect(result?.getHours()).toBe(21);
+      expect(result?.getMinutes()).toBe(15);
+    });
+  });
+
+  describe('Abbreviated format (LivePass meta descriptions)', () => {
+    it('should parse "Martes 11 NOV - 20:45 hrs" (real LivePass format)', () => {
+      const result = parseLivepassDateTime('Martes 11 NOV - 20:45 hrs');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(11);
+      expect(result?.getMonth()).toBe(10); // November (NOV)
+      expect(result?.getHours()).toBe(20);
+      expect(result?.getMinutes()).toBe(45);
+    });
+
+    it('should parse "11 NOV - 20:45 hrs" (without day name)', () => {
+      const result = parseLivepassDateTime('11 NOV - 20:45 hrs');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(11);
+      expect(result?.getMonth()).toBe(10); // November
+      expect(result?.getHours()).toBe(20);
+      expect(result?.getMinutes()).toBe(45);
+    });
+
+    it('should parse "Miércoles 12 NOV - 20:45 hrs"', () => {
+      const result = parseLivepassDateTime('Miércoles 12 NOV - 20:45 hrs');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(12);
+      expect(result?.getMonth()).toBe(10); // November
+      expect(result?.getHours()).toBe(20);
+      expect(result?.getMinutes()).toBe(45);
+    });
+
+    it('should parse from meta description (full text)', () => {
+      const result = parseLivepassDateTime(
+        'Ven y disfruta de Franco Dezzutto en Café Berlín. Martes 11 NOV - 20:45 hrs Café Berlín - -'
+      );
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(11);
+      expect(result?.getMonth()).toBe(10); // November
+      expect(result?.getHours()).toBe(20);
+      expect(result?.getMinutes()).toBe(45);
+    });
+
+    it('should parse "21 DIC - 19:00 hrs" (December)', () => {
+      const result = parseLivepassDateTime('21 DIC - 19:00 hrs');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(21);
+      expect(result?.getMonth()).toBe(11); // December (DIC)
+      expect(result?.getHours()).toBe(19);
+      expect(result?.getMinutes()).toBe(0);
+    });
+
+    it('should parse "Sábado 15 NOV - 23:00 hrs" (late night)', () => {
+      const result = parseLivepassDateTime('Sábado 15 NOV - 23:00 hrs');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(15);
+      expect(result?.getHours()).toBe(23);
+      expect(result?.getMinutes()).toBe(0);
+    });
+  });
+
+  describe('Spanish format without year (infer year)', () => {
+    it('should parse "Sábado 9 de Noviembre - 21:00"', () => {
+      const result = parseLivepassDateTime('Sábado 9 de Noviembre - 21:00');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(9);
+      expect(result?.getMonth()).toBe(10); // November
+      expect(result?.getHours()).toBe(21);
+      expect(result?.getMinutes()).toBe(0);
+    });
+
+    it('should parse "9 de Noviembre - 21:00" (without day name)', () => {
+      const result = parseLivepassDateTime('9 de Noviembre - 21:00');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(10);
+      expect(result?.getHours()).toBe(21);
+    });
+
+    it('should parse "15 de marzo 20:30" (no dash separator)', () => {
+      const result = parseLivepassDateTime('15 de marzo 20:30');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(2);
+      expect(result?.getHours()).toBe(20);
+      expect(result?.getMinutes()).toBe(30);
+    });
+  });
+
+  describe('Numeric format with time', () => {
+    it('should parse "09/11/2025 21:00"', () => {
+      const result = parseLivepassDateTime('09/11/2025 21:00');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getFullYear()).toBe(2025);
+      expect(result?.getMonth()).toBe(10); // November
+      expect(result?.getDate()).toBe(9);
+      expect(result?.getHours()).toBe(21);
+      expect(result?.getMinutes()).toBe(0);
+    });
+
+    it('should parse "09/11/2025 - 21:00" (with dash)', () => {
+      const result = parseLivepassDateTime('09/11/2025 - 21:00');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getHours()).toBe(21);
+    });
+
+    it('should parse "9-11-2025 21:30" (single digit, dash separator)', () => {
+      const result = parseLivepassDateTime('9-11-2025 21:30');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getHours()).toBe(21);
+      expect(result?.getMinutes()).toBe(30);
+    });
+  });
+
+  describe('Fallback to date-only parsing', () => {
+    it('should fallback to parseSpanishDate for date without time', () => {
+      const result = parseLivepassDateTime('15 de marzo de 2025');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getFullYear()).toBe(2025);
+      expect(result?.getMonth()).toBe(2);
+      expect(result?.getDate()).toBe(15);
+      // Time should default to 00:00
+      expect(result?.getHours()).toBe(0);
+      expect(result?.getMinutes()).toBe(0);
+    });
+
+    it('should fallback to parseSpanishDate for "09/11/2025" (no time)', () => {
+      const result = parseLivepassDateTime('09/11/2025');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getFullYear()).toBe(2025);
+    });
+  });
+
+  describe('Edge cases', () => {
+    it('should return undefined for invalid format', () => {
+      expect(parseLivepassDateTime('invalid')).toBeUndefined();
+      expect(parseLivepassDateTime('99/99/9999 99:99')).toBeUndefined();
+    });
+
+    it('should return undefined for empty string', () => {
+      expect(parseLivepassDateTime('')).toBeUndefined();
+    });
+
+    it('should return undefined for non-string input', () => {
+      expect(parseLivepassDateTime(null as any)).toBeUndefined();
+      expect(parseLivepassDateTime(undefined as any)).toBeUndefined();
+    });
+
+    it('should handle case insensitivity', () => {
+      const result1 = parseLivepassDateTime('9 DE NOVIEMBRE - 21:00');
+      const result2 = parseLivepassDateTime('9 de noviembre - 21:00');
+      expect(result1?.getTime()).toBe(result2?.getTime());
+    });
+
+    it('should handle extra whitespace', () => {
+      const result = parseLivepassDateTime('  9  de  noviembre  -  21:00  ');
+      expect(result?.getMonth()).toBe(10);
+      expect(result?.getHours()).toBe(21);
+    });
+
+    it('should handle "hs" suffix', () => {
+      const result = parseLivepassDateTime('09/11/2025 - 21:00hs');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getHours()).toBe(21);
+    });
+  });
+});
+
 describe('applyTransform', () => {
   it('should apply parseSpanishDate transform', () => {
     const result = applyTransform('parseSpanishDate', '15 de marzo de 2025');
@@ -475,9 +708,63 @@ describe('applyTransform', () => {
     expect(result).toBe('Metallica');
   });
 
+  it('should apply parseLivepassDateTime transform', () => {
+    const result = applyTransform('parseLivepassDateTime', '9 de noviembre - 21:00');
+    expect(result).toBeInstanceOf(Date);
+    expect(result?.getMonth()).toBe(10);
+    expect(result?.getHours()).toBe(21);
+  });
+
+  it('should apply extractLivepassVenue transform', () => {
+    const result = applyTransform('extractLivepassVenue', 'Recinto: Café Berlín');
+    expect(result).toBe('Café Berlín');
+  });
+
   it('should throw error for unknown transform', () => {
     expect(() => applyTransform('unknownTransform', 'value')).toThrow(
       'Unknown transform function: unknownTransform'
     );
+  });
+});
+
+describe('extractLivepassVenue', () => {
+  it('should extract venue from "Recinto: Café Berlín"', () => {
+    const result = extractLivepassVenue('Recinto: Café Berlín');
+    expect(result).toBe('Café Berlín');
+  });
+
+  it('should extract venue from "Recinto:Café Berlín" (no space)', () => {
+    const result = extractLivepassVenue('Recinto:Café Berlín');
+    expect(result).toBe('Café Berlín');
+  });
+
+  it('should extract venue from "RECINTO: Café Berlín" (uppercase)', () => {
+    const result = extractLivepassVenue('RECINTO: Café Berlín');
+    expect(result).toBe('Café Berlín');
+  });
+
+  it('should handle venue with extra whitespace', () => {
+    const result = extractLivepassVenue('Recinto:   Café Berlín   ');
+    expect(result).toBe('Café Berlín');
+  });
+
+  it('should return trimmed text if no "Recinto:" pattern found', () => {
+    const result = extractLivepassVenue('  Café Berlín  ');
+    expect(result).toBe('Café Berlín');
+  });
+
+  it('should handle empty string', () => {
+    const result = extractLivepassVenue('');
+    expect(result).toBeUndefined();
+  });
+
+  it('should handle undefined input', () => {
+    const result = extractLivepassVenue(undefined as any);
+    expect(result).toBeUndefined();
+  });
+
+  it('should handle null input', () => {
+    const result = extractLivepassVenue(null as any);
+    expect(result).toBeUndefined();
   });
 });
