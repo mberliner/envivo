@@ -331,7 +331,44 @@ export function parseLivepassDateTime(dateTimeString: string): Date | undefined 
     }
   }
 
-  // Formato: "Sábado 9 de Noviembre - 21:00" (sin año)
+  // Formato: "Martes 11 NOV - 20:45 hrs" (abreviado, sin "de", sin año)
+  // Común en meta descriptions de LivePass
+  const abbreviatedMatch = normalized.match(
+    /(?:\w+\s+)?(\d{1,2})\s+([a-z]+)\s*-\s*(\d{1,2}):(\d{2})/
+  );
+  if (abbreviatedMatch) {
+    const [, dayStr, monthName, hourStr, minuteStr] = abbreviatedMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+
+    if (month !== undefined && !isNaN(day) && !isNaN(hour) && !isNaN(minute)) {
+      // Inferir año (igual que parseLivepassDate)
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+
+      let year = currentYear;
+      if (month < currentMonth || (month === currentMonth && day < now.getDate())) {
+        year = currentYear + 1;
+      }
+
+      // Validar rangos antes de crear el Date
+      if (
+        day >= 1 && day <= 31 &&
+        hour >= 0 && hour <= 23 &&
+        minute >= 0 && minute <= 59
+      ) {
+        const date = new Date(year, month, day, hour, minute);
+        if (!isNaN(date.getTime())) {
+          return date;
+        }
+      }
+    }
+  }
+
+  // Formato: "Sábado 9 de Noviembre - 21:00" (con "de", sin año)
   const shortSpanishMatch = normalized.match(
     /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s*-?\s*(\d{1,2}):(\d{2})/
   );
@@ -353,9 +390,16 @@ export function parseLivepassDateTime(dateTimeString: string): Date | undefined 
         year = currentYear + 1;
       }
 
-      const date = new Date(year, month, day, hour, minute);
-      if (!isNaN(date.getTime())) {
-        return date;
+      // Validar rangos antes de crear el Date
+      if (
+        day >= 1 && day <= 31 &&
+        hour >= 0 && hour <= 23 &&
+        minute >= 0 && minute <= 59
+      ) {
+        const date = new Date(year, month, day, hour, minute);
+        if (!isNaN(date.getTime())) {
+          return date;
+        }
       }
     }
   }

@@ -487,6 +487,63 @@ describe('parseLivepassDateTime', () => {
     });
   });
 
+  describe('Abbreviated format (LivePass meta descriptions)', () => {
+    it('should parse "Martes 11 NOV - 20:45 hrs" (real LivePass format)', () => {
+      const result = parseLivepassDateTime('Martes 11 NOV - 20:45 hrs');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(11);
+      expect(result?.getMonth()).toBe(10); // November (NOV)
+      expect(result?.getHours()).toBe(20);
+      expect(result?.getMinutes()).toBe(45);
+    });
+
+    it('should parse "11 NOV - 20:45 hrs" (without day name)', () => {
+      const result = parseLivepassDateTime('11 NOV - 20:45 hrs');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(11);
+      expect(result?.getMonth()).toBe(10); // November
+      expect(result?.getHours()).toBe(20);
+      expect(result?.getMinutes()).toBe(45);
+    });
+
+    it('should parse "Miércoles 12 NOV - 20:45 hrs"', () => {
+      const result = parseLivepassDateTime('Miércoles 12 NOV - 20:45 hrs');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(12);
+      expect(result?.getMonth()).toBe(10); // November
+      expect(result?.getHours()).toBe(20);
+      expect(result?.getMinutes()).toBe(45);
+    });
+
+    it('should parse from meta description (full text)', () => {
+      const result = parseLivepassDateTime(
+        'Ven y disfruta de Franco Dezzutto en Café Berlín. Martes 11 NOV - 20:45 hrs Café Berlín - -'
+      );
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(11);
+      expect(result?.getMonth()).toBe(10); // November
+      expect(result?.getHours()).toBe(20);
+      expect(result?.getMinutes()).toBe(45);
+    });
+
+    it('should parse "21 DIC - 19:00 hrs" (December)', () => {
+      const result = parseLivepassDateTime('21 DIC - 19:00 hrs');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(21);
+      expect(result?.getMonth()).toBe(11); // December (DIC)
+      expect(result?.getHours()).toBe(19);
+      expect(result?.getMinutes()).toBe(0);
+    });
+
+    it('should parse "Sábado 15 NOV - 23:00 hrs" (late night)', () => {
+      const result = parseLivepassDateTime('Sábado 15 NOV - 23:00 hrs');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(15);
+      expect(result?.getHours()).toBe(23);
+      expect(result?.getMinutes()).toBe(0);
+    });
+  });
+
   describe('Spanish format without year (infer year)', () => {
     it('should parse "Sábado 9 de Noviembre - 21:00"', () => {
       const result = parseLivepassDateTime('Sábado 9 de Noviembre - 21:00');
