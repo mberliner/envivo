@@ -103,7 +103,6 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
   /**
    * Convierte de modelo Prisma a entidad de dominio
    */
-  // @ts-expect-error - Prisma type not generated yet
   private toDomain(prismaPrefs: Prisma.GlobalPreferencesGetPayload<Record<string, never>>): GlobalPreferences {
     // Helper para parsear JSON arrays con fallback
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -145,9 +144,7 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
   /**
    * Convierte de entidad de dominio a modelo Prisma
    */
-  // @ts-expect-error - Prisma type not generated yet
   private toPrisma(preferences: Partial<GlobalPreferences>): Partial<Prisma.GlobalPreferencesCreateInput> {
-    // @ts-expect-error - Prisma type not generated yet
     const data: Partial<Prisma.GlobalPreferencesCreateInput> = {};
 
     if (preferences.allowedCountries !== undefined) {

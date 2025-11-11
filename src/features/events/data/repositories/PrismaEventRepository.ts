@@ -2,7 +2,7 @@ import {
   IEventRepository,
   EventFilters,
 } from '@/features/events/domain/interfaces/IEventRepository';
-import { Event } from '@/features/events/domain/entities/Event';
+import { Event, EventCategory } from '@/features/events/domain/entities/Event';
 import { RawEvent } from '@/features/events/domain/entities/Event';
 import { prisma } from '@/shared/infrastructure/database/prisma';
 import { Prisma } from '@prisma/client';
@@ -43,7 +43,6 @@ export class PrismaEventRepository implements IEventRepository {
    * Busca eventos aplicando filtros
    */
   async findByFilters(filters: EventFilters): Promise<Event[]> {
-    // @ts-expect-error - Prisma type not generated yet
     const where: Prisma.EventWhereInput = {};
 
     // Filtro por ciudad (exact match - viene de dropdown)
@@ -166,7 +165,6 @@ export class PrismaEventRepository implements IEventRepository {
   /**
    * Convierte modelo de Prisma a entidad de dominio
    */
-  // @ts-expect-error - Prisma type not generated yet
   private toDomainEvent(prismaEvent: Prisma.EventGetPayload<Record<string, never>>): Event {
     return {
       id: prismaEvent.id,
@@ -178,7 +176,7 @@ export class PrismaEventRepository implements IEventRepository {
       venueName: undefined, // TODO: cargar venue en fase posterior
       city: prismaEvent.city,
       country: prismaEvent.country,
-      category: prismaEvent.category,
+      category: prismaEvent.category as EventCategory,
       genre: prismaEvent.genre || undefined,
       artists: undefined, // TODO: cargar artists en fase posterior
       imageUrl: prismaEvent.imageUrl || undefined,
