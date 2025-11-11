@@ -31,7 +31,7 @@ El sistema de web scraping permite extraer eventos de sitios web HTML usando **c
 ✅ **Transformaciones** - Parseo de fechas en español, precios, sanitización HTML
 ✅ **Error handling graceful** - Continúa scraping aunque eventos individuales fallen
 ✅ **Integración con Orchestrator** - Compatible con DataSourceOrchestrator
-✅ **Tests comprehensivos** - 90 tests con fixtures HTML
+✅ **Tests comprehensivos** - Tests unitarios con fixtures HTML reales
 
 ### Sitios Configurados
 

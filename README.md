@@ -106,22 +106,24 @@ envivo/
 ## 🧪 Testing
 
 ```bash
-# Tests unitarios (152 tests, 100% passing)
+# Tests unitarios
 npm run test
 
 # Tests con UI interactiva
 npm run test:ui
 
+# Coverage report
+npm run test:coverage
+
 # Type checking
 npm run type-check
 ```
 
-**Cobertura actual**:
-- Data layer (mappers, sources, repositories): 100%
-- Security utilities (sanitize, validation): 100%
-- UI components (EventDetail, EventCard): 100%
-
+**Stack**: Vitest + React Testing Library + jsdom
+**Cobertura**: Data layer, security utilities, UI components
 **Planificado**: E2E tests con Playwright en Fase 7
+
+**Ver [docs/DEVELOPMENT.md#testing](docs/DEVELOPMENT.md#testing) para objetivos de cobertura por capa.**
 
 ## 🔒 Seguridad
 
