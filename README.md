@@ -106,7 +106,7 @@ envivo/
 ## 🧪 Testing
 
 ```bash
-# Tests unitarios (35 tests, 100% passing)
+# Tests unitarios (152 tests, 100% passing)
 npm run test
 
 # Tests con UI interactiva
@@ -116,7 +116,11 @@ npm run test:ui
 npm run type-check
 ```
 
-**Cobertura actual**: Data layer (mappers, sources, repositories) - 28 tests
+**Cobertura actual**:
+- Data layer (mappers, sources, repositories): 100%
+- Security utilities (sanitize, validation): 100%
+- UI components (EventDetail, EventCard): 100%
+
 **Planificado**: E2E tests con Playwright en Fase 7
 
 ## 🔒 Seguridad
