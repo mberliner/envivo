@@ -218,7 +218,16 @@ export class GenericWebScraper implements IDataSource {
     if (this.config.detailPage?.enabled && transformedData.link) {
       try {
         const detailUrl = toAbsoluteUrl(transformedData.link, this.config.baseUrl);
+        console.log(`[${this.name}] 🔍 Scraping detail page: ${detailUrl}`);
+
         const detailData = await this.scrapeDetailPage(detailUrl);
+        console.log(`[${this.name}] ✅ Detail data scraped:`, {
+          date: detailData.date,
+          venue: detailData.venue,
+          address: detailData.address,
+          price: detailData.price,
+          description: detailData.description ? `${detailData.description.substring(0, 50)}...` : undefined,
+        });
 
         // Mergear datos: detalles tienen prioridad sobre listado
         transformedData = { ...transformedData, ...detailData };
@@ -229,9 +238,17 @@ export class GenericWebScraper implements IDataSource {
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.warn(
-          `[${this.name}] Failed to scrape detail page for ${transformedData.link}: ${errorMessage}`
+          `[${this.name}] ❌ Failed to scrape detail page for ${transformedData.link}: ${errorMessage}`
         );
         // Continuar con datos del listado solamente
+      }
+    } else {
+      // Debug: por qué no se está scrapeando la página de detalles?
+      if (!this.config.detailPage?.enabled) {
+        console.log(`[${this.name}] ⚠️  Detail page scraping is DISABLED`);
+      }
+      if (!transformedData.link) {
+        console.log(`[${this.name}] ⚠️  No link found for event: ${transformedData.title}`);
       }
     }
 
@@ -286,6 +303,7 @@ export class GenericWebScraper implements IDataSource {
     const rawData: Record<string, string> = {};
 
     // Extraer campos usando selectores de detailPage
+    console.log(`[${this.name}]   Trying ${Object.keys(selectors).length} selectors...`);
     Object.entries(selectors).forEach(([field, selector]) => {
       if (!selector) {
         // Si no hay selector, usar valor por defecto si existe
@@ -293,6 +311,7 @@ export class GenericWebScraper implements IDataSource {
           const defaultValue = defaultValues[field as keyof typeof defaultValues];
           if (defaultValue) {
             rawData[field] = defaultValue;
+            console.log(`[${this.name}]   ℹ️  ${field}: using default value`);
           }
         }
         return;
@@ -312,11 +331,16 @@ export class GenericWebScraper implements IDataSource {
 
       if (value) {
         rawData[field] = cleanWhitespace(value);
-      } else if (defaultValues && field in defaultValues) {
-        // Si no se encontró valor, usar default si existe
-        const defaultValue = defaultValues[field as keyof typeof defaultValues];
-        if (defaultValue) {
-          rawData[field] = defaultValue;
+        console.log(`[${this.name}]   ✅ ${field}: found via "${selector.substring(0, 40)}"`);
+      } else {
+        console.log(`[${this.name}]   ❌ ${field}: NOT found with "${selector.substring(0, 40)}"`);
+        if (defaultValues && field in defaultValues) {
+          // Si no se encontró valor, usar default si existe
+          const defaultValue = defaultValues[field as keyof typeof defaultValues];
+          if (defaultValue) {
+            rawData[field] = defaultValue;
+            console.log(`[${this.name}]   ℹ️  ${field}: using default value`);
+          }
         }
       }
     });
