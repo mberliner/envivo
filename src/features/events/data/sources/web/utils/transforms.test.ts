@@ -148,6 +148,28 @@ describe('extractPrice', () => {
     });
   });
 
+  describe('Decimal formats (English/JSON)', () => {
+    it('should parse "22400.0" (LivePass format)', () => {
+      expect(extractPrice('22400.0')).toBe(22400);
+    });
+
+    it('should parse "22400.50" (with cents)', () => {
+      expect(extractPrice('22400.50')).toBe(22401); // Rounded
+    });
+
+    it('should parse "1234.5"', () => {
+      expect(extractPrice('1234.5')).toBe(1235); // Rounded
+    });
+
+    it('should parse "100.99"', () => {
+      expect(extractPrice('100.99')).toBe(101); // Rounded
+    });
+
+    it('should parse "5000.0" (single zero after decimal)', () => {
+      expect(extractPrice('5000.0')).toBe(5000);
+    });
+  });
+
   describe('Text formats', () => {
     it('should parse "Desde $1.500"', () => {
       expect(extractPrice('Desde $1.500')).toBe(1500);

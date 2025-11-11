@@ -131,11 +131,25 @@ export function extractPrice(priceString: string): number | undefined {
     return 0;
   }
 
-  // Extraer todos los dígitos (ignora separadores de miles)
+  // Extraer todos los dígitos con separadores
   const digitsMatch = normalized.match(/\d[\d.,]*/);
   if (digitsMatch) {
-    // Remover puntos (separadores de miles) y convertir comas a puntos (decimales)
-    const cleanNumber = digitsMatch[0].replace(/\./g, '').replace(/,/g, '.');
+    const numberString = digitsMatch[0];
+
+    // Detectar formato: ¿punto decimal o separador de miles?
+    // Si hay UN SOLO punto seguido de 1-2 dígitos al final, es formato decimal (ej: "22400.0", "22400.50")
+    // Si hay múltiples puntos o punto con más de 2 decimales, es formato argentino (ej: "1.500", "10.500")
+    const decimalFormatMatch = numberString.match(/^\d+\.\d{1,2}$/);
+
+    let cleanNumber: string;
+    if (decimalFormatMatch) {
+      // Formato decimal inglés/JSON: "22400.0" o "22400.50"
+      cleanNumber = numberString; // Mantener el punto como decimal
+    } else {
+      // Formato argentino: remover puntos (separadores de miles) y convertir comas a puntos (decimales)
+      cleanNumber = numberString.replace(/\./g, '').replace(/,/g, '.');
+    }
+
     const price = parseFloat(cleanNumber);
 
     if (!isNaN(price) && price >= 0) {

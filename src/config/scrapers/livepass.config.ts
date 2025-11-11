@@ -143,8 +143,8 @@ export const livepassConfig: ScraperConfig = {
       // Limpiar descripción HTML
       description: 'sanitizeHtml',
 
-      // El precio ya viene como número en el meta tag
-      // price: 'extractPrice', // No necesario, ya es numérico
+      // Convertir precio de string a número (viene como "22400.0" del meta tag)
+      price: 'extractPrice',
 
       // URLs absolutas
       image: 'toAbsoluteUrl',
