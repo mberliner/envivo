@@ -34,6 +34,7 @@ La documentación de EnVivo sigue el principio **"Single Source of Truth"** para
 | **Interface Segregation (ISP)** | `ARCHITECTURE.md` | - |
 | **Business Rules** | `ARCHITECTURE.md` | - |
 | **Code Conventions & Naming** | `DEVELOPMENT.md` | `CLAUDE.md` (summary) |
+| **ESLint & Code Quality** | `DEVELOPMENT.md` | `README.md` (commands only) |
 | **Git Workflow & Commits** | `CONTRIBUTING.md` (this file) | `CLAUDE.md` (summary) |
 | **Testing (stack, comandos, coverage)** | `DEVELOPMENT.md` | `CLAUDE.md` (table summary) |
 | **Testing Best Practices (AAA, mocks)** | `DEVELOPMENT.md` | - |

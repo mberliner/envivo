@@ -59,7 +59,7 @@ export function EventFilters({
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [city, category, dateFrom, dateTo]);
 
   // Limpiar todos los filtros

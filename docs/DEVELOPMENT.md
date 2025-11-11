@@ -135,6 +135,182 @@ export function SearchBar() {
 
 ---
 
+## Code Quality & Linting
+
+### ESLint Configuration
+
+Este proyecto usa ESLint para mantener consistencia y calidad en el código:
+
+- **eslint-config-next** (v16.0.1): Reglas específicas de Next.js
+- **eslint-config-prettier** (v10.1.8): Compatibilidad con Prettier
+- **@typescript-eslint**: Reglas de TypeScript
+- **Configuración**: `eslint.config.mjs` (ESLint 9 flat config)
+
+**Archivos excluidos** (configurados en `eslint.config.mjs`):
+- `docs/examples/` (código de referencia)
+- `scripts/` (scripts Node.js legacy)
+- `.next/`, `node_modules/`, build outputs
+
+**Nota**: ESLint 9+ usa `ignores` en el archivo de config, NO `.eslintignore`.
+
+### Comandos de Linting
+
+```bash
+# Verificar issues (sin modificar archivos)
+npm run lint
+
+# Auto-fix issues cuando sea posible
+npm run lint:fix
+```
+
+**Importante**: `npm run lint` es **OBLIGATORIO** antes de cada commit. Ver [CONTRIBUTING.md](CONTRIBUTING.md#testing-requirements) para requisitos completos.
+
+### Reglas ESLint Más Comunes
+
+#### 🔴 Errores Críticos (Deben corregirse)
+
+| Regla | Descripción | Cómo corregir |
+|-------|-------------|---------------|
+| `@typescript-eslint/no-explicit-any` | Evitar uso de `any` | Usar tipos específicos o `unknown` |
+| `@typescript-eslint/no-unused-vars` | Variables/imports no usados | Eliminar o usar con `_` prefix |
+| `@typescript-eslint/no-require-imports` | Usar `import` en lugar de `require()` | Convertir a ES modules |
+| `@next/next/no-img-element` | Usar `<Image />` de Next.js | Reemplazar `<img>` con `next/image` |
+
+**Ejemplos:**
+
+```typescript
+// ❌ Malo: uso de any
+function process(data: any) {
+  return data.value;
+}
+
+// ✅ Bueno: tipo específico
+function process(data: { value: string }) {
+  return data.value;
+}
+
+// ✅ Bueno alternativo: unknown con type guard
+function process(data: unknown) {
+  if (typeof data === 'object' && data !== null && 'value' in data) {
+    return (data as { value: string }).value;
+  }
+}
+```
+
+```typescript
+// ❌ Malo: variable no usada
+const [count, setCount] = useState(0);
+return <div>Hello</div>;
+
+// ✅ Bueno: eliminar si no se usa
+return <div>Hello</div>;
+
+// ✅ Bueno alternativo: prefix con _ si es intencional
+const [_count, setCount] = useState(0);
+```
+
+```jsx
+// ❌ Malo: <img> nativo
+<img src="/logo.png" alt="Logo" />
+
+// ✅ Bueno: Next.js Image
+import Image from 'next/image';
+<Image src="/logo.png" alt="Logo" width={100} height={100} />
+```
+
+#### 🟡 Warnings (Recomendaciones)
+
+- **Unused variables**: Revisar si realmente se necesitan
+- **Unused eslint-disable**: Eliminar directivas innecesarias
+- **Console statements**: Usar logger en producción
+
+### Cuándo Desactivar Reglas
+
+**Usa `eslint-disable` solo cuando**:
+
+1. **False positives** (el error es incorrecto)
+2. **Código legacy** que se refactorizará después
+3. **Tests** que requieren patrones específicos
+
+**Formatos aceptados:**
+
+```typescript
+// Desactivar para línea siguiente
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const data: any = JSON.parse(str);
+
+// Desactivar para bloque
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function legacyCode(data: any) {
+  // Código legacy
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+// Desactivar archivo completo (última opción)
+/* eslint-disable @typescript-eslint/no-explicit-any */
+```
+
+**❌ NO desactivar**:
+- Para evitar corregir código nuevo
+- Sin comentario explicando por qué
+- Reglas de seguridad
+
+### Integración con IDEs
+
+#### VS Code
+
+1. Instalar extensión: **ESLint** (dbaeumer.vscode-eslint)
+2. Agregar a `.vscode/settings.json`:
+
+```json
+{
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
+}
+```
+
+3. Reiniciar VS Code
+
+#### WebStorm / IntelliJ
+
+1. Settings → Languages & Frameworks → JavaScript → Code Quality Tools → ESLint
+2. Activar: "Automatic ESLint configuration"
+3. Activar: "Run eslint --fix on save"
+
+### Solución de Problemas
+
+**"Error: Failed to load config"**
+```bash
+# Limpiar cache de ESLint
+rm -rf node_modules/.cache/eslint
+npm run lint
+```
+
+**"Cannot find module 'eslint-config-next'"**
+```bash
+# Reinstalar dependencias
+npm install
+```
+
+**"Parsing error" en archivos TS**
+- Verificar que `typescript` esté instalado
+- Verificar `tsconfig.json` válido
+
+### Referencias
+
+- [ESLint Rules](https://eslint.org/docs/rules/)
+- [TypeScript ESLint](https://typescript-eslint.io/rules/)
+- [Next.js ESLint](https://nextjs.org/docs/app/api-reference/config/eslint)
+
+---
+
 ## Testing
 
 ### Stack de Testing

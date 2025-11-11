@@ -28,8 +28,8 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
 
   // State
   const [events, setEvents] = useState<Event[]>([]);
-  const [cities, setCities] = useState<string[]>(initialCities);
-  const [categories, setCategories] = useState<string[]>(initialCategories);
+  const [cities] = useState<string[]>(initialCities); // TODO: Add city filtering
+  const [categories] = useState<string[]>(initialCategories); // TODO: Add category filtering
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

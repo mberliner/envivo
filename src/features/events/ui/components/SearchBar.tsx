@@ -42,7 +42,7 @@ export function SearchBar({
   // Ejecutar onSearch cuando el valor debounced cambia
   useEffect(() => {
     onSearchRef.current(debouncedValue);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [debouncedValue]);
 
   // Limpiar búsqueda

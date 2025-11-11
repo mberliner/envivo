@@ -33,8 +33,8 @@ cp .env.example .env.local
 #   DATABASE_URL="file:./dev.db"
 
 # 4. Setup base de datos
-npx prisma generate
-npx prisma db push
+npm run db:generate
+npm run db:push
 
 # 5. Iniciar servidor de desarrollo
 npm run dev
@@ -156,7 +156,7 @@ npm run lint:fix
 npm run format
 
 # Prisma
-npx prisma studio          # UI para base de datos
+npm run db:studio          # UI para base de datos
 npx prisma migrate dev     # Crear migración
 
 # Scraping manual
@@ -184,18 +184,11 @@ Este es un proyecto personal, pero si quieres colaborar:
 1. Revisar [CONTRIBUTING.md](docs/CONTRIBUTING.md) para workflow y convenciones
 2. Leer [ARCHITECTURE.md](docs/ARCHITECTURE.md) para entender diseño
 3. Leer [PRODUCT.md](docs/PRODUCT.md) para ver roadmap
-4. Consultar [CLAUDE.md](CLAUDE.md) para convenciones de código
+4. Consultar [DEVELOPMENT.md](docs/DEVELOPMENT.md) para convenciones de código
 5. Escribir tests para nuevas features
 
 **Nota**: La documentación sigue "Single Source of Truth". Ver [CONTRIBUTING.md#documentation-as-code-single-source-of-truth-ssot](docs/CONTRIBUTING.md#documentation-as-code-single-source-of-truth-ssot) para entender cómo está organizada.
 
-## 📝 Licencia
-
-MIT
-
-## 👤 Autor
-
-Claudio
 
 ---
 
