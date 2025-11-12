@@ -263,7 +263,7 @@ export class GenericWebScraper implements IDataSource {
 
     // Construir RawEvent
     return {
-      _source: this.name, // Using _source to match TicketmasterMapper pattern
+      _source: this.name, // Using _source to match ExternalApiMapper pattern
       externalId: this.generateExternalId(rawData), // Use raw data for ID (before transformation)
       title: transformedData.title,
       date: transformedData.date,

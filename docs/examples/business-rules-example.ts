@@ -182,7 +182,7 @@ export class EventBusinessRules implements IEventBusinessRules {
 
     // Actualizar si viene de fuente más confiable
     const sourcePriority: Record<string, number> = {
-      'ticketmaster': 10,
+      'allaccess': 10,
       'eventbrite': 8,
       'local-scraper': 5,
       'file': 1
@@ -466,7 +466,7 @@ async function exampleUsage() {
     city: 'Buenos Aires',
     country: 'Argentina',
     category: 'Concierto',
-    source: 'ticketmaster'
+    source: 'allaccess'
   };
 
   const validation = rules.isAcceptable(event);
@@ -503,7 +503,7 @@ async function exampleUsage() {
   // 4. Decidir si actualizar
   if (isDupe) {
     const shouldUpdate = rules.shouldUpdate(normalized, existingEvent);
-    console.log('Debe actualizar?', shouldUpdate); // true (Ticketmaster > scraper-local)
+    console.log('Debe actualizar?', shouldUpdate); // true (AllAccess > scraper-local)
   }
 }
 

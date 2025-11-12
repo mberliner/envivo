@@ -404,7 +404,7 @@ export class EventBusinessRules {
 
     // Criterio 4: Fuente más confiable (APIs > scrapers)
     const sourceReliability: Record<string, number> = {
-      ticketmaster: 10,
+      allaccess: 10,
       eventbrite: 9,
       spotify: 8,
       scraper_local: 5,

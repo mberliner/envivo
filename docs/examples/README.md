@@ -29,7 +29,7 @@ Estos archivos contienen implementaciones completas extraídas del PLAN_PROYECTO
 
 ### scraper-example.ts
 - DataSourceOrchestrator completo
-- TicketmasterSource con todas las capacidades
+- ExternalApiSource con todas las capacidades
 - LocalVenueScraper con Cheerio
 - Type guards para capacidades opcionales
 - ~400 líneas

@@ -284,7 +284,7 @@ export function middleware(request: NextRequest) {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://app.ticketmaster.com https://www.eventbriteapi.com"
+      "connect-src 'self' https://api.example.com https://www.eventbriteapi.com"
     ].join('; ')
   );
 
@@ -331,7 +331,7 @@ export const config = {
 /*
 # .env.example (commit esto, sin valores reales)
 DATABASE_URL="file:./dev.db"
-TICKETMASTER_API_KEY="tu-api-key-aqui"
+ALLACCESS_API_KEY="tu-api-key-aqui"
 EVENTBRITE_API_KEY="tu-api-key-aqui"
 ADMIN_API_KEY="tu-admin-key-aqui"
 
@@ -355,7 +355,7 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().min(1),
 
   // API Keys (privadas, solo server-side)
-  TICKETMASTER_API_KEY: z.string().min(1),
+  ALLACCESS_API_KEY: z.string().optional(),
   EVENTBRITE_API_KEY: z.string().min(1),
   ADMIN_API_KEY: z.string().min(32), // Mínimo 32 caracteres
 
@@ -376,11 +376,11 @@ export const env = parseResult.data;
 
 // ✅ USO CORRECTO (Server-side):
 import { env } from '@/shared/infrastructure/config/env';
-const apiKey = env.TICKETMASTER_API_KEY;
+const apiKey = env.ALLACCESS_API_KEY;
 
 // ❌ USO INCORRECTO (Client-side):
 // 'use client';
-// const apiKey = env.TICKETMASTER_API_KEY; // undefined en cliente
+// const apiKey = env.ALLACCESS_API_KEY; // undefined en cliente
 
 // ============================================
 // 6. PROTECCIÓN DE ENDPOINTS ADMIN

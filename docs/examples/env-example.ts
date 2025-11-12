@@ -35,7 +35,7 @@ const EnvSchema = z.object({
   // ========================================
   // APIs EXTERNAS (Server-side only)
   // ========================================
-  TICKETMASTER_API_KEY: z.string().min(1, 'TICKETMASTER_API_KEY is required'),
+  ALLACCESS_API_KEY: z.string().optional(),
   EVENTBRITE_API_KEY: z.string().optional(),
   BANDSINTOWN_API_KEY: z.string().optional(),
 
@@ -104,7 +104,7 @@ export const appConfig = {
     retries: env.NODE_ENV === 'production' ? 3 : 1,
     timeout: env.NODE_ENV === 'production' ? 15000 : 30000,
     rateLimit: {
-      ticketmaster: {
+      externalApi: {
         maxPerSecond: 5,
         maxPerDay: 5000
       },
@@ -144,9 +144,9 @@ export const appConfig = {
 
   // External APIs
   apis: {
-    ticketmaster: {
-      baseUrl: 'https://app.ticketmaster.com/discovery/v2',
-      apiKey: env.TICKETMASTER_API_KEY,
+    externalApi: {
+      baseUrl: .https://api.example.com/v1.,
+      apiKey: env.ALLACCESS_API_KEY,
       timeout: 10000
     },
     eventbrite: env.EVENTBRITE_API_KEY
@@ -190,7 +190,7 @@ DATABASE_URL="file:./dev.db"  # SQLite para desarrollo
 # ========================================
 # APIs EXTERNAS (Server-side only)
 # ========================================
-TICKETMASTER_API_KEY="your-ticketmaster-api-key-here"
+ALLACCESS_API_KEY="your-api-key-here"
 EVENTBRITE_API_KEY="your-eventbrite-api-key-here"  # Opcional
 BANDSINTOWN_API_KEY="your-bandsintown-api-key-here"  # Opcional
 
@@ -267,11 +267,11 @@ import { appConfig } from '@/shared/infrastructure/config/app.config';
 
 export async function ServerComponent() {
   // ✅ Puede acceder a todas las variables
-  const apiKey = env.TICKETMASTER_API_KEY;
+  const apiKey = env.ALLACCESS_API_KEY;
   const dbUrl = env.DATABASE_URL;
 
   // ✅ Usar config en lugar de env directo
-  const timeout = appConfig.apis.ticketmaster.timeout;
+  const timeout = appConfig.apis.externalApi.timeout;
 
   return <div>Server Component</div>;
 }
@@ -286,7 +286,7 @@ import { env } from '@/shared/infrastructure/config/env';
 
 export function ClientComponent() {
   // ❌ Variables server-side son undefined en cliente
-  const apiKey = env.TICKETMASTER_API_KEY; // undefined
+  const apiKey = env.ALLACCESS_API_KEY; // undefined
 
   // ✅ Solo NEXT_PUBLIC_* están disponibles
   const appUrl = env.NEXT_PUBLIC_APP_URL; // OK

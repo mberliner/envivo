@@ -47,9 +47,9 @@ El sistema de web scraping permite extraer eventos de sitios web HTML usando **c
 
 Existen **tres métodos** para ejecutar scraping manualmente en desarrollo o producción.
 
-### Método 1: API Endpoint - Ticketmaster (curl)
+### Método 1: API Endpoint - External API (curl)
 
-Ejecuta scraping de **Ticketmaster** únicamente.
+Ejecuta scraping de **APIs externas** únicamente.
 
 **Endpoint**: `POST /api/admin/scraper/sync`
 
@@ -66,7 +66,7 @@ curl -X POST http://localhost:3000/api/admin/scraper/sync \
   "success": true,
   "sources": [
     {
-      "name": "ticketmaster",
+      "name": "external_api",
       "success": true,
       "eventsCount": 45,
       "duration": 2300
@@ -83,7 +83,7 @@ curl -X POST http://localhost:3000/api/admin/scraper/sync \
 
 **Casos de uso**:
 - ✅ Poblar base de datos después de setup inicial
-- ✅ Actualizar eventos de Ticketmaster manualmente
+- ✅ Actualizar eventos de APIs externas manualmente
 - ✅ Testing de integración en CI/CD
 - ✅ Cron jobs automáticos (GitHub Actions, Vercel Cron)
 
@@ -100,7 +100,7 @@ curl -X POST http://localhost:3000/api/admin/scrape \
   -H "Authorization: Bearer YOUR_ADMIN_API_KEY"
 ```
 
-**⚠️ Nota**: Este endpoint usa `Authorization: Bearer` (diferente del endpoint de Ticketmaster que usa `x-api-key`).
+**⚠️ Nota**: Este endpoint usa `Authorization: Bearer` (diferente del endpoint de API externa que usa `x-api-key`).
 
 **Autenticación**: Header `Authorization: Bearer YOUR_ADMIN_API_KEY`
 
@@ -192,10 +192,10 @@ node scripts/scrape-livepass.js
 
 ### Comparación de Métodos
 
-| Característica | Ticketmaster (curl) | LivePass (curl) | Script Node.js |
+| Característica | API Externa (curl) | LivePass (curl) | Script Node.js |
 |----------------|---------------------|-----------------|----------------|
 | **Comando** | `curl + x-api-key` | `curl + Authorization` | `node scripts/...` |
-| **Fuente** | Ticketmaster API | LivePass scraper | LivePass scraper |
+| **Fuente** | External API | LivePass scraper | LivePass scraper |
 | **Validación de preferencias** | No | No | ✅ Sí (automática) |
 | **Output formateado** | JSON crudo | JSON crudo | ✅ Emojis + colores |
 | **Requiere servidor corriendo** | ✅ Sí | ✅ Sí | ✅ Sí |
@@ -239,7 +239,7 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     steps:
-      - name: Scrape Ticketmaster
+      - name: Scrape External API
         run: |
           curl -X POST ${{ secrets.APP_URL }}/api/admin/scraper/sync \
             -H "x-api-key: ${{ secrets.ADMIN_API_KEY }}"
@@ -254,7 +254,7 @@ jobs:
 │                   DataSourceOrchestrator                     │
 │                                                               │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │ Ticketmaster │  │   LivePass   │  │  Alternativa │      │
+│  │ External API │  │   LivePass   │  │  Alternativa │      │
 │  │   (API)      │  │  (Scraper)   │  │   (Scraper)  │      │
 │  └──────────────┘  └──────────────┘  └──────────────┘      │
 │         │                   │                  │             │
@@ -310,14 +310,14 @@ console.log(`Scrapeados ${events.length} eventos`);
 ```typescript
 import { DataSourceOrchestrator } from '@/features/events/data/orchestrator/DataSourceOrchestrator';
 import { WebScraperFactory } from '@/features/events/data/sources/web/WebScraperFactory';
-import { TicketmasterSource } from '@/features/events/data/sources/ticketmaster/TicketmasterSource';
+import { ExternalApiSource } from '@/features/events/data/sources/example/ExternalApiSource';
 
 // Crear orchestrator
 const repository = new PrismaEventRepository();
 const orchestrator = new DataSourceOrchestrator(repository);
 
 // Registrar fuentes (API + Web Scrapers)
-orchestrator.registerSource(new TicketmasterSource());
+orchestrator.registerSource(new ExternalApiSource());
 orchestrator.registerSource(await WebScraperFactory.create('livepass'));
 
 // Ejecutar TODO en paralelo
@@ -534,7 +534,7 @@ rateLimit: {
 
 **Recomendaciones:**
 - Sitios pequeños: 1-2 req/s
-- Sitios grandes (Ticketmaster-like): 5 req/s
+- Sitios grandes (External APIs): 5 req/s
 - **NUNCA** más de 10 req/s
 
 ### Error Handling

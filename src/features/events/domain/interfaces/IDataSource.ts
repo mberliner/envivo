@@ -12,7 +12,7 @@ import { RawEvent } from '../entities/Event';
 export interface IDataSource {
   /**
    * Nombre identificador del data source
-   * Ejemplo: "ticketmaster", "eventbrite", "scraper_local_teatro_colon"
+   * Ejemplo: "allaccess", "eventbrite", "scraper_local_teatro_colon"
    */
   name: string;
 

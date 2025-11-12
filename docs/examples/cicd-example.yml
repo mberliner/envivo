@@ -82,7 +82,7 @@ jobs:
         run: npm run test:e2e
         env:
           DATABASE_URL: file:./test.db
-          TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
+          ALLACCESS_API_KEY: ${{ secrets.ALLACCESS_API_KEY }}
           ADMIN_API_KEY: test-admin-key-32-characters-long
 
       - name: Upload test results
@@ -283,7 +283,7 @@ jobs:
 # VERCEL_TOKEN              - Token de Vercel (desde vercel.com/account/tokens)
 # VERCEL_ORG_ID             - ID de organización (desde .vercel/project.json)
 # VERCEL_PROJECT_ID         - ID de proyecto (desde .vercel/project.json)
-# TICKETMASTER_API_KEY      - API key de Ticketmaster
+# ALLACCESS_API_KEY      - API key de AllAccess
 # EVENTBRITE_API_KEY        - API key de Eventbrite (opcional)
 # ADMIN_API_KEY             - Admin key para scraping (generar con openssl rand -hex 32)
 # APP_URL                   - URL de producción (ej: https://envivo.vercel.app)
@@ -303,7 +303,7 @@ jobs:
   "regions": ["iad1"],
   "env": {
     "DATABASE_URL": "@database-url",
-    "TICKETMASTER_API_KEY": "@ticketmaster-api-key",
+    "ALLACCESS_API_KEY": "@allaccess-api-key",
     "EVENTBRITE_API_KEY": "@eventbrite-api-key",
     "ADMIN_API_KEY": "@admin-api-key"
   },
@@ -327,7 +327,7 @@ jobs:
 
 # 3. Agregar secretos:
 # $ vercel env add DATABASE_URL production
-# $ vercel env add TICKETMASTER_API_KEY production
+# $ vercel env add ALLACCESS_API_KEY production
 # $ vercel env add ADMIN_API_KEY production
 
 # 4. Deploy:

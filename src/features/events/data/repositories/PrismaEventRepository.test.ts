@@ -40,7 +40,7 @@ describe('PrismaEventRepository', () => {
           country: 'AR',
           category: 'Concierto',
           currency: 'ARS',
-          source: 'ticketmaster',
+          source: 'allaccess',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -52,7 +52,7 @@ describe('PrismaEventRepository', () => {
           country: 'AR',
           category: 'Festival',
           currency: 'ARS',
-          source: 'ticketmaster',
+          source: 'allaccess',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -84,7 +84,7 @@ describe('PrismaEventRepository', () => {
         country: 'AR',
         category: 'Concierto',
         currency: 'ARS',
-        source: 'ticketmaster',
+        source: 'allaccess',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -121,7 +121,7 @@ describe('PrismaEventRepository', () => {
           country: 'AR',
           category: 'Concierto',
           currency: 'ARS',
-          source: 'ticketmaster',
+          source: 'allaccess',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -189,7 +189,7 @@ describe('PrismaEventRepository', () => {
           city: 'Buenos Aires',
           country: 'AR',
           externalId: 'tm-123',
-          _source: 'ticketmaster',
+          _source: 'allaccess',
         },
       ];
 
@@ -219,7 +219,7 @@ describe('PrismaEventRepository', () => {
           city: 'Buenos Aires',
           country: 'AR',
           externalId: 'tm-123',
-          _source: 'ticketmaster',
+          _source: 'allaccess',
         },
       ];
 
@@ -254,13 +254,13 @@ describe('PrismaEventRepository', () => {
           title: 'Event 1',
           date: new Date('2025-12-01'),
           externalId: 'tm-1',
-          _source: 'ticketmaster',
+          _source: 'allaccess',
         },
         {
           title: 'Event 2',
           date: new Date('2025-12-02'),
           externalId: 'tm-2',
-          _source: 'ticketmaster',
+          _source: 'allaccess',
         },
       ];
 
