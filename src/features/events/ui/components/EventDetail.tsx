@@ -234,6 +234,7 @@ export function EventDetail({ event }: EventDetailProps) {
           {safeTicketUrl && (
             <div className="mt-6 pt-6 border-t border-gray-200">
               <a
+                data-testid="buy-tickets-button"
                 href={safeTicketUrl}
                 target="_blank"
                 rel="noopener noreferrer"

@@ -87,7 +87,7 @@ export function EventCard({ event, onDelete }: EventCardProps) {
   };
 
   return (
-    <div className={`border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 bg-white ${isDeleting ? 'opacity-50' : ''}`}>
+    <div data-testid="event-card" className={`border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 bg-white ${isDeleting ? 'opacity-50' : ''}`}>
       {/* Imagen del evento */}
       {event.imageUrl && (
         <div className="relative h-48 w-full bg-gray-100">
