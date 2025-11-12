@@ -7,10 +7,11 @@ const envSchema = z.object({
   // Database
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
 
-  // API Keys
-  TICKETMASTER_API_KEY: z.string().optional(),
+  // API Keys (para futuras fuentes de datos)
+  // TICKETMASTER_API_KEY: z.string().optional(), // Removido - Ticketmaster no opera en Argentina
   LIVEPASS_API_KEY: z.string().optional(), // LivePass uses web scraping, API key optional
   EVENTBRITE_API_KEY: z.string().optional(), // Optional - for future expansion
+  ALLACCESS_API_KEY: z.string().optional(), // Optional - for AllAccess Argentina
 
   // Admin
   ADMIN_API_KEY: z

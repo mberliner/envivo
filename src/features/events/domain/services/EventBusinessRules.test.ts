@@ -44,8 +44,8 @@ describe('EventBusinessRules', () => {
       country: 'AR',
       category: 'Concierto',
       imageUrl: 'https://example.com/metallica.jpg',
-      ticketUrl: 'https://ticketmaster.com/metallica',
-      source: 'ticketmaster',
+      ticketUrl: 'https://allaccess.com.ar/metallica',
+      source: 'allaccess',
       price: 15000,
       currency: 'ARS',
       description: 'Concierto de Metallica en Argentina',
@@ -254,7 +254,7 @@ describe('EventBusinessRules', () => {
 
     test('detecta duplicado entre diferentes fuentes (cross-source)', () => {
       const event1 = createValidEvent({
-        source: 'ticketmaster',
+        source: 'allaccess',
         title: 'Metallica en Buenos Aires',
       });
       const event2 = createValidEvent({
@@ -293,7 +293,7 @@ describe('EventBusinessRules', () => {
     });
 
     test('actualiza si evento entrante proviene de fuente más confiable', () => {
-      const incoming = createValidEvent({ source: 'ticketmaster' }); // Confiabilidad 10
+      const incoming = createValidEvent({ source: 'allaccess' }); // Confiabilidad 10
       const existing = createValidEvent({ source: 'scraper_local' }); // Confiabilidad 5
       expect(rules.shouldUpdate(incoming, existing)).toBe(true);
     });
@@ -306,7 +306,7 @@ describe('EventBusinessRules', () => {
 
     test('NO actualiza si evento entrante proviene de fuente menos confiable', () => {
       const incoming = createValidEvent({ source: 'scraper_local' }); // Confiabilidad 5
-      const existing = createValidEvent({ source: 'ticketmaster' }); // Confiabilidad 10
+      const existing = createValidEvent({ source: 'allaccess' }); // Confiabilidad 10
       expect(rules.shouldUpdate(incoming, existing)).toBe(false);
     });
   });
@@ -379,10 +379,10 @@ describe('EventBusinessRules', () => {
   // ========================================
 
   describe('Real-World Scenarios', () => {
-    test('Scenario: Mismo evento en Ticketmaster y Eventbrite', () => {
+    test('Scenario: Mismo evento en AllAccess y Eventbrite', () => {
       const tmEvent = createValidEvent({
         id: 'tm-001',
-        source: 'ticketmaster',
+        source: 'allaccess',
         title: 'Metallica - World Tour 2025',
         venueName: 'Estadio River Plate',
         date: new Date('2025-06-15T20:00:00'),
@@ -399,7 +399,7 @@ describe('EventBusinessRules', () => {
       // Deben detectarse como duplicados
       expect(rules.isDuplicate(tmEvent, ebEvent)).toBe(true);
 
-      // Ticketmaster (más confiable) debe actualizar Eventbrite
+      // AllAccess (más confiable) debe actualizar Eventbrite
       expect(rules.shouldUpdate(tmEvent, ebEvent)).toBe(true);
     });
 

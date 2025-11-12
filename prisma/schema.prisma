@@ -72,7 +72,7 @@ model Event {
   currency  String  @default("ARS")
 
   // Metadatos
-  source     String // "ticketmaster", "eventbrite", "scraper_local"
+  source     String // "allaccess", "eventbrite", "scraper_local"
   externalId String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -173,7 +173,7 @@ model VenueMetadata {
 
 model EventBlacklist {
   id         String   @id @default(cuid())
-  source     String   // "livepass", "ticketmaster", etc.
+  source     String   // "livepass", "allaccess", etc.
   externalId String   // ID del evento en la fuente externa
   reason     String?  // "usuario lo eliminó", "spam", "duplicado", etc.
   createdAt  DateTime @default(now())

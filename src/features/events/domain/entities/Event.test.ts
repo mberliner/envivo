@@ -12,7 +12,7 @@ describe('Event Entity', () => {
       country: 'AR',
       category: 'Concierto',
       currency: 'ARS',
-      source: 'ticketmaster',
+      source: 'allaccess',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -21,7 +21,7 @@ describe('Event Entity', () => {
     expect(mockEvent.title).toBe('Metallica en River Plate');
     expect(mockEvent.city).toBe('Buenos Aires');
     expect(mockEvent.category).toBe('Concierto');
-    expect(mockEvent.source).toBe('ticketmaster');
+    expect(mockEvent.source).toBe('allaccess');
   });
 
   it('should allow optional fields to be undefined', () => {

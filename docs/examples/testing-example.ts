@@ -63,7 +63,7 @@ describe('EventBusinessRules', () => {
         city: 'Buenos Aires',
         country: 'AR',
         category: 'Concierto',
-        source: 'ticketmaster'
+        source: 'allaccess'
       };
 
       const result = rules.isAcceptable(event);
@@ -383,14 +383,14 @@ test.describe('Event Search Flow', () => {
 // ============================================
 
 /**
- * Mock de Ticketmaster API
+ * Mock de External API
  * Archivo: src/test/mocks/handlers.ts
  */
 
 import { http, HttpResponse } from 'msw';
 
-export const ticketmasterHandlers = [
-  http.get('https://app.ticketmaster.com/discovery/v2/events', () => {
+export const allaccessHandlers = [
+  http.get('https://app.allaccess.com/discovery/v2/events', () => {
     return HttpResponse.json({
       _embedded: {
         events: [
@@ -411,7 +411,7 @@ export const ticketmasterHandlers = [
               ]
             },
             images: [{ url: 'https://example.com/image.jpg' }],
-            url: 'https://ticketmaster.com/event/123',
+            url: 'https://allaccess.com/event/123',
             priceRanges: [{ min: 1000, max: 5000 }]
           }
         ]
@@ -426,9 +426,9 @@ export const ticketmasterHandlers = [
  */
 
 import { setupServer } from 'msw/node';
-import { ticketmasterHandlers } from './handlers';
+import { allaccessHandlers } from './handlers';
 
-export const server = setupServer(...ticketmasterHandlers);
+export const server = setupServer(...allaccessHandlers);
 
 /**
  * Configuración global de tests

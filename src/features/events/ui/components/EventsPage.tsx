@@ -317,14 +317,14 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
       <footer className="bg-white border-t border-gray-200 mt-16">
         <div className="container mx-auto px-4 py-6 text-center text-sm text-gray-600">
           <p>
-            EnVivo MVP • Datos de{' '}
+            EnVivo MVP • Proyecto Open Source{' '}
             <a
-              href="https://developer.ticketmaster.com/"
+              href="https://github.com/mberliner/envivo"
               target="_blank"
               rel="noopener noreferrer"
               className="text-purple-600 hover:text-purple-700"
             >
-              Ticketmaster
+              Ver en GitHub
             </a>
           </p>
         </div>

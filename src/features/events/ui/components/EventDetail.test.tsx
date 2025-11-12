@@ -26,7 +26,7 @@ describe('EventDetail', () => {
     priceMax: 8000,
     currency: 'ARS',
     venueName: 'Estadio Obras',
-    source: 'ticketmaster',
+    source: 'allaccess',
     createdAt: new Date(),
     updatedAt: new Date(),
   };

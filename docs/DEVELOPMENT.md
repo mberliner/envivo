@@ -360,9 +360,9 @@ tests/
 │   │       └── EventService.test.ts
 │   └── data/
 │       ├── mappers/
-│       │   └── TicketmasterMapper.test.ts
+│       │   └── ExternalApiMapper.test.ts
 │       └── sources/
-│           └── TicketmasterSource.test.ts
+│           └── ExternalApiSource.test.ts
 └── integration/                # Tests de integración
     └── repositories/
         └── PrismaEventRepository.test.ts
@@ -373,9 +373,9 @@ tests/
 **Naming Convention:**
 ```typescript
 // Formato: describe('Componente/Función', () => { test('debe ...', () => {}) })
-describe('TicketmasterMapper', () => {
+describe('ExternalApiMapper', () => {
   describe('toRawEvent', () => {
-    test('debe mapear evento completo de Ticketmaster a RawEvent', () => {})
+    test('debe mapear evento completo de API externa a RawEvent', () => {})
     test('debe manejar evento sin imagen con placeholder', () => {})
     test('debe rechazar evento sin ID', () => {})
   })
@@ -428,8 +428,8 @@ src/
 │       │   ├── interfaces/    # IDataSource, IEventRepository
 │       │   └── services/      # EventService (planificado Fase 2+)
 │       ├── data/              # Implementaciones I/O
-│       │   ├── sources/       # TicketmasterSource, LivePassSource
-│       │   ├── mappers/       # TicketmasterMapper (API → Domain)
+│       │   ├── sources/       # ExternalApiSource, LivePassSource
+│       │   ├── mappers/       # ExternalApiMapper (API → Domain)
 │       │   ├── repositories/  # PrismaEventRepository
 │       │   └── orchestrator/  # DataSourceOrchestrator (planificado Fase 4)
 │       └── ui/                # Componentes React
@@ -449,8 +449,8 @@ src/
 | Tipo | Convención | Ejemplo |
 |------|------------|---------|
 | **Interfaces** | Prefijo `I` | `IDataSource`, `IEventRepository` |
-| **Implementations** | Nombre descriptivo | `TicketmasterSource`, `PrismaEventRepository` |
-| **Mappers** | Sufijo `Mapper`, sin interface | `TicketmasterMapper` (métodos estáticos) |
+| **Implementations** | Nombre descriptivo | `ExternalApiSource`, `PrismaEventRepository` |
+| **Mappers** | Sufijo `Mapper`, sin interface | `ExternalApiMapper` (métodos estáticos) |
 | **Services** | Sufijo `Service` | `EventService` (planificado Fase 2+) |
 | **Business Rules** | Sufijo `Rules` | `EventBusinessRules` (planificado Fase 2) |
 | **Components** | PascalCase | `EventCard`, `SearchBar` |
@@ -495,7 +495,9 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```bash
 # .env.local (mínimo para desarrollo)
 DATABASE_URL="file:./dev.db"
-TICKETMASTER_API_KEY="tu-api-key-aqui"
+# APIs argentinas (opcionales)
+ALLACCESS_API_KEY="tu-api-key-aqui"
+EVENTBRITE_API_KEY="tu-api-key-aqui"
 ADMIN_API_KEY="clave-segura-generada-arriba"
 
 # Públicas (expuestas al cliente con NEXT_PUBLIC_)
@@ -512,7 +514,7 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
-  TICKETMASTER_API_KEY: z.string().min(1),
+  ALLACCESS_API_KEY: z.string().optional(),
   ADMIN_API_KEY: z.string().min(32),
   // ...
 });
@@ -566,7 +568,7 @@ model Event {
   country   String
   imageUrl  String?
   ticketUrl String?
-  source    String   // "ticketmaster", "eventbrite", etc.
+  source    String   // "allaccess", "eventbrite", etc.
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

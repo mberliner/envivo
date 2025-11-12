@@ -20,7 +20,7 @@ Ordenadas por criticidad desde perspectiva de **Vertical Slices** - fundamentos 
 
 | Feature | Descripción | Prioridad | Fase Planificada |
 |---------|-------------|-----------|------------------|
-| **Primera fuente de datos** | Integración con Ticketmaster API | 🔴 CRÍTICO | Fase 1 |
+| **Primera fuente de datos** | Integración con APIs argentinas (AllAccess, EventBrite) | 🔴 CRÍTICO | Fase 1 |
 | **UI básica de eventos** | Listado de eventos con información esencial (título, fecha, venue, ciudad, imagen) | 🔴 CRÍTICO | Fase 1 |
 | **Validación de datos** | Reglas de negocio para calidad (fechas válidas, ubicación, campos requeridos) | 🔴 CRÍTICO | Fase 2 |
 | **Deduplicación inteligente** | Detectar duplicados con fuzzy matching entre todas las fuentes | 🔴 CRÍTICO | Fase 2 |
@@ -75,7 +75,7 @@ En lugar de implementar horizontalmente por capas (toda la capa de datos, luego 
 - ✅ **Testeable**: cada slice incluye sus tests
 
 **Ejemplo**: En lugar de implementar TODOS los scrapers, luego TODA la UI, luego TODOS los filtros...
-- **Fase 1**: Ticketmaster → BD → UI básica → **Funciona end-to-end**
+- **Fase 1**: Fuente API → BD → UI básica → **Funciona end-to-end**
 - **Fase 2**: Agregar calidad de datos → **Funciona mejor**
 - **Fase 3**: Agregar búsqueda → **Funciona con búsqueda**
 
@@ -114,7 +114,7 @@ En **vertical slices**, la criticidad no solo viene del valor inmediato al usuar
 - Pulido final (responsive, tests E2E, optimización)
 
 **¿Por qué importantes pero no críticas?**
-- Ticketmaster ya cubre ~60% de eventos en Argentina
+- AllAccess y EventBrite cubren ~60% de eventos en Argentina
 - UX básica funcional es suficiente para validar MVP
 
 **Conclusión**: Calidad de datos (Fase 2) antes que UX avanzada (Fase 3) = Menos problemas después.
@@ -131,7 +131,7 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 
 | Fase | US Implementadas | Valor Entregado |
 |------|------------------|-----------------|
-| Fase 1 | US1.0 (Ticketmaster)<br>US2.0 (Info básica) | Ver eventos de Ticketmaster en UI |
+| Fase 1 | US1.0 (API Externa)<br>US2.0 (Info básica) | Ver eventos de fuentes argentinas en UI |
 | Fase 2 | US3.1 (Calidad datos) | Sin duplicados, eventos válidos |
 | Fase 3 | US1.3 (Búsqueda)<br>US1.4 (Filtros) | Encontrar eventos específicos |
 | Fase 4 | US1.1 (LivePass)<br>US1.2 (Sitios locales) | Más cobertura de eventos |
@@ -150,18 +150,18 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 
 ---
 
-### Fase 1: Ver Eventos de Ticketmaster (1-2 días)
+### Fase 1: Ver Eventos de APIs Argentinas (1-2 días)
 
 **Objetivo**: Primera fuente de datos funcionando end-to-end
 
 **User Stories a Implementar**:
-- US1.0: Ver eventos de Ticketmaster
+- US1.0: Ver eventos de fuentes argentinas
 - US2.0: Ver información básica
 
-**Valor Entregado**: Los usuarios podrán ver eventos de Ticketmaster Argentina en una UI responsive
+**Valor Entregado**: Los usuarios podrán ver eventos de APIs argentinas en una UI responsive
 
 **Tareas**:
-- Integración con API de Ticketmaster
+- Integración con APIs argentinas
 - Modelo de datos (Prisma schema)
 - Repository para eventos
 - UI básica con listado de eventos
@@ -211,7 +211,7 @@ Fases del MVP organizadas para entregar valor incremental a usuarios.
 - US1.1: Ver eventos de LivePass
 - US1.2: Ver eventos de sitios locales
 
-**Valor Entregado**: Acceso a eventos locales y de nicho que no están en Ticketmaster
+**Valor Entregado**: Acceso a eventos locales y de nicho que no están en APIs principales
 
 **Tareas**:
 - Implementar integración con LivePass API
@@ -298,16 +298,16 @@ Organizadas por valor entregado a usuarios. Cada fuente de datos es una user sto
 
 **Objetivo**: Los usuarios pueden descubrir eventos musicales de múltiples fuentes y encontrar exactamente lo que buscan.
 
-#### US1.0: Ver Eventos de Ticketmaster (Fase 1)
+#### US1.0: Ver Eventos de APIs Argentinas (Fase 1)
 
 **Como** usuario
-**Quiero** ver eventos de conciertos y festivales de Ticketmaster Argentina
+**Quiero** ver eventos de conciertos y festivales de APIs argentinas
 **Para** descubrir shows internacionales y eventos en venues grandes
 
 **Valor**: Acceso a catálogo internacional de eventos musicales en Argentina
 
 **Criterios de Aceptación**:
-- [ ] Puedo ver lista de eventos de Ticketmaster en la página principal
+- [ ] Puedo ver lista de eventos de APIs argentinas en la página principal
 - [ ] Cada evento muestra: título, fecha, venue, ciudad, imagen
 - [ ] Los eventos están ordenados por fecha (próximos primero)
 - [ ] Si hay imagen disponible, se muestra correctamente
@@ -321,13 +321,13 @@ Organizadas por valor entregado a usuarios. Cada fuente de datos es una user sto
 
 **Como** usuario
 **Quiero** ver eventos de LivePass
-**Para** descubrir shows locales, eventos pequeños e independientes que no están en Ticketmaster
+**Para** descubrir shows locales, eventos pequeños e independientes que no están en APIs principales
 
 **Valor**: Acceso a eventos locales y de nicho que no aparecen en plataformas grandes
 
 **Criterios de Aceptación**:
 - [ ] Puedo ver eventos de LivePass mezclados con eventos de otras fuentes
-- [ ] No veo eventos duplicados entre LivePass y Ticketmaster
+- [ ] No veo eventos duplicados entre LivePass y otras APIs
 - [ ] Los eventos de LivePass tienen la misma calidad de información
 - [ ] El sistema actualiza eventos de LivePass automáticamente
 
@@ -542,7 +542,7 @@ Aplica a todas las historias de usuario del MVP.
 
 ### Funcionalidad para Usuarios
 
-- [x] Puedo ver eventos de Ticketmaster en la página principal ✅
+- [x] Puedo ver eventos de APIs argentinas en la página principal ✅
 - [x] Puedo buscar eventos por texto ✅
 - [x] Puedo filtrar por ciudad, fecha y categoría ✅
 - [x] Puedo ver detalle completo de un evento ✅

@@ -28,9 +28,11 @@ npm install
 # 3. Configurar variables de entorno
 cp .env.example .env.local
 # Editar .env.local con las siguientes variables REQUERIDAS:
-#   TICKETMASTER_API_KEY=tu-api-key
 #   ADMIN_API_KEY=clave-minimo-32-caracteres-para-scraping
 #   DATABASE_URL="file:./dev.db"
+# Opcionales (para futuras fuentes de datos):
+#   ALLACCESS_API_KEY=tu-api-key
+#   EVENTBRITE_API_KEY=tu-api-key
 
 # 4. Setup base de datos
 npm run db:generate
@@ -89,11 +91,14 @@ envivo/
 
 ## 🎯 Features del MVP
 
-- **Descubrir eventos** - Agregación de eventos de múltiples fuentes (Ticketmaster, LivePass, sitios locales)
+- **Descubrir eventos** - Agregación de eventos de múltiples fuentes (APIs argentinas, LivePass, sitios locales)
 - **Búsqueda inteligente** - Buscar por artista, título, venue con filtros (ciudad, fecha, categoría)
 - **Información completa** - Detalles de eventos, precios, links a compra de entradas
 - **Datos actualizados** - Scraping automático diario con validación y deduplicación
 - **Clean Architecture** - Codebase mantenible siguiendo principios SOLID
+
+> **💡 Nota**: La infraestructura de scraping está lista para integrar APIs argentinas (AllAccess, EventBrite Argentina, etc.).
+> Ver [CLAUDE.md - Workflows Comunes](CLAUDE.md#workflows-comunes) para agregar nuevas fuentes de datos.
 
 **Ver roadmap completo**: [docs/PRODUCT.md](docs/PRODUCT.md)
 

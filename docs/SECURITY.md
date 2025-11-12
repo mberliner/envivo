@@ -65,7 +65,7 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
-  TICKETMASTER_API_KEY: z.string().min(32),
+  ALLACCESS_API_KEY: z.string().min(32),
   ADMIN_API_KEY: z.string().min(32),
   NEXT_PUBLIC_APP_URL: z.string().url(),
 });
@@ -286,10 +286,10 @@ const clean = DOMPurify.sanitize(event.description);
 **Secrets en Variables Públicas**:
 ```typescript
 // ❌ NUNCA
-NEXT_PUBLIC_TICKETMASTER_API_KEY=abc123 // Expuesto en cliente
+NEXT_PUBLIC_ALLACCESS_API_KEY=abc123 // Expuesto en cliente
 
 // ✅ SIEMPRE
-TICKETMASTER_API_KEY=abc123 // Solo en servidor
+ALLACCESS_API_KEY=abc123 // Solo en servidor
 ```
 
 ---

@@ -55,7 +55,7 @@
 Scrapear 5+ fuentes secuencialmente: **~20 segundos**
 ```typescript
 // ❌ LENTO
-const t1 = await scrapeTicketmaster();  // 3s
+const t1 = await scrapeExternalAPI();  // 3s
 const t2 = await scrapeLivePass();      // 3s
 const t3 = await scrapeVenue1();        // 4s
 // Total: 10+ segundos
@@ -67,7 +67,7 @@ Scraping paralelo: **~4 segundos** (tiempo del más lento)
 ```typescript
 // ✅ RÁPIDO
 const results = await Promise.allSettled([
-  scrapeTicketmaster(),
+  scrapeExternalAPI(),
   scrapeLivePass(),
   scrapeVenue1()
 ]);
@@ -87,7 +87,7 @@ const results = await Promise.allSettled([
 ```typescript
 const orchestrator = new DataSourceOrchestrator();
 
-orchestrator.register(new TicketmasterSource());
+orchestrator.register(new ExternalApiSource());
 orchestrator.register(new LivePassSource());
 orchestrator.register(new LocalVenueScraper());
 
@@ -109,7 +109,7 @@ console.log(result.successful, result.failed, result.totalEvents);
 ### Responsabilidad
 
 Los **mappers** transforman datos entre capas sin lógica de negocio:
-- **API → Domain**: De formato externo (Ticketmaster API) a entidades del dominio
+- **API → Domain**: De formato externo (API externa) a entidades del dominio
 - **Domain → DTO**: De entidades a objetos de transferencia (si necesario)
 
 ### Patrón de Implementación
@@ -118,12 +118,12 @@ Los **mappers** transforman datos entre capas sin lógica de negocio:
 
 ```typescript
 // ❌ Malo: Interface innecesaria
-interface ITicketmasterMapper {
-  toRawEvent(apiEvent: TicketmasterEvent): RawEvent;
+interface IExternalApiMapper {
+  toRawEvent(apiEvent: ExternalApiEvent): RawEvent;
 }
 
-class TicketmasterMapper implements ITicketmasterMapper {
-  toRawEvent(apiEvent: TicketmasterEvent): RawEvent { }
+class ExternalApiMapper implements IExternalApiMapper {
+  toRawEvent(apiEvent: ExternalApiEvent): RawEvent { }
 }
 ```
 
@@ -131,8 +131,8 @@ class TicketmasterMapper implements ITicketmasterMapper {
 
 ```typescript
 // ✅ Bueno: Métodos estáticos sin interface
-class TicketmasterMapper {
-  static toRawEvent(apiEvent: TicketmasterEvent): RawEvent {
+class ExternalApiMapper {
+  static toRawEvent(apiEvent: ExternalApiEvent): RawEvent {
     return {
       id: apiEvent.id,
       title: apiEvent.name,
@@ -142,11 +142,11 @@ class TicketmasterMapper {
       country: apiEvent._embedded.venues[0]?.country.countryCode || 'AR',
       imageUrl: apiEvent.images?.[0]?.url || null,
       ticketUrl: apiEvent.url,
-      source: 'ticketmaster'
+      source: 'external_api'
     };
   }
 
-  static toRawEvents(apiEvents: TicketmasterEvent[]): RawEvent[] {
+  static toRawEvents(apiEvents: ExternalApiEvent[]): RawEvent[] {
     return apiEvents.map(event => this.toRawEvent(event));
   }
 }
@@ -155,25 +155,25 @@ class TicketmasterMapper {
 ### Uso
 
 ```typescript
-// En TicketmasterSource
+// En ExternalApiSource
 async fetch(): Promise<RawEvent[]> {
   const apiResponse = await this.fetchFromAPI();
   const apiEvents = apiResponse._embedded?.events || [];
 
   // Llamar método estático directamente
-  return TicketmasterMapper.toRawEvents(apiEvents);
+  return ExternalApiMapper.toRawEvents(apiEvents);
 }
 ```
 
 ### Naming Convention
 
-- **Clase**: `{Source}Mapper` (ej: `TicketmasterMapper`, `LivePassMapper`)
+- **Clase**: `{Source}Mapper` (ej: `ExternalApiMapper`, `LivePassMapper`)
 - **Métodos**: `toRawEvent()`, `toRawEvents()`, `toDTO()`, etc.
 - **Sin interfaces**: Los mappers son funciones puras, no hay necesidad de polimorfismo
 
-**Ver implementación completa**: `src/features/events/data/mappers/TicketmasterMapper.ts`
+**Ver implementación completa**: `src/features/events/data/mappers/ExternalApiMapper.ts`
 
-**Ver tests**: `tests/unit/data/mappers/TicketmasterMapper.test.ts`
+**Ver tests**: `tests/unit/data/mappers/ExternalApiMapper.test.ts`
 
 ---
 
@@ -223,7 +223,7 @@ interface IConfigurable<T> {
 
 ```typescript
 // API externa: implementa TODAS las capacidades
-class TicketmasterSource implements
+class ExternalApiSource implements
   IDataSource,
   IHealthCheckable,
   IRateLimited,
@@ -588,7 +588,7 @@ interface IPreferenceFilter {
 }
 
 // DataSource que soporta pre-filtrado
-class TicketmasterSource implements IDataSource, IPreferenceFilter {
+class ExternalApiSource implements IDataSource, IPreferenceFilter {
   supportsPrefiltering = true;
   private filters: GlobalPreferences | null = null;
 
@@ -694,7 +694,7 @@ model Event {
   currency    String   @default("ARS")
 
   // Metadatos
-  source      String   // "ticketmaster", "scraper_local"
+  source      String   // "allaccess", "eventbrite", "scraper_local"
   externalId  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -774,9 +774,9 @@ const events = await prisma.event.findMany({
 
 | Principio | Implementación | Ejemplo |
 |-----------|----------------|---------|
-| **S**ingle Responsibility | Cada clase una responsabilidad | `TicketmasterSource` solo obtiene datos<br>`TicketmasterMapper` solo mapea<br>`EventRepository` solo persiste |
+| **S**ingle Responsibility | Cada clase una responsabilidad | `ExternalApiSource` solo obtiene datos<br>`ExternalApiMapper` solo mapea<br>`EventRepository` solo persiste |
 | **O**pen/Closed | Extensible sin modificación | Agregar nueva fuente implementando `IDataSource`<br>Sin tocar `DataSourceOrchestrator` |
-| **L**iskov Substitution | Subtipos intercambiables | Cualquier `IDataSource` funciona en orchestrator<br>`TicketmasterSource`, `LocalFileSource`, etc. |
+| **L**iskov Substitution | Subtipos intercambiables | Cualquier `IDataSource` funciona en orchestrator<br>`ExternalApiSource`, `LocalFileSource`, etc. |
 | **I**nterface Segregation | Interfaces pequeñas | `IDataSource` (base)<br>`IHealthCheckable`, `IRateLimited` (opcionales) |
 | **D**ependency Inversion | Depender de abstracciones | `EventService` depende de `IEventRepository`<br>No de `PrismaEventRepository` |
 
@@ -784,11 +784,11 @@ const events = await prisma.event.findMany({
 
 ```typescript
 // ✅ BIEN: Cada clase una responsabilidad
-class TicketmasterSource {
+class ExternalApiSource {
   async fetch() { /* obtener datos */ }
 }
 
-class TicketmasterMapper {
+class ExternalApiMapper {
   toEvent(data) { /* transformar datos */ }
 }
 
@@ -797,7 +797,7 @@ class EventRepository {
 }
 
 // ❌ MAL: Clase con múltiples responsabilidades
-class TicketmasterService {
+class ExternalApiService {
   async fetch() { }      // Obtener
   transform() { }        // Transformar
   save() { }             // Guardar
@@ -886,8 +886,8 @@ orchestrator.register(new SpotifySource());  // ✅ Sin modificar código existe
 class ScraperFactory {
   static create(config: SourceConfig): IDataSource {
     switch (config.type) {
-      case 'ticketmaster':
-        return new TicketmasterSource(config);
+      case 'external_api':
+        return new ExternalApiSource(config);
       case 'local-venue':
         return new LocalVenueScraper(config);
       default:

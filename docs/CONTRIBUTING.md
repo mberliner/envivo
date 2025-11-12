@@ -211,7 +211,7 @@ Si el hook falla, el commit se bloquea automáticamente.
 
 ```bash
 feat: add fuzzy matching para duplicados
-fix: corregir timeout en scraper de Ticketmaster
+fix: corregir timeout en scraper de API externa
 refactor: simplificar EventBusinessRules
 test: agregar tests para deduplicación
 docs: actualizar ARCHITECTURE.md con ISP
@@ -225,9 +225,9 @@ chore: actualizar dependencias
 
 **Ejemplo bueno**:
 ```bash
-git commit -m "feat: add TicketmasterSource"
-git commit -m "test: add tests for TicketmasterSource"
-git commit -m "docs: document Ticketmaster integration"
+git commit -m "feat: add ExternalApiSource"
+git commit -m "test: add tests for ExternalApiSource"
+git commit -m "docs: document external API integration"
 ```
 
 ---
