@@ -37,7 +37,7 @@ export interface Event {
   venueCapacity?: number;
 
   // Metadatos
-  source: string; // "ticketmaster", "eventbrite", "scraper_local"
+  source: string; // "allaccess", "eventbrite", "scraper_local"
   externalId?: string;
   createdAt: Date;
   updatedAt: Date;

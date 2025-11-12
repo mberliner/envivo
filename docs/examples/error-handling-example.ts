@@ -527,7 +527,7 @@ export function captureScraperError(source: string, error: Error, context?: any)
 /*
 {
   "level": "error",
-  "module": "TicketmasterSource",
+  "module": "ExternalApiSource",
   "msg": "Fetch failed after retries",
   "error": "Request timeout",
   "retries": 3,

@@ -84,15 +84,15 @@ describe('DataSourceOrchestrator', () => {
     });
 
     test('registra un data source', () => {
-      const source = createMockSource('ticketmaster', []);
+      const source = createMockSource('allaccess', []);
       orchestrator.registerSource(source);
 
       expect(orchestrator.getSources()).toHaveLength(1);
-      expect(orchestrator.getSources()[0].name).toBe('ticketmaster');
+      expect(orchestrator.getSources()[0].name).toBe('allaccess');
     });
 
     test('registra múltiples data sources', () => {
-      const source1 = createMockSource('ticketmaster', []);
+      const source1 = createMockSource('allaccess', []);
       const source2 = createMockSource('eventbrite', []);
 
       orchestrator.registerSource(source1);
@@ -102,7 +102,7 @@ describe('DataSourceOrchestrator', () => {
     });
 
     test('no registra el mismo source dos veces', () => {
-      const source = createMockSource('ticketmaster', []);
+      const source = createMockSource('allaccess', []);
 
       orchestrator.registerSource(source);
       orchestrator.registerSource(source);
@@ -118,13 +118,13 @@ describe('DataSourceOrchestrator', () => {
   describe('Parallel Execution', () => {
     test('ejecuta un source y retorna eventos', async () => {
       const events = [createRawEvent({ title: 'Metallica' })];
-      const source = createMockSource('ticketmaster', events);
+      const source = createMockSource('allaccess', events);
 
       orchestrator.registerSource(source);
       const result = await orchestrator.fetchAll();
 
       expect(result.sources).toHaveLength(1);
-      expect(result.sources[0].name).toBe('ticketmaster');
+      expect(result.sources[0].name).toBe('allaccess');
       expect(result.sources[0].success).toBe(true);
       expect(result.sources[0].eventsCount).toBe(1);
     });
@@ -133,7 +133,7 @@ describe('DataSourceOrchestrator', () => {
       const events1 = [createRawEvent({ title: 'Metallica' })];
       const events2 = [createRawEvent({ title: 'Coldplay' })];
 
-      const source1 = createMockSource('ticketmaster', events1);
+      const source1 = createMockSource('allaccess', events1);
       const source2 = createMockSource('eventbrite', events2);
 
       orchestrator.registerSource(source1);
@@ -154,7 +154,7 @@ describe('DataSourceOrchestrator', () => {
     test('continúa ejecutando si un source falla', async () => {
       const events = [createRawEvent({ title: 'Coldplay' })];
 
-      const failingSource = createMockSource('ticketmaster', [], true);
+      const failingSource = createMockSource('allaccess', [], true);
       const workingSource = createMockSource('eventbrite', events);
 
       orchestrator.registerSource(failingSource);
@@ -164,13 +164,13 @@ describe('DataSourceOrchestrator', () => {
 
       expect(result.sources).toHaveLength(2);
       expect(result.sources[0].success).toBe(false);
-      expect(result.sources[0].error).toContain('ticketmaster failed');
+      expect(result.sources[0].error).toContain('allaccess failed');
       expect(result.sources[1].success).toBe(true);
       expect(result.sources[1].eventsCount).toBe(1);
     });
 
     test('retorna resultado incluso si todos los sources fallan', async () => {
-      const source1 = createMockSource('ticketmaster', [], true);
+      const source1 = createMockSource('allaccess', [], true);
       const source2 = createMockSource('eventbrite', [], true);
 
       orchestrator.registerSource(source1);
@@ -195,7 +195,7 @@ describe('DataSourceOrchestrator', () => {
         createRawEvent({ title: 'Metallica' }),
         createRawEvent({ title: 'Coldplay' }),
       ];
-      const source = createMockSource('ticketmaster', events);
+      const source = createMockSource('allaccess', events);
 
       orchestrator.registerSource(source);
       const result = await orchestrator.fetchAll();
@@ -210,7 +210,7 @@ describe('DataSourceOrchestrator', () => {
         createRawEvent({ title: 'Metallica', city: 'Buenos Aires' }), // Válido
         createRawEvent({ title: '', city: '' }), // Inválido (sin título ni ciudad)
       ];
-      const source = createMockSource('ticketmaster', events);
+      const source = createMockSource('allaccess', events);
 
       orchestrator.registerSource(source);
       const result = await orchestrator.fetchAll();
@@ -227,7 +227,7 @@ describe('DataSourceOrchestrator', () => {
         date: new Date('2025-03-15'),
       });
 
-      const source1 = createMockSource('ticketmaster', [sameEvent]);
+      const source1 = createMockSource('allaccess', [sameEvent]);
       const source2 = createMockSource('eventbrite', [sameEvent]);
 
       orchestrator.registerSource(source1);
@@ -248,7 +248,7 @@ describe('DataSourceOrchestrator', () => {
   describe('Result Structure', () => {
     test('retorna estructura correcta de resultado', async () => {
       const events = [createRawEvent()];
-      const source = createMockSource('ticketmaster', events);
+      const source = createMockSource('allaccess', events);
 
       orchestrator.registerSource(source);
       const result = await orchestrator.fetchAll();
@@ -266,7 +266,7 @@ describe('DataSourceOrchestrator', () => {
       const events1 = [createRawEvent({ title: 'Event 1' }), createRawEvent({ title: 'Event 2' })];
       const events2 = [createRawEvent({ title: 'Event 3' })];
 
-      const source1 = createMockSource('ticketmaster', events1);
+      const source1 = createMockSource('allaccess', events1);
       const source2 = createMockSource('eventbrite', events2);
 
       orchestrator.registerSource(source1);
@@ -280,7 +280,7 @@ describe('DataSourceOrchestrator', () => {
     });
 
     test('incluye timestamp y duration', async () => {
-      const source = createMockSource('ticketmaster', []);
+      const source = createMockSource('allaccess', []);
       orchestrator.registerSource(source);
 
       const result = await orchestrator.fetchAll();
@@ -296,7 +296,7 @@ describe('DataSourceOrchestrator', () => {
 
   describe('Helper Methods', () => {
     test('getSources retorna array de sources registrados', () => {
-      const source1 = createMockSource('ticketmaster', []);
+      const source1 = createMockSource('allaccess', []);
       const source2 = createMockSource('eventbrite', []);
 
       orchestrator.registerSource(source1);
@@ -304,12 +304,12 @@ describe('DataSourceOrchestrator', () => {
 
       const sources = orchestrator.getSources();
       expect(sources).toHaveLength(2);
-      expect(sources[0].name).toBe('ticketmaster');
+      expect(sources[0].name).toBe('allaccess');
       expect(sources[1].name).toBe('eventbrite');
     });
 
     test('clearSources elimina todos los sources', () => {
-      const source = createMockSource('ticketmaster', []);
+      const source = createMockSource('allaccess', []);
       orchestrator.registerSource(source);
 
       expect(orchestrator.getSources()).toHaveLength(1);
@@ -326,19 +326,19 @@ describe('DataSourceOrchestrator', () => {
 
   describe('Real-World Scenarios', () => {
     test('Scenario: Scraping diario de múltiples fuentes', async () => {
-      // Simular scraping real con Ticketmaster y Eventbrite
-      const tmEvents = [
-        createRawEvent({ title: 'Metallica', externalId: 'tm-001' }),
-        createRawEvent({ title: 'Coldplay', externalId: 'tm-002' }),
+      // Simular scraping real con AllAccess y Eventbrite
+      const aaEvents = [
+        createRawEvent({ title: 'Metallica', externalId: 'aa-001' }),
+        createRawEvent({ title: 'Coldplay', externalId: 'aa-002' }),
       ];
       const ebEvents = [
         createRawEvent({ title: 'Fito Páez', externalId: 'eb-001' }),
       ];
 
-      const ticketmaster = createMockSource('ticketmaster', tmEvents);
+      const allaccess = createMockSource('allaccess', aaEvents);
       const eventbrite = createMockSource('eventbrite', ebEvents);
 
-      orchestrator.registerSource(ticketmaster);
+      orchestrator.registerSource(allaccess);
       orchestrator.registerSource(eventbrite);
 
       const result = await orchestrator.fetchAll();
@@ -349,13 +349,13 @@ describe('DataSourceOrchestrator', () => {
     });
 
     test('Scenario: Una API falla pero las otras continúan', async () => {
-      const tmEvents = [createRawEvent({ title: 'Metallica' })];
+      const aaEvents = [createRawEvent({ title: 'Metallica' })];
 
-      const ticketmaster = createMockSource('ticketmaster', tmEvents);
+      const allaccess = createMockSource('allaccess', aaEvents);
       const eventbrite = createMockSource('eventbrite', [], true); // Falla
       const local = createMockSource('local_scraper', [createRawEvent({ title: 'Local Event' })]);
 
-      orchestrator.registerSource(ticketmaster);
+      orchestrator.registerSource(allaccess);
       orchestrator.registerSource(eventbrite);
       orchestrator.registerSource(local);
 
@@ -364,7 +364,7 @@ describe('DataSourceOrchestrator', () => {
       expect(result.sources).toHaveLength(3);
       expect(result.sources.filter((s) => s.success)).toHaveLength(2);
       expect(result.sources.filter((s) => !s.success)).toHaveLength(1);
-      expect(result.totalEvents).toBe(2); // Solo de TM y local
+      expect(result.totalEvents).toBe(2); // Solo de AllAccess y local
     });
   });
 });

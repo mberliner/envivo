@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TicketmasterSource } from '@/features/events/data/sources/ticketmaster/TicketmasterSource';
 import { PrismaEventRepository } from '@/features/events/data/repositories/PrismaEventRepository';
 import { DataSourceOrchestrator } from '@/features/events/data/orchestrator/DataSourceOrchestrator';
 import { env } from '@/shared/infrastructure/config/env';
@@ -16,6 +15,12 @@ import { env } from '@/shared/infrastructure/config/env';
  * Body opcional (JSON):
  * - country?: string (default: 'AR')
  * - city?: string
+ *
+ * NOTA: Actualmente no hay data sources registrados.
+ * Para agregar nuevas fuentes (AllAccess, EventBrite Argentina, etc.):
+ * 1. Crear el data source en src/features/events/data/sources/
+ * 2. Importarlo aquí
+ * 3. Registrarlo con orchestrator.registerSource()
  */
 export async function POST(req: NextRequest) {
   try {
@@ -44,13 +49,17 @@ export async function POST(req: NextRequest) {
       // Body vacío o inválido - usar defaults
     }
 
-    // 3. Configurar orchestrator con Ticketmaster
+    // 3. Configurar orchestrator
     const repository = new PrismaEventRepository();
     const orchestrator = new DataSourceOrchestrator(repository);
 
-    // Registrar Ticketmaster source
-    const ticketmasterSource = new TicketmasterSource();
-    orchestrator.registerSource(ticketmasterSource);
+    // TODO: Registrar data sources aquí cuando estén disponibles
+    // Ejemplo:
+    // const allAccessSource = new AllAccessSource();
+    // orchestrator.registerSource(allAccessSource);
+    //
+    // const eventbriteSource = new EventBriteArgentinaSource();
+    // orchestrator.registerSource(eventbriteSource);
 
     // 4. Ejecutar scraping (automáticamente valida, dedupl ica y guarda)
     const result = await orchestrator.fetchAll();

@@ -34,7 +34,7 @@ export class EventService {
 
   /**
    * Verifica si un evento está en la blacklist
-   * @param source - Fuente del evento (e.g., "livepass", "ticketmaster")
+   * @param source - Fuente del evento (e.g., "livepass", "allaccess")
    * @param externalId - ID externo del evento
    * @returns true si está blacklisted, false si no
    */

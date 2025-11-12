@@ -4,10 +4,11 @@
  * Este archivo muestra cómo implementar:
  * 1. Interfaces segregadas (ISP)
  * 2. DataSourceOrchestrator con async scraping
- * 3. TicketmasterSource (API client con todas las capacidades)
+ * 3. ExternalApiSource (API client con todas las capacidades)
  * 4. LocalVenueScraper (scraper básico)
  *
  * NOTA: Este es un archivo de EJEMPLO. Copiar código a /src durante implementación.
+ * NOTA: Para Argentina, APIs recomendadas: AllAccess, EventBrite Argentina, LivePass
  */
 
 import pLimit from 'p-limit';
@@ -322,11 +323,11 @@ export class DataSourceOrchestrator {
 }
 
 // ============================================
-// EJEMPLO 1: API EXTERNA (Ticketmaster)
+// EJEMPLO 1: API EXTERNA (EventBrite Argentina / AllAccess)
 // Implementa TODAS las capacidades
 // ============================================
 
-interface TicketmasterConfig {
+interface ExternalApiConfig {
   apiKey: string;
   countryCode: string;
   timeout: number;
@@ -359,24 +360,25 @@ class RateLimiter {
   }
 }
 
-export class TicketmasterSource implements
+export class ExternalApiSource implements
   IDataSource,
   IHealthCheckable,
   IRateLimited,
   IValidatable,
   IToggleable,
-  IConfigurable<TicketmasterConfig> {
+  IConfigurable<ExternalApiConfig> {
 
-  readonly name = 'ticketmaster';
+  readonly name = 'external_api';
   readonly type = 'api' as const;
   readonly maxRequestsPerSecond = 5;
   readonly maxRequestsPerDay = 5000;
 
   private _enabled = true;
-  private config: TicketmasterConfig;
+  private config: ExternalApiConfig;
   private rateLimiter: RateLimiter;
 
-  constructor(config: TicketmasterConfig) {
+  constructor(name: string, config: ExternalApiConfig) {
+    this.name = name;
     this.config = config;
     this.rateLimiter = new RateLimiter(this.maxRequestsPerSecond);
   }
@@ -387,27 +389,28 @@ export class TicketmasterSource implements
       throw new Error('Rate limit exceeded');
     }
 
-    const response = await axios.get('https://app.ticketmaster.com/discovery/v2/events', {
+    // Ejemplo genérico - adaptar según la API específica
+    const response = await axios.get('https://api.example.com/events', {
       params: {
         apikey: this.config.apiKey,
-        countryCode: this.config.countryCode,
+        country: this.config.countryCode,
         ...params
       },
       timeout: this.config.timeout
     });
 
-    const events = response.data._embedded?.events || [];
+    const events = response.data.events || [];
 
     return events.map((e: any) => ({
-      title: e.name,
-      date: e.dates.start.dateTime,
-      venue: e._embedded?.venues?.[0]?.name,
-      city: e._embedded?.venues?.[0]?.city?.name,
-      country: e._embedded?.venues?.[0]?.country?.name,
-      description: e.info,
-      imageUrl: e.images?.[0]?.url,
+      title: e.name || e.title,
+      date: e.startDate || e.date,
+      venue: e.venue?.name,
+      city: e.venue?.city,
+      country: e.venue?.country,
+      description: e.description,
+      imageUrl: e.image?.url,
       ticketUrl: e.url,
-      price: e.priceRanges?.[0]?.min
+      price: e.pricing?.min
     }));
   }
 
@@ -421,8 +424,8 @@ export class TicketmasterSource implements
     const start = Date.now();
 
     try {
-      await axios.get('https://app.ticketmaster.com/discovery/v2/events', {
-        params: { apikey: this.config.apiKey, size: 1 },
+      await axios.get('https://api.example.com/health', {
+        params: { apikey: this.config.apiKey },
         timeout: 5000
       });
 
@@ -446,11 +449,11 @@ export class TicketmasterSource implements
   }
 
   // IConfigurable
-  configure(config: Partial<TicketmasterConfig>): void {
+  configure(config: Partial<ExternalApiConfig>): void {
     this.config = { ...this.config, ...config };
   }
 
-  getConfig(): TicketmasterConfig {
+  getConfig(): ExternalApiConfig {
     return { ...this.config };
   }
 
@@ -569,12 +572,14 @@ async function main() {
   const orchestrator = new DataSourceOrchestrator();
 
   // Registrar fuentes
-  orchestrator.register(new TicketmasterSource({
-    apiKey: process.env.TICKETMASTER_API_KEY!,
+  // Ejemplo: AllAccess Argentina
+  orchestrator.register(new ExternalApiSource('allaccess', {
+    apiKey: process.env.ALLACCESS_API_KEY!,
     countryCode: 'AR',
     timeout: 10000
   }));
 
+  // Ejemplo: Scraper de venue local
   orchestrator.register(new LocalVenueScraper('teatro-colon', {
     url: 'https://teatrocolon.org.ar/eventos',
     timeout: 15000,

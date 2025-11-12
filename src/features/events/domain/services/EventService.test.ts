@@ -44,8 +44,8 @@ const createRawEvent = (overrides?: Partial<RawEvent>): RawEvent => {
     country: 'AR',
     category: 'Concierto',
     imageUrl: 'https://example.com/metallica.jpg',
-    ticketUrl: 'https://ticketmaster.com/metallica',
-    source: 'ticketmaster',
+    ticketUrl: 'https://allaccess.com.ar/metallica',
+    source: 'allaccess',
     externalId: 'tm-001',
     description: 'Gran concierto de Metallica',
     venueName: 'Estadio River Plate',
@@ -66,8 +66,8 @@ const createEvent = (overrides?: Partial<Event>): Event => {
     country: 'AR',
     category: 'Concierto',
     imageUrl: 'https://example.com/metallica.jpg',
-    ticketUrl: 'https://ticketmaster.com/metallica',
-    source: 'ticketmaster',
+    ticketUrl: 'https://allaccess.com.ar/metallica',
+    source: 'allaccess',
     externalId: 'tm-001',
     description: 'Gran concierto de Metallica',
     currency: 'ARS',
@@ -291,7 +291,7 @@ describe('EventService', () => {
     });
 
     test('NO actualiza duplicado si evento entrante proviene de fuente menos confiable', async () => {
-      const existingEvent = createEvent({ source: 'ticketmaster' }); // Confiabilidad 10
+      const existingEvent = createEvent({ source: 'allaccess' }); // Confiabilidad 10
       mockRepository.findByFilters = vi.fn().mockResolvedValue([existingEvent]);
 
       const rawEvents = [
@@ -371,7 +371,7 @@ describe('EventService', () => {
   // ========================================
 
   describe('Real-World Scenarios', () => {
-    test('Scenario: Scraping inicial de Ticketmaster (sin duplicados)', async () => {
+    test('Scenario: Scraping inicial de AllAccess (sin duplicados)', async () => {
       // Asegurar que no hay duplicados en BD
       mockRepository.findByFilters = vi.fn().mockResolvedValue([]);
 
@@ -439,12 +439,12 @@ describe('EventService', () => {
       );
     });
 
-    test('Scenario: Mismo evento en Ticketmaster y Eventbrite (cross-source deduplication)', async () => {
-      const ticketmasterEvent = createEvent({
-        source: 'ticketmaster',
+    test('Scenario: Mismo evento en AllAccess y Eventbrite (cross-source deduplication)', async () => {
+      const allaccessEvent = createEvent({
+        source: 'allaccess',
         title: 'Metallica - World Tour 2025',
       });
-      mockRepository.findByFilters = vi.fn().mockResolvedValue([ticketmasterEvent]);
+      mockRepository.findByFilters = vi.fn().mockResolvedValue([allaccessEvent]);
 
       const eventbriteEvent = createRawEvent({
         source: 'eventbrite',
@@ -454,7 +454,7 @@ describe('EventService', () => {
       const result = await service.processEvents([eventbriteEvent]);
 
       expect(result.duplicates).toBe(1);
-      // Ticketmaster es más confiable, no debería actualizar
+      // AllAccess es más confiable, no debería actualizar
       expect(result.updated).toBe(0);
     });
   });

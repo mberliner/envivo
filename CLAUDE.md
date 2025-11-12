@@ -30,7 +30,7 @@
 **Stack**: Next.js 15 + TypeScript + Prisma + SQLite + Tailwind CSS
 
 ### Objetivos del MVP
-1. Scrapear eventos de APIs (Ticketmaster, LivePass) y sitios locales
+1. Scrapear eventos de APIs (AllAccess, EventBrite Argentina, LivePass) y sitios locales
 2. Búsqueda y filtrado de eventos musicales
 3. Validación y deduplicación automática
 4. Deploy en Vercel con scraping diario automático
@@ -76,14 +76,14 @@ interface IDataSource {}
 interface IEventRepository {}
 
 // Implementations: nombre descriptivo
-class TicketmasterSource implements IDataSource {}
+class AllAccessSource implements IDataSource {}
 class PrismaEventRepository implements IEventRepository {}
 
 // Services: sufijo Service
 class EventService {}
 
 // Mappers: sufijo Mapper (métodos estáticos, NO interface)
-class TicketmasterMapper {
+class AllAccessMapper {
   static toRawEvent(apiEvent): RawEvent {}
 }
 
@@ -204,8 +204,11 @@ openssl rand -base64 32
 
 ```bash
 DATABASE_URL="file:./dev.db"
-TICKETMASTER_API_KEY="..."
 ADMIN_API_KEY="..." # mínimo 32 caracteres
+
+# Opcionales - para futuras APIs de eventos argentinas
+ALLACCESS_API_KEY="..."
+EVENTBRITE_API_KEY="..."
 
 # Públicas (expuestas al cliente)
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
@@ -232,7 +235,7 @@ NEXT_PUBLIC_APP_NAME="EnVivo"
 ### Fases Principales
 
 1. **Fase 0** (4-6h): Setup inicial
-2. **Fase 1** (1-2 días): Ticketmaster → BD → UI → **PRIMER VALOR** 🎉
+2. **Fase 1** (1-2 días): Fuente de datos API → BD → UI → **PRIMER VALOR** 🎉
 3. **Fase 2** (1 día): Business Rules + Deduplicación
 4. **Fase 3** (1-2 días): Búsqueda + Filtros
 5. **Fase 4** (1 día): Orchestrator asíncrono + LivePass
@@ -245,13 +248,15 @@ NEXT_PUBLIC_APP_NAME="EnVivo"
 
 ## Workflows Comunes
 
+> **💡 Estado actual**: El proyecto tiene la arquitectura completa de scraping (orchestrator, business rules, deduplicación) pero **sin fuentes de datos activas**. La estructura está lista para integrar APIs argentinas (AllAccess, EventBrite Argentina, LivePass).
+
 ### Agregar Nueva Fuente de Datos
 
 1. Crear scraper/client en `src/features/events/data/sources/`
 2. Implementar `IDataSource` (+ capacidades opcionales)
 3. Crear mapper en `src/features/events/data/mappers/`
-4. Registrar en orchestrator
-5. Agregar config en `config/scrapers.json`
+4. Registrar en orchestrator (`src/app/api/admin/scraper/sync/route.ts`)
+5. Agregar API key en `.env.local` (opcional)
 6. Escribir tests
 
 **Ver [docs/examples/scraper-example.ts](docs/examples/scraper-example.ts) para implementación completa.**
