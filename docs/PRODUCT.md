@@ -37,6 +37,8 @@ Ordenadas por criticidad desde perspectiva de **Vertical Slices** - fundamentos 
 
 ### 🚫 NO Incluir en MVP (Post-MVP)
 
+#### Features de Usuario
+
 | Feature | Por qué NO en MVP | Cuándo Agregar |
 |---------|-------------------|----------------|
 | Cuentas de usuario | No es necesario para búsqueda básica | Fase 2 (Mes 2) |
@@ -45,6 +47,17 @@ Ordenadas por criticidad desde perspectiva de **Vertical Slices** - fundamentos 
 | Recomendaciones personalizadas | Requiere ML + historial | Fase 3 |
 | Integración Spotify | Nice-to-have, no core | Fase 2-3 |
 | Compra de entradas directa | Complejidad legal/financiera | Nunca (links externos OK) |
+
+#### Features Técnicas (Schema Extensions)
+
+| Feature Técnica | Tablas DB | Por qué NO en MVP | Cuándo Agregar |
+|-----------------|-----------|-------------------|----------------|
+| Normalización de venues | `Venue`, `VenueMetadata` | Eventos con string simple funcionan para MVP | Cuando necesites búsqueda por venue o mapas |
+| Extracción de artistas | `Artist`, `EventArtist` | Complejidad de parsing, no crítico para búsqueda por título | Cuando necesites "seguir artista" o filtro por artista |
+| Filtro por capacidad de venue | `Venue.capacity` | APIs no siempre proveen capacidad | Junto con normalización de venues |
+| Geolocalización | `Venue.latitude/longitude` | Requiere geocoding API (costos adicionales) | Para feature de mapa de eventos |
+
+> **Estado Actual**: Tablas `Venue`, `VenueMetadata`, `Artist`, `EventArtist` existen en schema pero están **vacías** - `PrismaEventRepository` guarda eventos con datos planos (sin normalización). Ver `src/features/events/data/repositories/PrismaEventRepository.ts:176-181` (TODOs).
 
 ---
 
