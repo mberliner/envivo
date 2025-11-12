@@ -246,13 +246,15 @@ NEXT_PUBLIC_APP_NAME="EnVivo"
 
 ## Workflows Comunes
 
+> **💡 Estado actual**: El proyecto tiene la arquitectura completa de scraping (orchestrator, business rules, deduplicación) pero **sin fuentes de datos activas**. La estructura está lista para integrar APIs argentinas (AllAccess, EventBrite Argentina, LivePass).
+
 ### Agregar Nueva Fuente de Datos
 
 1. Crear scraper/client en `src/features/events/data/sources/`
 2. Implementar `IDataSource` (+ capacidades opcionales)
 3. Crear mapper en `src/features/events/data/mappers/`
-4. Registrar en orchestrator
-5. Agregar config en `config/scrapers.json`
+4. Registrar en orchestrator (`src/app/api/admin/scraper/sync/route.ts`)
+5. Agregar API key en `.env.local` (opcional)
 6. Escribir tests
 
 **Ver [docs/examples/scraper-example.ts](docs/examples/scraper-example.ts) para implementación completa.**

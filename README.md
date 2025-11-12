@@ -97,6 +97,9 @@ envivo/
 - **Datos actualizados** - Scraping automático diario con validación y deduplicación
 - **Clean Architecture** - Codebase mantenible siguiendo principios SOLID
 
+> **💡 Nota**: La infraestructura de scraping está lista para integrar APIs argentinas (AllAccess, EventBrite Argentina, etc.).
+> Ver [CLAUDE.md - Workflows Comunes](CLAUDE.md#workflows-comunes) para agregar nuevas fuentes de datos.
+
 **Ver roadmap completo**: [docs/PRODUCT.md](docs/PRODUCT.md)
 
 ## 📚 Documentación
