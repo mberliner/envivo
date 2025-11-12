@@ -18,6 +18,8 @@
 - **[docs/SECURITY.md](docs/SECURITY.md)** - Security best practices, attack vectors
 - **[docs/examples/](docs/examples/)** - Código de referencia listo para copiar
 
+> **🚧 Deploy a Producción**: Ver [VERCEL_MIGRATION.md](VERCEL_MIGRATION.md) para guía completa de migración a Vercel + Turso. **Documento temporal** - eliminar después de completar implementación.
+
 ---
 
 ## Resumen Ejecutivo
