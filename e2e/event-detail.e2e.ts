@@ -62,7 +62,7 @@ test.describe('Event Detail - Fase 6', () => {
     const initialEventCount = await page.locator('[data-testid="event-card"]').count();
     expect(initialEventCount).toBeGreaterThan(0);
 
-    // 3. Obtener título del primer evento para verificar después
+    // 3. Obtener referencia al primer evento (NO solo el título)
     const firstEvent = page.locator('[data-testid="event-card"]').first();
     const eventTitle = await firstEvent.locator('h3').textContent();
 
@@ -77,14 +77,22 @@ test.describe('Event Detail - Fase 6', () => {
     const deleteButton = firstEvent.getByRole('button', { name: /ocultar evento/i });
     await deleteButton.click();
 
-    // 6. Esperar a que el evento desaparezca (optimistic update)
-    await page.waitForTimeout(500); // Pequeña espera para animación/update
+    // 6. Esperar a que el request DELETE complete y el evento desaparezca
+    // Usamos waitForResponse para asegurar que el API call terminó
+    await page.waitForResponse((response) => response.url().includes('/api/events/') && response.request().method() === 'DELETE');
 
-    // 7. Verificar que el evento ya no está visible
-    const eventWithTitle = page.locator('[data-testid="event-card"]').filter({ hasText: eventTitle || '' });
-    await expect(eventWithTitle).toHaveCount(0);
+    // 7. Esperar a que el primer evento (el que eliminamos) desaparezca del DOM
+    // Verificamos que el conteo total disminuyó, sin importar si hay otros eventos con el mismo título
+    await page.waitForFunction(
+      (expectedCount) => {
+        const cards = document.querySelectorAll('[data-testid="event-card"]');
+        return cards.length === expectedCount - 1;
+      },
+      initialEventCount,
+      { timeout: 5000 }
+    );
 
-    // 8. Verificar que el conteo de eventos disminuyó
+    // 8. Verificar que el conteo de eventos disminuyó exactamente en 1
     const finalEventCount = await page.locator('[data-testid="event-card"]').count();
     expect(finalEventCount).toBe(initialEventCount - 1);
   });
