@@ -6,22 +6,24 @@ test.describe('Event Detail - Fase 6', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
-    // 2. Obtener título y hacer click en "Ver Detalles"
+    // 2. Obtener título del primer evento
     const firstEvent = page.locator('[data-testid="event-card"]').first();
     const title = await firstEvent.locator('h3').textContent();
-    await firstEvent.getByRole('link', { name: 'Ver Detalles' }).click();
 
-    // 3. Esperar a que Next.js termine de compilar y la página cargue completamente
-    await page.waitForLoadState('networkidle');
+    // 3. Click en "Ver Detalles" y esperar navegación simultáneamente
+    // ✅ Promise.all asegura que esperamos la navegación ANTES del click (evita race conditions)
+    await Promise.all([
+      page.waitForURL(/\/eventos\/.+/, { timeout: 10000 }),
+      firstEvent.getByRole('link', { name: 'Ver Detalles' }).click(),
+    ]);
 
     // 4. Verificar página de detalle
-    await expect(page).toHaveURL(/\/eventos\/.+/);
     await expect(page.locator('h1')).toContainText(title || '');
     await expect(page.getByText('Fecha y Hora')).toBeVisible();
     await expect(page.getByText('Ubicación')).toBeVisible();
     await expect(page.getByText('Precio de Entradas')).toBeVisible();
 
-    // 4. Volver a eventos
+    // 5. Volver a eventos
     await page.click('text=Volver a Eventos');
     await expect(page).toHaveURL('/');
   });
@@ -30,16 +32,14 @@ test.describe('Event Detail - Fase 6', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
-    // Click en botón "Ver Detalles" del primer evento para ir a detalle
+    // Click en "Ver Detalles" y esperar navegación simultáneamente
     const firstEvent = page.locator('[data-testid="event-card"]').first();
-    await firstEvent.getByRole('link', { name: 'Ver Detalles' }).click();
+    await Promise.all([
+      page.waitForURL(/\/eventos\/.+/, { timeout: 10000 }),
+      firstEvent.getByRole('link', { name: 'Ver Detalles' }).click(),
+    ]);
 
-    // Esperar a que Next.js termine de compilar y la página cargue completamente
-    await page.waitForLoadState('networkidle');
-
-    // Esperar a que cargue la página de detalle
-    await expect(page).toHaveURL(/\/eventos\/.+/);
-
+    // Verificar botón de compra
     const buyButton = page.getByRole('link', { name: /Comprar Entradas/i });
 
     // Verificar solo si el botón existe (puede no tener ticketUrl)
