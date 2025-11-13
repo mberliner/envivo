@@ -6,15 +6,20 @@ test.describe('Event Detail - Fase 6', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
-    // 2. Obtener título del primer evento
+    // 2. Esperar que haya al menos un evento y obtener su información
+    await expect(page.locator('[data-testid="event-card"]')).toHaveCount(await page.locator('[data-testid="event-card"]').count(), { timeout: 5000 });
+
     const firstEvent = page.locator('[data-testid="event-card"]').first();
     const title = await firstEvent.locator('h3').textContent();
 
+    // Esperar que el link esté visible y listo
+    const detailsLink = firstEvent.getByRole('link', { name: 'Ver Detalles' });
+    await expect(detailsLink).toBeVisible();
+
     // 3. Click en "Ver Detalles" y esperar navegación simultáneamente
-    // ✅ Promise.all asegura que esperamos la navegación ANTES del click (evita race conditions)
     await Promise.all([
-      page.waitForURL(/\/eventos\/.+/, { timeout: 10000 }),
-      firstEvent.getByRole('link', { name: 'Ver Detalles' }).click(),
+      page.waitForURL(/\/eventos\/.+/, { timeout: 15000 }),
+      detailsLink.click(),
     ]);
 
     // 4. Verificar página de detalle
@@ -34,11 +39,17 @@ test.describe('Event Detail - Fase 6', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
-    // Click en "Ver Detalles" y esperar navegación simultáneamente
+    // Esperar que haya eventos y obtener el primero
     const firstEvent = page.locator('[data-testid="event-card"]').first();
+
+    // Esperar que el link esté visible y listo
+    const detailsLink = firstEvent.getByRole('link', { name: 'Ver Detalles' });
+    await expect(detailsLink).toBeVisible();
+
+    // Click en "Ver Detalles" y esperar navegación simultáneamente
     await Promise.all([
-      page.waitForURL(/\/eventos\/.+/, { timeout: 10000 }),
-      firstEvent.getByRole('link', { name: 'Ver Detalles' }).click(),
+      page.waitForURL(/\/eventos\/.+/, { timeout: 15000 }),
+      detailsLink.click(),
     ]);
 
     // Verificar botón de compra
