@@ -48,6 +48,42 @@ test.describe('Event Detail - Fase 6', () => {
     }
   });
 
+  test('debe ocultar evento al hacer click en botón de blacklist', async ({ page }) => {
+    // 1. Ir a home
+    await page.goto('/');
+    await page.waitForSelector('[data-testid="event-card"]', { timeout: 10000 });
+
+    // 2. Contar eventos iniciales
+    const initialEventCount = await page.locator('[data-testid="event-card"]').count();
+    expect(initialEventCount).toBeGreaterThan(0);
+
+    // 3. Obtener título del primer evento para verificar después
+    const firstEvent = page.locator('[data-testid="event-card"]').first();
+    const eventTitle = await firstEvent.locator('h3').textContent();
+
+    // 4. Configurar manejo de dialog (aceptar confirmación)
+    page.on('dialog', async (dialog) => {
+      expect(dialog.type()).toBe('confirm');
+      expect(dialog.message()).toContain('¿Estás seguro');
+      await dialog.accept();
+    });
+
+    // 5. Click en botón de eliminar (botón rojo con X)
+    const deleteButton = firstEvent.getByRole('button', { name: /ocultar evento/i });
+    await deleteButton.click();
+
+    // 6. Esperar a que el evento desaparezca (optimistic update)
+    await page.waitForTimeout(500); // Pequeña espera para animación/update
+
+    // 7. Verificar que el evento ya no está visible
+    const eventWithTitle = page.locator('[data-testid="event-card"]').filter({ hasText: eventTitle || '' });
+    await expect(eventWithTitle).toHaveCount(0);
+
+    // 8. Verificar que el conteo de eventos disminuyó
+    const finalEventCount = await page.locator('[data-testid="event-card"]').count();
+    expect(finalEventCount).toBe(initialEventCount - 1);
+  });
+
   test('debe mostrar 404 para evento inexistente', async ({ page }) => {
     await page.goto('/eventos/invalid-id-12345');
 
