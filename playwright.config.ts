@@ -3,8 +3,8 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   testMatch: '**/*.e2e.ts', // Match E2E test files
-  fullyParallel: false, // ✅ Modo dev: secuencial para desarrollo rápido
-  workers: 1, // ✅ Un worker = sin paralelismo
+  fullyParallel: true, // ✅ Paralelismo completo
+  workers: 4, // ✅ 4 workers = ejecución paralela
   retries: process.env.CI ? 2 : 0,
   reporter: [
     ['list'], // ✅ Muestra progreso en consola

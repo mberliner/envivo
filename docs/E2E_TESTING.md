@@ -1,6 +1,6 @@
 # Tests E2E - Guía de Uso
 
-Configuración de dos modos para ejecutar tests E2E con Playwright: desarrollo (secuencial) y producción (paralelo).
+Configuración de dos modos paralelos para ejecutar tests E2E con Playwright: desarrollo (servidor dev) y producción (build optimizado).
 
 ---
 
@@ -8,7 +8,7 @@ Configuración de dos modos para ejecutar tests E2E con Playwright: desarrollo (
 
 | Modo | Comando | Servidor | Workers | Tiempo |
 |------|---------|----------|---------|--------|
-| **Development** | `npm run test:e2e` | Dev (puerto 3000) | 1 | ~15s |
+| **Development** | `npm run test:e2e` | Dev (puerto 3000) | 4 | ~8s |
 | **Production** | `npm run test:e2e:prod` | Build + Start (puerto 3001) | 4 | ~8s* |
 
 \* Después del build inicial (~75s primera vez)
@@ -24,17 +24,17 @@ npm run test:e2e
 ```
 
 ### Características
-- Ejecuta tests secuencialmente (1 worker)
+- Ejecuta tests en paralelo (4 workers)
 - Usa servidor de desarrollo con hot reload
 - Sin retries (fallos son inmediatos)
-- Ideal para debugging y escribir nuevos tests
+- Ideal para desarrollo rápido
 
 ### Configuración
 ```typescript
 // playwright.config.ts
 {
-  workers: 1,
-  fullyParallel: false,
+  workers: 4,
+  fullyParallel: true,
   reporter: [['list'], ['html', { open: 'never' }]],
   webServer: { command: 'npm run dev', url: 'http://localhost:3000' }
 }
@@ -71,7 +71,7 @@ npm run test:e2e:prod
 ### Performance
 - **Primera vez**: ~75s (60s build + 15s tests)
 - **Subsecuente**: ~8s (reutiliza build si no cambió código)
-- **Ganancia**: ~50% más rápido vs secuencial
+- **Diferencia vs dev**: Mismo tiempo de tests, pero valida build de producción
 
 ---
 
@@ -79,8 +79,8 @@ npm run test:e2e:prod
 
 ```bash
 # Modos principales
-npm run test:e2e        # Dev secuencial (default)
-npm run test:e2e:prod   # Prod paralelo
+npm run test:e2e        # Dev paralelo (default)
+npm run test:e2e:prod   # Prod paralelo (con build)
 
 # Debugging
 npm run test:e2e:ui     # Interfaz visual
