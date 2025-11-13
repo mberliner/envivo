@@ -12,17 +12,14 @@ test.describe('Event Detail - Fase 6', () => {
     const firstEvent = page.locator('[data-testid="event-card"]').first();
     const title = await firstEvent.locator('h3').textContent();
 
-    // Esperar que el link esté visible y con href válido (no solo "/")
-    const detailsLink = firstEvent.getByRole('link', { name: 'Ver Detalles' });
-    await expect(detailsLink).toBeVisible();
+    // Esperar que el link esté visible y con href válido (re-query automático en cada check)
+    await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toBeVisible();
+    await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toHaveAttribute('href', /\/eventos\/.+/);
 
-    // Esperar que el href esté poblado correctamente (hidratación de React completa)
-    await expect(detailsLink).toHaveAttribute('href', /\/eventos\/.+/);
-
-    // 3. Click en "Ver Detalles" y esperar navegación simultáneamente
+    // 3. Click en "Ver Detalles" (re-query para obtener elemento fresco) y esperar navegación
     await Promise.all([
       page.waitForURL(/\/eventos\/.+/, { timeout: 15000 }),
-      detailsLink.click(),
+      firstEvent.getByRole('link', { name: 'Ver Detalles' }).click(),
     ]);
 
     // 4. Verificar página de detalle
@@ -45,17 +42,14 @@ test.describe('Event Detail - Fase 6', () => {
     // Esperar que haya eventos y obtener el primero
     const firstEvent = page.locator('[data-testid="event-card"]').first();
 
-    // Esperar que el link esté visible y con href válido (no solo "/")
-    const detailsLink = firstEvent.getByRole('link', { name: 'Ver Detalles' });
-    await expect(detailsLink).toBeVisible();
+    // Esperar que el link esté visible y con href válido (re-query automático en cada check)
+    await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toBeVisible();
+    await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toHaveAttribute('href', /\/eventos\/.+/);
 
-    // Esperar que el href esté poblado correctamente (hidratación de React completa)
-    await expect(detailsLink).toHaveAttribute('href', /\/eventos\/.+/);
-
-    // Click en "Ver Detalles" y esperar navegación simultáneamente
+    // Click en "Ver Detalles" (re-query para obtener elemento fresco) y esperar navegación
     await Promise.all([
       page.waitForURL(/\/eventos\/.+/, { timeout: 25000 }),
-      detailsLink.click(),
+      firstEvent.getByRole('link', { name: 'Ver Detalles' }).click(),
     ]);
 
     // Verificar botón de compra

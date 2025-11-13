@@ -106,20 +106,26 @@ await page.click('a[href="/eventos"]');
 await page.waitForLoadState('networkidle');
 await expect(page).toHaveURL(/\/eventos/);
 
-// MALO - click antes de hidratación (en builds de producción)
+// MALO - guardar referencia que puede quedar stale
 const link = page.getByRole('link', { name: 'Ver Detalles' });
 await expect(link).toBeVisible();
-await link.click(); // ❌ href puede estar vacío o incorrecto
+await expect(link).toHaveAttribute('href', /\/eventos\/.+/);
+await link.click(); // ❌ link puede ser stale si hubo re-render entre check y click
 
-// BUENO - espera hidratación + navegación
-const link = page.getByRole('link', { name: 'Ver Detalles' });
-await expect(link).toBeVisible();
-await expect(link).toHaveAttribute('href', /\/eventos\/.+/); // ✅ Espera href válido
+// BUENO - re-query antes de cada acción (siempre elemento fresco)
+await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toBeVisible();
+await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toHaveAttribute('href', /\/eventos\/.+/);
 await Promise.all([
   page.waitForURL(/\/eventos\/.+/, { timeout: 15000 }),
-  link.click(),
+  firstEvent.getByRole('link', { name: 'Ver Detalles' }).click(), // ✅ Re-query = elemento fresco
 ]);
 ```
+
+**Por qué re-query es mejor:**
+- Playwright busca el elemento **justo antes** de cada acción
+- Si hubo re-render entre checks, obtiene el elemento nuevo
+- Evita referencias "stale" (obsoletas) del DOM
+- Es el patrón recomendado por Playwright docs
 
 #### ❌ 2. Request sin esperar respuesta
 ```typescript
@@ -157,11 +163,13 @@ const results = await page.locator('.result').count();
 
 | Acción | Patrón Correcto |
 |--------|-----------------|
-| **Navegación (Link)** | `expect(link).toHaveAttribute('href', /pattern/) + Promise.all([waitForURL(), click()])` |
+| **Navegación (Link)** | Re-query en cada acción: `expect(el).toHaveAttribute('href', /pattern/)` + `Promise.all([waitForURL(), el.click()])` |
 | **Navegación (Button)** | `Promise.all([waitForURL(), click()])` |
 | **API Call** | `click() + waitForResponse()` |
 | **Cambio DOM** | `expect().toBeVisible()` o `waitForFunction()` |
 | **Form Submit** | `Promise.all([waitForURL(), submit()])` |
+
+**⚡ Best Practice**: No guardes referencias de elementos en variables. Re-query inline antes de cada acción para evitar elementos "stale".
 
 ---
 
