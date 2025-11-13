@@ -81,9 +81,8 @@ test.describe('Event Detail - Fase 6', () => {
     const initialEventCount = await page.locator('[data-testid="event-card"]').count();
     expect(initialEventCount).toBeGreaterThan(0);
 
-    // 3. Obtener referencia al primer evento (NO solo el título)
+    // 3. Obtener referencia al primer evento
     const firstEvent = page.locator('[data-testid="event-card"]').first();
-    const eventTitle = await firstEvent.locator('h3').textContent();
 
     // 4. Configurar manejo de dialog (aceptar confirmación)
     page.on('dialog', async (dialog) => {
