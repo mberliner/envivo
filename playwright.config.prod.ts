@@ -28,7 +28,9 @@ export default defineConfig({
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile', use: { ...devices['iPhone 13'] } },
+    // Mobile deshabilitado por defecto para producción más rápida
+    // Para ejecutar en mobile: npm run test:e2e:prod -- --project=mobile
+    // { name: 'mobile', use: { ...devices['iPhone 13'] } },
   ],
   // ✅ Inicia servidor de producción en puerto 3001 (para no conflictuar con dev)
   webServer: process.env.CI

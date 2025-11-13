@@ -6,10 +6,10 @@ Este documento describe los dos modos configurados para ejecutar tests E2E con P
 
 ## 📋 Resumen de Modos
 
-| Modo | Comando | Servidor | Workers | Uso Principal | Tiempo |
-|------|---------|----------|---------|---------------|--------|
-| **Development** | `npm run test:e2e` | Dev (`npm run dev`) | 1 (secuencial) | Desarrollo e iteración rápida | ~32s |
-| **Production** | `npm run test:e2e:prod` | Build + Start (puerto 3001) | 4 (paralelo) | Validación pre-deploy / CI | ~75s (primera vez)<br>~15s (subsecuente) |
+| Modo | Comando | Servidor | Workers | Navegador | Uso Principal | Tiempo |
+|------|---------|----------|---------|-----------|---------------|--------|
+| **Development** | `npm run test:e2e` | Dev (`npm run dev`) | 1 (secuencial) | Chromium | Desarrollo e iteración rápida | ~15s |
+| **Production** | `npm run test:e2e:prod` | Build + Start (puerto 3001) | 4 (paralelo) | Chromium | Validación pre-deploy / CI | ~75s (primera vez)<br>~8s (subsecuente) |
 
 ---
 
@@ -31,6 +31,7 @@ npm run test:e2e
 - **Puerto**: 3000
 - **Workers**: 1
 - **Paralelismo**: Desactivado (`fullyParallel: false`)
+- **Navegador**: Chromium (Desktop Chrome)
 - **Reporter**: Lista en consola + HTML (no se abre automáticamente)
 
 ### Cuándo usar
@@ -70,6 +71,7 @@ npm run test:e2e:prod
 - **Puerto**: 3001 (para no conflictuar con dev)
 - **Workers**: 4
 - **Paralelismo**: Activado (`fullyParallel: true`)
+- **Navegador**: Chromium (Desktop Chrome)
 - **Retries**: 1 en local, 2 en CI
 - **Reporter**: Lista en consola + HTML (no se abre automáticamente)
 
@@ -150,27 +152,27 @@ E2E_BASE_URL=http://localhost:3001 playwright test --config=playwright.config.pr
 ```
 Running 4 tests using 1 worker
 
-✓ chromium › home.e2e.ts:homepage  (8s)
-✓ chromium › search.e2e.ts:search  (8s)
-✓ mobile › home.e2e.ts:homepage    (8s)
-✓ mobile › search.e2e.ts:search    (8s)
+✓ [chromium] › home.e2e.ts:homepage     (3s)
+✓ [chromium] › search.e2e.ts:search     (4s)
+✓ [chromium] › detail.e2e.ts:navigation (4s)
+✓ [chromium] › detail.e2e.ts:blacklist  (4s)
 
-4 passed (32s)
+4 passed (15s)
 ```
 
 #### Production Mode (Paralelo)
 ```
 Running 4 tests using 4 workers
 
-✓ chromium › home.e2e.ts:homepage  (8s)
-✓ chromium › search.e2e.ts:search  (8s)
-✓ mobile › home.e2e.ts:homepage    (8s)
-✓ mobile › search.e2e.ts:search    (8s)
+✓ [chromium] › home.e2e.ts:homepage     (3s)
+✓ [chromium] › search.e2e.ts:search     (4s)
+✓ [chromium] › detail.e2e.ts:navigation (4s)
+✓ [chromium] › detail.e2e.ts:blacklist  (4s)
 
-4 passed (13s)  ← Todos ejecutados en paralelo
+4 passed (8s)  ← Todos ejecutados en paralelo
 ```
 
-**Ganancia**: ~60% más rápido en tests (pero requiere build inicial)
+**Ganancia**: ~50% más rápido en tests (pero requiere build inicial)
 
 ---
 
@@ -214,6 +216,19 @@ jobs:
 ---
 
 ## 🐛 Troubleshooting
+
+### ¿Cómo habilitar testing en mobile?
+
+Por defecto, los tests solo se ejecutan en Chromium (desktop) para ser más rápidos.
+
+**Para habilitar mobile:**
+1. Descomenta la línea en `playwright.config.ts` (línea 23):
+   ```typescript
+   { name: 'mobile', use: { ...devices['iPhone 13'] } },
+   ```
+2. Ejecuta: `npm run test:e2e`
+
+Ahora ejecutará 8 tests (4 en chromium + 4 en mobile)
 
 ### Tests fallan solo en production mode
 
@@ -282,8 +297,9 @@ npx playwright show-report
 # Ejecutar solo un archivo
 npm run test:e2e -- home.e2e.ts
 
-# Ejecutar solo un proyecto (chromium o mobile)
-npm run test:e2e -- --project=chromium
+# Ejecutar en mobile (deshabilitado por defecto)
+# Primero descomentar línea 23 en playwright.config.ts
+npm run test:e2e -- --project=mobile
 
 # Actualizar snapshots
 npm run test:e2e -- --update-snapshots
