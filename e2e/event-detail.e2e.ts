@@ -6,10 +6,11 @@ test.describe('Event Detail - Fase 6', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 10000 });
 
-    // 2. Click en primer evento
+    // 2. Click en título del primer evento
     const firstEvent = page.locator('[data-testid="event-card"]').first();
-    const title = await firstEvent.locator('h3').textContent();
-    await firstEvent.click();
+    const titleElement = firstEvent.locator('h3');
+    const title = await titleElement.textContent();
+    await titleElement.click();
 
     // 3. Verificar página de detalle
     await expect(page).toHaveURL(/\/eventos\/.+/);
@@ -26,12 +27,19 @@ test.describe('Event Detail - Fase 6', () => {
   test('debe mostrar botón comprar con atributos de seguridad', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]');
-    await page.locator('[data-testid="event-card"]').first().click();
+
+    // Click en título del primer evento para ir a detalle
+    const firstEvent = page.locator('[data-testid="event-card"]').first();
+    await firstEvent.locator('h3').click();
+
+    // Esperar a que cargue la página de detalle
+    await expect(page).toHaveURL(/\/eventos\/.+/);
 
     const buyButton = page.getByRole('link', { name: /Comprar Entradas/i });
 
     // Verificar solo si el botón existe (puede no tener ticketUrl)
-    if (await buyButton.isVisible()) {
+    const isVisible = await buyButton.isVisible().catch(() => false);
+    if (isVisible) {
       await expect(buyButton).toHaveAttribute('target', '_blank');
       await expect(buyButton).toHaveAttribute('rel', 'noopener noreferrer');
 
