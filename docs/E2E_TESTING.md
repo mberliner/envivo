@@ -99,17 +99,25 @@ npx playwright show-report # Ver último reporte HTML
 
 ### 🚨 Patrones Problemáticos
 
-#### ❌ 1. Navegación sin espera explícita
+#### ❌ 1. Navegación sin espera explícita o hidratación incompleta
 ```typescript
-// MALO
+// MALO - sin espera
 await page.click('a[href="/eventos"]');
 await page.waitForLoadState('networkidle');
 await expect(page).toHaveURL(/\/eventos/);
 
-// BUENO
+// MALO - click antes de hidratación (en builds de producción)
+const link = page.getByRole('link', { name: 'Ver Detalles' });
+await expect(link).toBeVisible();
+await link.click(); // ❌ href puede estar vacío o incorrecto
+
+// BUENO - espera hidratación + navegación
+const link = page.getByRole('link', { name: 'Ver Detalles' });
+await expect(link).toBeVisible();
+await expect(link).toHaveAttribute('href', /\/eventos\/.+/); // ✅ Espera href válido
 await Promise.all([
-  page.waitForURL(/\/eventos/, { timeout: 10000 }),
-  page.click('a[href="/eventos"]'),
+  page.waitForURL(/\/eventos\/.+/, { timeout: 15000 }),
+  link.click(),
 ]);
 ```
 
@@ -149,7 +157,8 @@ const results = await page.locator('.result').count();
 
 | Acción | Patrón Correcto |
 |--------|-----------------|
-| **Navegación** | `Promise.all([waitForURL(), click()])` |
+| **Navegación (Link)** | `expect(link).toHaveAttribute('href', /pattern/) + Promise.all([waitForURL(), click()])` |
+| **Navegación (Button)** | `Promise.all([waitForURL(), click()])` |
 | **API Call** | `click() + waitForResponse()` |
 | **Cambio DOM** | `expect().toBeVisible()` o `waitForFunction()` |
 | **Form Submit** | `Promise.all([waitForURL(), submit()])` |
@@ -158,6 +167,7 @@ const results = await page.locator('.result').count();
 
 ### 🧪 Checklist Pre-Commit
 
+- [ ] ¿Los links esperan `toHaveAttribute('href')` antes de navegar?
 - [ ] ¿Todas las navegaciones usan `Promise.all([waitForURL(), click()])`?
 - [ ] ¿Los API calls esperan `waitForResponse()`?
 - [ ] ¿Usas `expect().toBeVisible()` en lugar de `waitForTimeout()`?
