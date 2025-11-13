@@ -34,6 +34,10 @@ const eslintConfig = defineConfig([
     // Test coverage
     "coverage/**",
 
+    // Playwright outputs
+    "playwright-report/**",
+    "test-results/**",
+
     // Cache
     ".cache/**",
     ".turbo/**",
