@@ -31,6 +31,7 @@ npm run test:e2e
 - **Puerto**: 3000
 - **Workers**: 1
 - **Paralelismo**: Desactivado (`fullyParallel: false`)
+- **Reporter**: Lista en consola + HTML (no se abre automáticamente)
 
 ### Cuándo usar
 - ✅ Durante desarrollo de nuevos tests
@@ -70,6 +71,7 @@ npm run test:e2e:prod
 - **Workers**: 4
 - **Paralelismo**: Activado (`fullyParallel: true`)
 - **Retries**: 1 en local, 2 en CI
+- **Reporter**: Lista en consola + HTML (no se abre automáticamente)
 
 ### Cuándo usar
 - ✅ Antes de hacer push/deploy
@@ -110,6 +112,10 @@ E2E_BASE_URL=http://localhost:3001 playwright test --config=playwright.config.pr
 {
   workers: 1,                    // Secuencial
   fullyParallel: false,          // Sin paralelismo
+  reporter: [
+    ['list'],                    // Progreso en consola
+    ['html', { open: 'never' }]  // HTML sin abrir automáticamente
+  ],
   webServer: {
     command: 'npm run dev',      // Servidor dev
     url: 'http://localhost:3000'
@@ -123,6 +129,10 @@ E2E_BASE_URL=http://localhost:3001 playwright test --config=playwright.config.pr
 {
   workers: 4,                    // 4 workers paralelos
   fullyParallel: true,           // Paralelismo completo
+  reporter: [
+    ['list'],                    // Progreso en consola
+    ['html', { open: 'never' }]  // HTML sin abrir automáticamente
+  ],
   webServer: {
     command: 'npm run start:test', // Servidor prod (puerto 3001)
     url: 'http://localhost:3001'
@@ -266,7 +276,7 @@ playwright test --config=playwright.config.prod.ts
 ### Otros comandos útiles
 
 ```bash
-# Ver reporte HTML del último test
+# Ver reporte HTML del último test (se genera automáticamente pero no se abre)
 npx playwright show-report
 
 # Ejecutar solo un archivo

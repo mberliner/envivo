@@ -17,7 +17,10 @@ export default defineConfig({
   fullyParallel: true, // ✅ Paralelismo completo
   workers: 4, // ✅ 4 workers = ejecución paralela
   retries: process.env.CI ? 2 : 1, // ✅ 1 retry en local, 2 en CI
-  reporter: 'html',
+  reporter: [
+    ['list'], // ✅ Muestra progreso en consola
+    ['html', { open: 'never' }], // ✅ Genera HTML pero NO lo abre automáticamente
+  ],
   use: {
     baseURL: process.env.E2E_BASE_URL || 'http://localhost:3001',
     screenshot: 'only-on-failure',

@@ -6,7 +6,10 @@ export default defineConfig({
   fullyParallel: false, // ✅ Modo dev: secuencial para desarrollo rápido
   workers: 1, // ✅ Un worker = sin paralelismo
   retries: process.env.CI ? 2 : 0,
-  reporter: 'html',
+  reporter: [
+    ['list'], // ✅ Muestra progreso en consola
+    ['html', { open: 'never' }], // ✅ Genera HTML pero NO lo abre automáticamente
+  ],
   use: {
     // ✅ URL dinámica: soporta local, CI, producción
     baseURL: process.env.E2E_BASE_URL || 'http://localhost:3000',
