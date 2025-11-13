@@ -4,15 +4,17 @@ test.describe('Event Detail - Fase 6', () => {
   test('debe navegar de home a detalle y volver', async ({ page }) => {
     // 1. Ir a home
     await page.goto('/');
-    await page.waitForSelector('[data-testid="event-card"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
-    // 2. Click en título del primer evento
+    // 2. Obtener título y hacer click en "Ver Detalles"
     const firstEvent = page.locator('[data-testid="event-card"]').first();
-    const titleElement = firstEvent.locator('h3');
-    const title = await titleElement.textContent();
-    await titleElement.click();
+    const title = await firstEvent.locator('h3').textContent();
+    await firstEvent.getByRole('link', { name: 'Ver Detalles' }).click();
 
-    // 3. Verificar página de detalle
+    // 3. Esperar a que Next.js termine de compilar y la página cargue completamente
+    await page.waitForLoadState('networkidle');
+
+    // 4. Verificar página de detalle
     await expect(page).toHaveURL(/\/eventos\/.+/);
     await expect(page.locator('h1')).toContainText(title || '');
     await expect(page.getByText('Fecha y Hora')).toBeVisible();
@@ -26,11 +28,14 @@ test.describe('Event Detail - Fase 6', () => {
 
   test('debe mostrar botón comprar con atributos de seguridad', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('[data-testid="event-card"]');
+    await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
-    // Click en título del primer evento para ir a detalle
+    // Click en botón "Ver Detalles" del primer evento para ir a detalle
     const firstEvent = page.locator('[data-testid="event-card"]').first();
-    await firstEvent.locator('h3').click();
+    await firstEvent.getByRole('link', { name: 'Ver Detalles' }).click();
+
+    // Esperar a que Next.js termine de compilar y la página cargue completamente
+    await page.waitForLoadState('networkidle');
 
     // Esperar a que cargue la página de detalle
     await expect(page).toHaveURL(/\/eventos\/.+/);
@@ -51,7 +56,7 @@ test.describe('Event Detail - Fase 6', () => {
   test('debe ocultar evento al hacer click en botón de blacklist', async ({ page }) => {
     // 1. Ir a home
     await page.goto('/');
-    await page.waitForSelector('[data-testid="event-card"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
     // 2. Contar eventos iniciales
     const initialEventCount = await page.locator('[data-testid="event-card"]').count();
