@@ -23,9 +23,11 @@ test.describe('Event Detail - Fase 6', () => {
     await expect(page.getByText('Ubicación')).toBeVisible();
     await expect(page.getByText('Precio de Entradas')).toBeVisible();
 
-    // 5. Volver a eventos
-    await page.click('text=Volver a Eventos');
-    await expect(page).toHaveURL('/');
+    // 5. Volver a eventos (con espera de navegación)
+    await Promise.all([
+      page.waitForURL('/', { timeout: 5000 }),
+      page.click('text=Volver a Eventos'),
+    ]);
   });
 
   test('debe mostrar botón comprar con atributos de seguridad', async ({ page }) => {
@@ -103,8 +105,10 @@ test.describe('Event Detail - Fase 6', () => {
     // Verificar mensaje de error
     await expect(page.getByText(/no encontrado/i)).toBeVisible();
 
-    // Verificar puede volver a home
-    await page.click('text=Volver');
-    await expect(page).toHaveURL('/');
+    // Verificar puede volver a home (con espera de navegación)
+    await Promise.all([
+      page.waitForURL('/', { timeout: 5000 }),
+      page.click('text=Volver'),
+    ]);
   });
 });
