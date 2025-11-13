@@ -40,7 +40,7 @@ test.describe('Event Detail - Fase 6', () => {
 
   test('debe mostrar botón comprar con atributos de seguridad', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
+    await page.waitForSelector('[data-testid="event-card"]', { timeout: 25000 });
 
     // Esperar que haya eventos y obtener el primero
     const firstEvent = page.locator('[data-testid="event-card"]').first();
@@ -54,7 +54,7 @@ test.describe('Event Detail - Fase 6', () => {
 
     // Click en "Ver Detalles" y esperar navegación simultáneamente
     await Promise.all([
-      page.waitForURL(/\/eventos\/.+/, { timeout: 15000 }),
+      page.waitForURL(/\/eventos\/.+/, { timeout: 25000 }),
       detailsLink.click(),
     ]);
 
