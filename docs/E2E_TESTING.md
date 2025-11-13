@@ -310,6 +310,18 @@ npm run test:e2e -- --update-snapshots
 
 ---
 
+## 📖 Mejores Prácticas
+
+Para prevenir race conditions y escribir tests robustos, consulta nuestra **[Guía de Mejores Prácticas E2E](E2E_BEST_PRACTICES.md)**.
+
+Esta guía cubre:
+- ✅ Patrones correctos para navegación, API calls y cambios de DOM
+- ❌ Patrones que causan race conditions (y cómo arreglarlos)
+- 🧪 Checklist para nuevos tests
+- 🔍 Guía de debugging de fallos aleatorios
+
+---
+
 ## ✅ Checklist Pre-Deploy
 
 Antes de hacer deploy a producción, ejecuta:
