@@ -1,0 +1,39 @@
+import { defineConfig, devices } from '@playwright/test';
+
+/**
+ * Configuración de Playwright para PRODUCTION MODE
+ *
+ * Uso: npm run test:e2e:prod
+ *
+ * Características:
+ * - Usa build de producción (npm run build + npm start)
+ * - Ejecución paralela con 4 workers
+ * - Para validación pre-deploy o CI
+ * - ~15s de tests (después del build inicial)
+ */
+export default defineConfig({
+  testDir: './e2e',
+  testMatch: '**/*.e2e.ts',
+  fullyParallel: true, // ✅ Paralelismo completo
+  workers: 4, // ✅ 4 workers = ejecución paralela
+  retries: process.env.CI ? 2 : 1, // ✅ 1 retry en local, 2 en CI
+  reporter: 'html',
+  use: {
+    baseURL: process.env.E2E_BASE_URL || 'http://localhost:3001',
+    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile', use: { ...devices['iPhone 13'] } },
+  ],
+  // ✅ Inicia servidor de producción en puerto 3001 (para no conflictuar con dev)
+  webServer: process.env.CI
+    ? undefined
+    : {
+        command: 'npm run start:test',
+        url: 'http://localhost:3001',
+        reuseExistingServer: !process.env.CI,
+        timeout: 120000,
+      },
+});
