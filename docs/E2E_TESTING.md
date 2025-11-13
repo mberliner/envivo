@@ -281,12 +281,15 @@ playwright test --config=playwright.config.prod.ts
 ```json
 {
   "test:e2e": "playwright test",
-  "test:e2e:prod": "npm run build && E2E_BASE_URL=http://localhost:3001 playwright test --config=playwright.config.prod.ts",
-  "test:e2e:vercel": "E2E_BASE_URL=https://envivo.vercel.app playwright test",
+  "test:e2e:local": "cross-env E2E_BASE_URL=http://localhost:3000 playwright test",
+  "test:e2e:prod": "npm run build && cross-env E2E_BASE_URL=http://localhost:3001 playwright test --config=playwright.config.prod.ts",
+  "test:e2e:vercel": "cross-env E2E_BASE_URL=https://envivo.vercel.app playwright test",
   "test:e2e:ui": "playwright test --ui",
   "test:e2e:debug": "playwright test --debug"
 }
 ```
+
+> **💡 Nota**: Los scripts usan `cross-env` para compatibilidad multiplataforma (Windows, Linux, Mac).
 
 ### Otros comandos útiles
 
