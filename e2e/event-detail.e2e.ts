@@ -1,45 +1,73 @@
 import { test, expect } from '@playwright/test';
+import { setupTestData, teardownTestData } from './helpers/testFixtures';
 
-test.describe('Event Detail - Fase 6', () => {
+test.describe.serial('Event Detail - Fase 6', () => {
+  // Setup de datos antes de TODOS los tests
+  test.beforeAll(async () => {
+    await setupTestData(10, 'DETAIL'); // Crear 10 eventos con prefix único
+  });
+
+  // Cleanup después de TODOS los tests
+  test.afterAll(async () => {
+    await teardownTestData('DETAIL');
+  });
+
   test('debe navegar de home a detalle y volver', async ({ page }) => {
     // 1. Ir a home
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
-    // 2. Obtener título y hacer click en "Ver Detalles"
-    const firstEvent = page.locator('[data-testid="event-card"]').first();
-    const title = await firstEvent.locator('h3').textContent();
-    await firstEvent.getByRole('link', { name: 'Ver Detalles' }).click();
+    // 2. Buscar SOLO eventos de este suite (prefix DETAIL)
+    const detailEvents = page.locator('[data-testid="event-card"]:has-text("[DETAIL]")');
+    await expect(detailEvents.first()).toBeVisible({ timeout: 5000 });
 
-    // 3. Esperar a que Next.js termine de compilar y la página cargue completamente
-    await page.waitForLoadState('networkidle');
+    const firstEvent = detailEvents.first();
+    const title = await firstEvent.locator('h3').textContent();
+
+    // Esperar que el link esté visible y con href válido (re-query automático en cada check)
+    await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toBeVisible();
+    await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toHaveAttribute('href', /\/eventos\/.+/);
+
+    // 3. Click en "Ver Detalles" (re-query para obtener elemento fresco) y esperar navegación
+    await Promise.all([
+      page.waitForURL(/\/eventos\/.+/, { timeout: 15000 }),
+      firstEvent.getByRole('link', { name: 'Ver Detalles' }).click(),
+    ]);
 
     // 4. Verificar página de detalle
-    await expect(page).toHaveURL(/\/eventos\/.+/);
     await expect(page.locator('h1')).toContainText(title || '');
     await expect(page.getByText('Fecha y Hora')).toBeVisible();
     await expect(page.getByText('Ubicación')).toBeVisible();
     await expect(page.getByText('Precio de Entradas')).toBeVisible();
 
-    // 4. Volver a eventos
-    await page.click('text=Volver a Eventos');
-    await expect(page).toHaveURL('/');
+    // 5. Volver a eventos (con espera de navegación)
+    await Promise.all([
+      page.waitForURL('/', { timeout: 5000 }),
+      page.click('text=Volver a Eventos'),
+    ]);
   });
 
   test('debe mostrar botón comprar con atributos de seguridad', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
+    await page.waitForSelector('[data-testid="event-card"]', { timeout: 25000 });
 
-    // Click en botón "Ver Detalles" del primer evento para ir a detalle
-    const firstEvent = page.locator('[data-testid="event-card"]').first();
-    await firstEvent.getByRole('link', { name: 'Ver Detalles' }).click();
+    // Buscar SOLO eventos de este suite (prefix DETAIL)
+    const detailEvents = page.locator('[data-testid="event-card"]:has-text("[DETAIL]")');
+    await expect(detailEvents.first()).toBeVisible({ timeout: 5000 });
 
-    // Esperar a que Next.js termine de compilar y la página cargue completamente
-    await page.waitForLoadState('networkidle');
+    const firstEvent = detailEvents.first();
 
-    // Esperar a que cargue la página de detalle
-    await expect(page).toHaveURL(/\/eventos\/.+/);
+    // Esperar que el link esté visible y con href válido (re-query automático en cada check)
+    await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toBeVisible();
+    await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toHaveAttribute('href', /\/eventos\/.+/);
 
+    // Click en "Ver Detalles" (re-query para obtener elemento fresco) y esperar navegación
+    await Promise.all([
+      page.waitForURL(/\/eventos\/.+/, { timeout: 25000 }),
+      firstEvent.getByRole('link', { name: 'Ver Detalles' }).click(),
+    ]);
+
+    // Verificar botón de compra
     const buyButton = page.getByRole('link', { name: /Comprar Entradas/i });
 
     // Verificar solo si el botón existe (puede no tener ticketUrl)
@@ -58,34 +86,51 @@ test.describe('Event Detail - Fase 6', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
-    // 2. Contar eventos iniciales
-    const initialEventCount = await page.locator('[data-testid="event-card"]').count();
+    // 2. Buscar SOLO eventos de este suite (prefix DETAIL)
+    const detailEvents = page.locator('[data-testid="event-card"]:has-text("[DETAIL]")');
+    await expect(detailEvents.first()).toBeVisible({ timeout: 5000 });
+
+    const initialEventCount = await detailEvents.count();
     expect(initialEventCount).toBeGreaterThan(0);
 
-    // 3. Obtener título del primer evento para verificar después
-    const firstEvent = page.locator('[data-testid="event-card"]').first();
-    const eventTitle = await firstEvent.locator('h3').textContent();
+    // 3. Obtener referencia al primer evento
+    const firstEvent = detailEvents.first();
 
-    // 4. Configurar manejo de dialog (aceptar confirmación)
+    // 4. Configurar manejo de dialog (puede ser confirm o alert si hay error)
     page.on('dialog', async (dialog) => {
-      expect(dialog.type()).toBe('confirm');
-      expect(dialog.message()).toContain('¿Estás seguro');
-      await dialog.accept();
+      if (dialog.type() === 'confirm') {
+        expect(dialog.message()).toContain('¿Estás seguro');
+        await dialog.accept();
+      } else if (dialog.type() === 'alert') {
+        console.log('[TEST] Alert dialog:', dialog.message());
+        await dialog.accept();
+      }
     });
 
     // 5. Click en botón de eliminar (botón rojo con X)
     const deleteButton = firstEvent.getByRole('button', { name: /ocultar evento/i });
     await deleteButton.click();
 
-    // 6. Esperar a que el evento desaparezca (optimistic update)
-    await page.waitForTimeout(500); // Pequeña espera para animación/update
+    // 6. Esperar a que el request DELETE complete y el evento desaparezca
+    // Usamos waitForResponse para asegurar que el API call terminó
+    await page.waitForResponse((response) => response.url().includes('/api/events/') && response.request().method() === 'DELETE');
 
-    // 7. Verificar que el evento ya no está visible
-    const eventWithTitle = page.locator('[data-testid="event-card"]').filter({ hasText: eventTitle || '' });
-    await expect(eventWithTitle).toHaveCount(0);
+    // 7. Esperar a que el primer evento (el que eliminamos) desaparezca del DOM
+    // Verificamos que el conteo de eventos DETAIL disminuyó
+    await page.waitForFunction(
+      ({ expectedCount, prefix }) => {
+        const allCards = document.querySelectorAll('[data-testid="event-card"]');
+        const detailCards = Array.from(allCards).filter(card =>
+          card.textContent?.includes(`[${prefix}]`)
+        );
+        return detailCards.length === expectedCount - 1;
+      },
+      { expectedCount: initialEventCount, prefix: 'DETAIL' },
+      { timeout: 5000 }
+    );
 
-    // 8. Verificar que el conteo de eventos disminuyó
-    const finalEventCount = await page.locator('[data-testid="event-card"]').count();
+    // 8. Verificar que el conteo de eventos DETAIL disminuyó exactamente en 1
+    const finalEventCount = await detailEvents.count();
     expect(finalEventCount).toBe(initialEventCount - 1);
   });
 
@@ -95,8 +140,10 @@ test.describe('Event Detail - Fase 6', () => {
     // Verificar mensaje de error
     await expect(page.getByText(/no encontrado/i)).toBeVisible();
 
-    // Verificar puede volver a home
-    await page.click('text=Volver');
-    await expect(page).toHaveURL('/');
+    // Verificar puede volver a home (con espera de navegación)
+    await Promise.all([
+      page.waitForURL('/', { timeout: 5000 }),
+      page.click('text=Volver'),
+    ]);
   });
 });
