@@ -15,6 +15,7 @@ const prisma = new PrismaClient();
  * Body:
  * {
  *   count?: number  // Número de eventos a crear (default: 3)
+ *   prefix?: string // Prefijo único para el título (default: 'E2E-TEST')
  * }
  *
  * Response:
@@ -52,8 +53,9 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const count = body.count || 3;
+    const prefix = body.prefix || 'E2E-TEST';
 
-    // Crear eventos de prueba con prefijo [E2E-TEST]
+    // Crear eventos de prueba con prefijo personalizado
     const events = [];
     const timestamp = Date.now();
 
@@ -61,7 +63,7 @@ export async function POST(request: NextRequest) {
       const event = await prisma.event.create({
         data: {
           // Identificador único basado en timestamp
-          title: `[E2E-TEST] Evento de Prueba ${timestamp}-${i}`,
+          title: `[${prefix}] Evento de Prueba ${timestamp}-${i}`,
           description: `Descripción del evento de prueba ${i}. Este evento fue creado automáticamente por el sistema de testing E2E.`,
           date: new Date(Date.now() + (i + 1) * 24 * 60 * 60 * 1000), // i+1 días en el futuro
 
@@ -84,8 +86,8 @@ export async function POST(request: NextRequest) {
           // URL de tickets (opcional)
           ticketUrl: i % 2 === 0 ? `https://example.com/tickets/test-${timestamp}-${i}` : null,
 
-          // Source
-          source: 'E2E-TEST',
+          // Source (incluir prefix para identificar el suite)
+          source: prefix,
           externalId: `test-${timestamp}-${i}`,
         },
       });

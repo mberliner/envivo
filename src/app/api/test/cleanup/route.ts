@@ -7,11 +7,14 @@ const prisma = new PrismaClient();
 /**
  * DELETE /api/test/cleanup
  *
- * Limpia TODOS los datos de prueba E2E
+ * Limpia datos de prueba E2E de un suite específico
+ *
+ * Query params:
+ * - prefix: Prefijo del suite (default: 'E2E-TEST')
  *
  * Elimina:
- * - Eventos con título que empieza con "[E2E-TEST]"
- * - Eventos con source "E2E-TEST"
+ * - Eventos con título que empieza con "[prefix]"
+ * - Eventos con source "prefix"
  * - Entradas en blacklist de estos eventos
  *
  * IMPORTANTE: Solo disponible en desarrollo/testing
@@ -27,6 +30,8 @@ const prisma = new PrismaClient();
  * }
  */
 export async function DELETE(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const prefix = searchParams.get('prefix') || 'E2E-TEST';
   // Validar API key
   const apiKey = request.headers.get('x-api-key');
 
@@ -53,12 +58,12 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    // Encontrar todos los eventos de prueba
+    // Encontrar todos los eventos de prueba con este prefix
     const testEvents = await prisma.event.findMany({
       where: {
         OR: [
-          { title: { startsWith: '[E2E-TEST]' } },
-          { source: 'E2E-TEST' },
+          { title: { startsWith: `[${prefix}]` } },
+          { source: prefix },
         ],
       },
       select: { id: true, externalId: true },
@@ -73,7 +78,7 @@ export async function DELETE(request: NextRequest) {
     const deletedBlacklisted = await prisma.eventBlacklist.deleteMany({
       where: {
         AND: [
-          { source: 'E2E-TEST' },
+          { source: prefix },
           { externalId: { in: testExternalIds } },
         ],
       },
@@ -83,8 +88,8 @@ export async function DELETE(request: NextRequest) {
     const deletedEvents = await prisma.event.deleteMany({
       where: {
         OR: [
-          { title: { startsWith: '[E2E-TEST]' } },
-          { source: 'E2E-TEST' },
+          { title: { startsWith: `[${prefix}]` } },
+          { source: prefix },
         ],
       },
     });

@@ -12,12 +12,12 @@ import { setupTestData, teardownTestData } from './helpers/testFixtures';
 test.describe('Diagnostic - Race Condition Analysis', () => {
   // Setup de datos antes de TODOS los tests de diagnóstico
   test.beforeAll(async () => {
-    await setupTestData(10); // Crear 10 eventos para tests más realistas
+    await setupTestData(10, 'DIAG'); // Crear 10 eventos con prefix único
   });
 
   // Cleanup después de TODOS los tests
   test.afterAll(async () => {
-    await teardownTestData();
+    await teardownTestData('DIAG');
   });
 
   test('should check page stability after load', async ({ page }) => {

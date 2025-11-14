@@ -53,9 +53,10 @@ interface CleanupResponse {
  * Crear datos de prueba
  *
  * @param count - Número de eventos a crear (default: 3)
+ * @param prefix - Prefijo único para este suite de tests (default: 'E2E-TEST')
  * @returns Lista de eventos creados
  */
-export async function seedTestData(count = 3): Promise<SeedResponse['events']> {
+export async function seedTestData(count = 3, prefix = 'E2E-TEST'): Promise<SeedResponse['events']> {
   const BASE_URL = getBaseUrl();
   const ADMIN_API_KEY = getAdminApiKey();
 
@@ -65,7 +66,7 @@ export async function seedTestData(count = 3): Promise<SeedResponse['events']> {
       'Content-Type': 'application/json',
       'x-api-key': ADMIN_API_KEY,
     },
-    body: JSON.stringify({ count }),
+    body: JSON.stringify({ count, prefix }),
   });
 
   if (!response.ok) {
@@ -87,16 +88,17 @@ export async function seedTestData(count = 3): Promise<SeedResponse['events']> {
  * Limpiar TODOS los datos de prueba
  *
  * Elimina:
- * - Eventos de prueba (título empieza con [E2E-TEST])
+ * - Eventos de prueba (título empieza con [prefix])
  * - Entradas en blacklist de esos eventos
  *
+ * @param prefix - Prefijo único para este suite de tests (default: 'E2E-TEST')
  * @returns Número de registros eliminados
  */
-export async function cleanupTestData(): Promise<CleanupResponse['deleted']> {
+export async function cleanupTestData(prefix = 'E2E-TEST'): Promise<CleanupResponse['deleted']> {
   const BASE_URL = getBaseUrl();
   const ADMIN_API_KEY = getAdminApiKey();
 
-  const response = await fetch(`${BASE_URL}/api/test/cleanup`, {
+  const response = await fetch(`${BASE_URL}/api/test/cleanup?prefix=${encodeURIComponent(prefix)}`, {
     method: 'DELETE',
     headers: {
       'x-api-key': ADMIN_API_KEY,
@@ -127,15 +129,18 @@ export async function cleanupTestData(): Promise<CleanupResponse['deleted']> {
  * - Crea datos frescos
  *
  * Usar en beforeAll() o beforeEach()
+ *
+ * @param count - Número de eventos a crear (default: 3)
+ * @param prefix - Prefijo único para este suite de tests (default: 'E2E-TEST')
  */
-export async function setupTestData(count = 3) {
-  console.log('[TEST FIXTURES] 🔧 Setting up test data...');
+export async function setupTestData(count = 3, prefix = 'E2E-TEST') {
+  console.log(`[TEST FIXTURES] 🔧 Setting up test data (prefix: ${prefix})...`);
 
   // Limpiar datos previos (por si quedaron de tests anteriores)
-  await cleanupTestData();
+  await cleanupTestData(prefix);
 
   // Crear datos frescos
-  const events = await seedTestData(count);
+  const events = await seedTestData(count, prefix);
 
   console.log('[TEST FIXTURES] ✅ Test data ready');
   return events;
@@ -148,9 +153,11 @@ export async function setupTestData(count = 3) {
  * - Deja el ambiente limpio
  *
  * Usar en afterAll() o afterEach()
+ *
+ * @param prefix - Prefijo único para este suite de tests (default: 'E2E-TEST')
  */
-export async function teardownTestData() {
-  console.log('[TEST FIXTURES] 🧹 Tearing down test data...');
-  await cleanupTestData();
+export async function teardownTestData(prefix = 'E2E-TEST') {
+  console.log(`[TEST FIXTURES] 🧹 Tearing down test data (prefix: ${prefix})...`);
+  await cleanupTestData(prefix);
   console.log('[TEST FIXTURES] ✅ Test environment clean');
 }

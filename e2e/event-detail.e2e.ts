@@ -4,12 +4,12 @@ import { setupTestData, teardownTestData } from './helpers/testFixtures';
 test.describe('Event Detail - Fase 6', () => {
   // Setup de datos antes de TODOS los tests
   test.beforeAll(async () => {
-    await setupTestData(10); // Crear 10 eventos para todos los tests
+    await setupTestData(10, 'DETAIL'); // Crear 10 eventos con prefix único
   });
 
   // Cleanup después de TODOS los tests
   test.afterAll(async () => {
-    await teardownTestData();
+    await teardownTestData('DETAIL');
   });
 
   test('debe navegar de home a detalle y volver', async ({ page }) => {

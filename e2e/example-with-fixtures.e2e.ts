@@ -11,12 +11,12 @@ import { setupTestData, teardownTestData } from './helpers/testFixtures';
 test.describe('Example - Test con Fixtures', () => {
   // Setup: crear datos ANTES de todos los tests
   test.beforeAll(async () => {
-    await setupTestData(5); // Crear 5 eventos de prueba
+    await setupTestData(5, 'EXAMPLE'); // Crear 5 eventos con prefix único
   });
 
   // Teardown: limpiar datos DESPUÉS de todos los tests
   test.afterAll(async () => {
-    await teardownTestData();
+    await teardownTestData('EXAMPLE');
   });
 
   test('debe mostrar eventos de prueba', async ({ page }) => {
@@ -29,7 +29,7 @@ test.describe('Example - Test con Fixtures', () => {
     expect(count).toBeGreaterThan(0);
 
     // Verificar que hay al menos un evento de prueba
-    const testEvent = page.locator('[data-testid="event-card"]:has-text("[E2E-TEST]")');
+    const testEvent = page.locator('[data-testid="event-card"]:has-text("[EXAMPLE]")');
     await expect(testEvent.first()).toBeVisible();
   });
 
@@ -38,7 +38,7 @@ test.describe('Example - Test con Fixtures', () => {
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
     // Buscar específicamente un evento de prueba
-    const testEventCard = page.locator('[data-testid="event-card"]:has-text("[E2E-TEST]")').first();
+    const testEventCard = page.locator('[data-testid="event-card"]:has-text("[EXAMPLE]")').first();
     await expect(testEventCard).toBeVisible();
 
     // Navegar a detalle
@@ -59,7 +59,7 @@ test.describe('Example - Test con Fixtures', () => {
 
     // Verificar que el título contiene el prefijo de test
     const titleText = await detailTitle.textContent();
-    expect(titleText).toContain('[E2E-TEST]');
+    expect(titleText).toContain('[EXAMPLE]');
   });
 
   test('debe poder agregar evento de prueba a blacklist', async ({ page }) => {
@@ -67,7 +67,7 @@ test.describe('Example - Test con Fixtures', () => {
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
     // Buscar un evento de prueba
-    const testEventCard = page.locator('[data-testid="event-card"]:has-text("[E2E-TEST]")').first();
+    const testEventCard = page.locator('[data-testid="event-card"]:has-text("[EXAMPLE]")').first();
     await expect(testEventCard).toBeVisible();
 
     // Contar eventos antes
