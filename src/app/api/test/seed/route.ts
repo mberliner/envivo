@@ -65,11 +65,9 @@ export async function POST(request: NextRequest) {
           description: `Descripción del evento de prueba ${i}. Este evento fue creado automáticamente por el sistema de testing E2E.`,
           date: new Date(Date.now() + (i + 1) * 24 * 60 * 60 * 1000), // i+1 días en el futuro
 
-          // Ubicación
+          // Ubicación (sin venue - solo city/country)
           city: 'Buenos Aires',
           country: 'Argentina',
-          venueName: `Test Venue ${i}`,
-          venueAddress: `Calle Test ${i}, Buenos Aires`,
 
           // Categoría y género
           category: 'Concierto',
@@ -89,10 +87,6 @@ export async function POST(request: NextRequest) {
           // Source
           source: 'E2E-TEST',
           externalId: `test-${timestamp}-${i}`,
-          sourceUrl: `https://example.com/events/test-${timestamp}-${i}`,
-
-          // Metadata
-          scrapedAt: new Date(),
         },
       });
 
