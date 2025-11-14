@@ -96,11 +96,14 @@ test.describe.serial('Example - Test con Fixtures', () => {
 
     // Verificar que el evento EXAMPLE desapareció
     await page.waitForFunction(
-      (expectedCount) => {
-        const cards = document.querySelectorAll('[data-testid="event-card"]:has-text("[EXAMPLE]")');
-        return cards.length === expectedCount - 1;
+      ({ expectedCount, prefix }) => {
+        const allCards = document.querySelectorAll('[data-testid="event-card"]');
+        const exampleCards = Array.from(allCards).filter(card =>
+          card.textContent?.includes(`[${prefix}]`)
+        );
+        return exampleCards.length === expectedCount - 1;
       },
-      initialCount,
+      { expectedCount: initialCount, prefix: 'EXAMPLE' },
       { timeout: 5000 }
     );
 

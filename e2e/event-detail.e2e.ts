@@ -118,11 +118,14 @@ test.describe.serial('Event Detail - Fase 6', () => {
     // 7. Esperar a que el primer evento (el que eliminamos) desaparezca del DOM
     // Verificamos que el conteo de eventos DETAIL disminuyó
     await page.waitForFunction(
-      (expectedCount) => {
-        const cards = document.querySelectorAll('[data-testid="event-card"]:has-text("[DETAIL]")');
-        return cards.length === expectedCount - 1;
+      ({ expectedCount, prefix }) => {
+        const allCards = document.querySelectorAll('[data-testid="event-card"]');
+        const detailCards = Array.from(allCards).filter(card =>
+          card.textContent?.includes(`[${prefix}]`)
+        );
+        return detailCards.length === expectedCount - 1;
       },
-      initialEventCount,
+      { expectedCount: initialEventCount, prefix: 'DETAIL' },
       { timeout: 5000 }
     );
 
