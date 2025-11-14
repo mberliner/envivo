@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { setupTestData, teardownTestData } from './helpers/testFixtures';
 
 /**
  * Tests diagnósticos para investigar race conditions
@@ -9,6 +10,16 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Diagnostic - Race Condition Analysis', () => {
+  // Setup de datos antes de TODOS los tests de diagnóstico
+  test.beforeAll(async () => {
+    await setupTestData(10); // Crear 10 eventos para tests más realistas
+  });
+
+  // Cleanup después de TODOS los tests
+  test.afterAll(async () => {
+    await teardownTestData();
+  });
+
   test('should check page stability after load', async ({ page }) => {
     console.log('[DIAG] Starting page stability test...');
 

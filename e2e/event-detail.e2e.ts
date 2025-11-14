@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { setupTestData, teardownTestData } from './helpers/testFixtures';
 
 test.describe('Event Detail - Fase 6', () => {
   test('debe navegar de home a detalle y volver', async ({ page }) => {
+    await setupTestData(5);
     // 1. Ir a home
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
@@ -33,9 +35,13 @@ test.describe('Event Detail - Fase 6', () => {
       page.waitForURL('/', { timeout: 5000 }),
       page.click('text=Volver a Eventos'),
     ]);
+
+    await teardownTestData();
   });
 
   test('debe mostrar botón comprar con atributos de seguridad', async ({ page }) => {
+    await setupTestData(5);
+
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 25000 });
 
@@ -64,9 +70,13 @@ test.describe('Event Detail - Fase 6', () => {
       const href = await buyButton.getAttribute('href');
       expect(href).toMatch(/^https?:\/\//);
     }
+
+    await teardownTestData();
   });
 
   test('debe ocultar evento al hacer click en botón de blacklist', async ({ page }) => {
+    await setupTestData(5);
+
     // 1. Ir a home
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
@@ -107,6 +117,8 @@ test.describe('Event Detail - Fase 6', () => {
     // 8. Verificar que el conteo de eventos disminuyó exactamente en 1
     const finalEventCount = await page.locator('[data-testid="event-card"]').count();
     expect(finalEventCount).toBe(initialEventCount - 1);
+
+    await teardownTestData();
   });
 
   test('debe mostrar 404 para evento inexistente', async ({ page }) => {

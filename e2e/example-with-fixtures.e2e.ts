@@ -54,7 +54,12 @@ test.describe('Example - Test con Fixtures', () => {
     ]);
 
     // Verificar que estamos en la página de detalle
-    await expect(page.locator('h1:has-text("[E2E-TEST]")')).toBeVisible();
+    const detailTitle = page.locator('h1').first();
+    await expect(detailTitle).toBeVisible();
+
+    // Verificar que el título contiene el prefijo de test
+    const titleText = await detailTitle.textContent();
+    expect(titleText).toContain('[E2E-TEST]');
   });
 
   test('debe poder agregar evento de prueba a blacklist', async ({ page }) => {
