@@ -66,7 +66,7 @@ export async function DELETE(request: NextRequest) {
 
     const testExternalIds = testEvents
       .map((e: { externalId: string | null }) => e.externalId)
-      .filter((id): id is string => id !== null);
+      .filter((id: string | null): id is string => id !== null);
 
     // Eliminar de blacklist primero (si existen)
     // El modelo se llama EventBlacklist y usa source + externalId
