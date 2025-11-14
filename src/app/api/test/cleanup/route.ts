@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { env } from '@/shared/infrastructure/config/env';
+import { getE2EPrismaClient } from '../helpers/e2e-db';
 
-const prisma = new PrismaClient();
+const prisma = getE2EPrismaClient();
 
 /**
  * DELETE /api/test/cleanup

@@ -287,8 +287,46 @@ test('debe poder blacklistear evento de prueba', async ({ page }) => {
 # .env.local
 ADMIN_API_KEY="tu-api-key-aqui"  # Requerido para seed/cleanup
 
+# Base de datos E2E (completamente separada de desarrollo)
+DATABASE_URL_E2E="file:./e2e.db"  # BD dedicada para tests E2E/integración
+
 # Para tests E2E
 E2E_BASE_URL="http://localhost:3000"  # O http://localhost:3001 en prod
+```
+
+### Inicializar Base de Datos E2E
+
+**IMPORTANTE**: Los tests E2E usan una base de datos completamente separada de desarrollo (`e2e.db`).
+
+```bash
+# 1. Crear la base de datos E2E (primera vez)
+npm run db:e2e:init
+
+# 2. Verificar la BD E2E con Prisma Studio (opcional)
+npm run db:e2e:studio
+
+# 3. Ejecutar tests E2E
+npm run test:e2e
+```
+
+**Ventajas de la BD separada:**
+- ✅ Tests E2E no contaminan datos de desarrollo
+- ✅ Puedes ejecutar tests en paralelo sin conflictos
+- ✅ Puedes resetear la BD E2E sin afectar desarrollo
+- ✅ Mismo esquema que desarrollo, datos diferentes
+
+### Resetear Base de Datos E2E
+
+Si la BD E2E se corrompe o quieres empezar de cero:
+
+```bash
+# Opción 1: Eliminar y recrear
+rm e2e.db e2e.db-journal
+npm run db:e2e:init
+
+# Opción 2: Solo limpiar datos de test (sin eliminar la BD)
+curl -X DELETE http://localhost:3000/api/test/cleanup \
+  -H "x-api-key: $ADMIN_API_KEY"
 ```
 
 ### Verificar Configuración
@@ -296,6 +334,9 @@ E2E_BASE_URL="http://localhost:3000"  # O http://localhost:3001 en prod
 ```bash
 # Verificar que ADMIN_API_KEY está seteada
 echo $ADMIN_API_KEY
+
+# Verificar que DATABASE_URL_E2E está seteada
+echo $DATABASE_URL_E2E
 
 # Probar seed manualmente
 curl -X POST http://localhost:3000/api/test/seed \

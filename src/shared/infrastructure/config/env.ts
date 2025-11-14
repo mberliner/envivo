@@ -6,6 +6,7 @@ import { z } from 'zod';
 const envSchema = z.object({
   // Database
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
+  DATABASE_URL_E2E: z.string().optional(), // BD separada para tests E2E/integración
 
   // API Keys (para futuras fuentes de datos)
   // TICKETMASTER_API_KEY: z.string().optional(), // Removido - Ticketmaster no opera en Argentina
