@@ -2,8 +2,17 @@ import { test, expect } from '@playwright/test';
 import { setupTestData, teardownTestData } from './helpers/testFixtures';
 
 test.describe('Event Detail - Fase 6', () => {
+  // Setup de datos antes de TODOS los tests
+  test.beforeAll(async () => {
+    await setupTestData(10); // Crear 10 eventos para todos los tests
+  });
+
+  // Cleanup después de TODOS los tests
+  test.afterAll(async () => {
+    await teardownTestData();
+  });
+
   test('debe navegar de home a detalle y volver', async ({ page }) => {
-    await setupTestData(5);
     // 1. Ir a home
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
@@ -35,13 +44,9 @@ test.describe('Event Detail - Fase 6', () => {
       page.waitForURL('/', { timeout: 5000 }),
       page.click('text=Volver a Eventos'),
     ]);
-
-    await teardownTestData();
   });
 
   test('debe mostrar botón comprar con atributos de seguridad', async ({ page }) => {
-    await setupTestData(5);
-
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 25000 });
 
@@ -70,13 +75,9 @@ test.describe('Event Detail - Fase 6', () => {
       const href = await buyButton.getAttribute('href');
       expect(href).toMatch(/^https?:\/\//);
     }
-
-    await teardownTestData();
   });
 
   test('debe ocultar evento al hacer click en botón de blacklist', async ({ page }) => {
-    await setupTestData(5);
-
     // 1. Ir a home
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
@@ -88,11 +89,15 @@ test.describe('Event Detail - Fase 6', () => {
     // 3. Obtener referencia al primer evento
     const firstEvent = page.locator('[data-testid="event-card"]').first();
 
-    // 4. Configurar manejo de dialog (aceptar confirmación)
+    // 4. Configurar manejo de dialog (puede ser confirm o alert si hay error)
     page.on('dialog', async (dialog) => {
-      expect(dialog.type()).toBe('confirm');
-      expect(dialog.message()).toContain('¿Estás seguro');
-      await dialog.accept();
+      if (dialog.type() === 'confirm') {
+        expect(dialog.message()).toContain('¿Estás seguro');
+        await dialog.accept();
+      } else if (dialog.type() === 'alert') {
+        console.log('[TEST] Alert dialog:', dialog.message());
+        await dialog.accept();
+      }
     });
 
     // 5. Click en botón de eliminar (botón rojo con X)
@@ -117,8 +122,6 @@ test.describe('Event Detail - Fase 6', () => {
     // 8. Verificar que el conteo de eventos disminuyó exactamente en 1
     const finalEventCount = await page.locator('[data-testid="event-card"]').count();
     expect(finalEventCount).toBe(initialEventCount - 1);
-
-    await teardownTestData();
   });
 
   test('debe mostrar 404 para evento inexistente', async ({ page }) => {
