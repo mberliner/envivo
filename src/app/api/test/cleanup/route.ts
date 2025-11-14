@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { validateApiKey } from '@/shared/infrastructure/middleware/apiKeyMiddleware';
+import { env } from '@/shared/infrastructure/config/env';
 
 const prisma = new PrismaClient();
 
@@ -28,10 +28,18 @@ const prisma = new PrismaClient();
  */
 export async function DELETE(request: NextRequest) {
   // Validar API key
-  const apiKeyValidation = validateApiKey(request);
-  if (!apiKeyValidation.valid) {
+  const apiKey = request.headers.get('x-api-key');
+
+  if (!env.ADMIN_API_KEY) {
     return NextResponse.json(
-      { error: apiKeyValidation.error },
+      { error: 'Admin API key not configured in server' },
+      { status: 500 }
+    );
+  }
+
+  if (!apiKey || apiKey !== env.ADMIN_API_KEY) {
+    return NextResponse.json(
+      { error: 'Unauthorized: Invalid or missing API key' },
       { status: 401 }
     );
   }
@@ -56,7 +64,7 @@ export async function DELETE(request: NextRequest) {
       select: { id: true },
     });
 
-    const testEventIds = testEvents.map(e => e.id);
+    const testEventIds = testEvents.map((e: { id: string }) => e.id);
 
     // Eliminar de blacklist primero (si existen)
     const deletedBlacklisted = await prisma.blacklistedEvent.deleteMany({

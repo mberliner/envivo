@@ -198,6 +198,74 @@ npx playwright show-trace test-results/[test-name]/trace.zip
 
 ---
 
+## 🧪 Test Fixtures - Datos de Prueba
+
+### Sistema de Gestión de Datos
+
+Los tests E2E necesitan datos para probar. El sistema de fixtures permite:
+
+✅ **Crear datos únicos** - Eventos marcados con `[E2E-TEST]`
+✅ **Limpiar automáticamente** - Elimina eventos + blacklist después de tests
+✅ **Respetar datos existentes** - Solo toca datos de prueba
+✅ **Setup/Teardown** - Helpers para `beforeAll`/`afterAll`
+
+### Uso Básico
+
+```typescript
+import { setupTestData, teardownTestData } from './helpers/testFixtures';
+
+test.describe('Mi Feature', () => {
+  // Setup: crear datos ANTES de tests
+  test.beforeAll(async () => {
+    await setupTestData(5); // Crear 5 eventos de prueba
+  });
+
+  // Teardown: limpiar DESPUÉS de tests
+  test.afterAll(async () => {
+    await teardownTestData();
+  });
+
+  test('mi test', async ({ page }) => {
+    await page.goto('/');
+
+    // Buscar solo eventos de prueba
+    const testEvent = page.locator('[data-testid="event-card"]:has-text("[E2E-TEST]")');
+    await expect(testEvent.first()).toBeVisible();
+  });
+});
+```
+
+### API Endpoints (Protegidos)
+
+```bash
+# Crear eventos de prueba
+curl -X POST http://localhost:3000/api/test/seed \
+  -H "x-api-key: $ADMIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"count": 3}'
+
+# Limpiar todos los datos de prueba
+curl -X DELETE http://localhost:3000/api/test/cleanup \
+  -H "x-api-key: $ADMIN_API_KEY"
+```
+
+### Configuración Requerida
+
+```bash
+# .env.local
+ADMIN_API_KEY="tu-api-key-de-32-caracteres"  # Requerido
+```
+
+### Documentación Completa
+
+Ver **[e2e/README.md](../e2e/README.md)** para:
+- API reference completa
+- Patrones comunes
+- Troubleshooting
+- Ejemplos avanzados
+
+---
+
 ## 🐛 Troubleshooting
 
 ### Tests fallan solo en modo paralelo
