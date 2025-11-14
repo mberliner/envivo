@@ -15,18 +15,22 @@ Los tests E2E ahora usan una **base de datos completamente separada** de la base
 
 ### 1. Variables de Entorno
 
-Agrega a tu `.env.local`:
+**⚠️ IMPORTANTE:** NO agregues `DATABASE_URL_E2E` a `.env.local`. Playwright la pasa automáticamente.
+
+Tu `.env.local` solo necesita:
 
 ```bash
 # Base de datos de desarrollo (existente)
 DATABASE_URL="file:./dev.db"
 
-# Base de datos E2E (NUEVA - completamente separada)
-DATABASE_URL_E2E="file:./e2e.db"
-
 # Admin API key (requerida para tests E2E)
 ADMIN_API_KEY="tu-api-key-de-32-caracteres-aqui"
+
+# ⚠️ NO descomentar esto - Playwright lo pasa automáticamente
+# DATABASE_URL_E2E="file:./e2e.db"
 ```
+
+**Por qué:** Si configuras `DATABASE_URL_E2E` en `.env.local`, TODA la aplicación (incluso `npm run dev`) usará la BD E2E, lo cual NO es lo que quieres.
 
 ### 2. Crear la Base de Datos E2E
 
@@ -50,9 +54,11 @@ npm run db:e2e:init
 ### 3. Verificar la Configuración
 
 ```bash
-# Verificar que las variables están configuradas
+# Verificar que DATABASE_URL está configurada
 echo $DATABASE_URL       # file:./dev.db
-echo $DATABASE_URL_E2E   # file:./e2e.db
+
+# ⚠️ DATABASE_URL_E2E NO debe estar en tu shell/env
+# Solo Playwright la pasa cuando ejecuta tests
 
 # Verificar que ambas BDs existen
 ls -lah *.db
