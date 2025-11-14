@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
           // Source
           source: 'E2E-TEST',
-          sourceEventId: `test-${timestamp}-${i}`,
+          externalId: `test-${timestamp}-${i}`,
           sourceUrl: `https://example.com/events/test-${timestamp}-${i}`,
 
           // Metadata

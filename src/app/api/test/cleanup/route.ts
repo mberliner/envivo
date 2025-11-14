@@ -61,17 +61,20 @@ export async function DELETE(request: NextRequest) {
           { source: 'E2E-TEST' },
         ],
       },
-      select: { id: true },
+      select: { id: true, externalId: true },
     });
 
-    const testEventIds = testEvents.map((e: { id: string }) => e.id);
+    const testExternalIds = testEvents
+      .map((e: { externalId: string | null }) => e.externalId)
+      .filter((id): id is string => id !== null);
 
     // Eliminar de blacklist primero (si existen)
-    const deletedBlacklisted = await prisma.blacklistedEvent.deleteMany({
+    // El modelo se llama EventBlacklist y usa source + externalId
+    const deletedBlacklisted = await prisma.eventBlacklist.deleteMany({
       where: {
-        OR: [
-          { eventId: { in: testEventIds } },
-          { sourceEventId: { startsWith: 'test-' } }, // sourceEventId empieza con 'test-'
+        AND: [
+          { source: 'E2E-TEST' },
+          { externalId: { in: testExternalIds } },
         ],
       },
     });
