@@ -1,4 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+
+// Cargar variables de entorno desde .env.local
+dotenv.config({ path: '.env.local' });
 
 /**
  * Configuración de Playwright para PRODUCTION MODE
@@ -40,5 +44,9 @@ export default defineConfig({
         url: 'http://localhost:3001',
         reuseExistingServer: !process.env.CI,
         timeout: 120000,
+        env: {
+          // Pasar ADMIN_API_KEY al servidor de producción
+          ADMIN_API_KEY: process.env.ADMIN_API_KEY || '',
+        },
       },
 });

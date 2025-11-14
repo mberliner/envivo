@@ -314,16 +314,22 @@ curl -X DELETE http://localhost:3000/api/test/cleanup \
 
 ### Error: "ADMIN_API_KEY not set"
 
-**Causa:** Variable de entorno no configurada.
+**Causa:** Variable de entorno no configurada en `.env.local`.
 
 **Solución:**
 ```bash
-# En .env.local
+# 1. Crear/editar .env.local en la raíz del proyecto
 ADMIN_API_KEY="tu-api-key-de-32-caracteres"
 
-# O al ejecutar tests
-ADMIN_API_KEY=xxx npm run test:e2e
+# 2. Playwright carga automáticamente .env.local (via dotenv en playwright.config.ts)
+# 3. Reiniciar tests
+npm run test:e2e
 ```
+
+**Importante:**
+- Playwright configs (`playwright.config.ts` y `playwright.config.prod.ts`) cargan `.env.local` automáticamente
+- Las variables están disponibles en `process.env` dentro de los tests
+- NO necesitas usar `cross-env` ni `dotenv` manualmente
 
 ### Error: "Failed to seed test data: 401"
 

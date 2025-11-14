@@ -4,8 +4,30 @@
  * Helpers para crear y limpiar datos de prueba
  */
 
-const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:3000';
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || '';
+// Función helper para obtener variables de entorno (lazy evaluation)
+function getEnv(key: string, defaultValue = ''): string {
+  // En Node.js (Playwright test context)
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env[key] || defaultValue;
+  }
+  return defaultValue;
+}
+
+function getBaseUrl(): string {
+  return getEnv('E2E_BASE_URL', 'http://localhost:3000');
+}
+
+function getAdminApiKey(): string {
+  const key = getEnv('ADMIN_API_KEY');
+  if (!key) {
+    throw new Error(
+      'ADMIN_API_KEY not set. Add it to .env.local:\n' +
+        'ADMIN_API_KEY="your-32-character-key-here"\n\n' +
+        'Then restart your tests.'
+    );
+  }
+  return key;
+}
 
 interface SeedResponse {
   success: boolean;
@@ -34,9 +56,8 @@ interface CleanupResponse {
  * @returns Lista de eventos creados
  */
 export async function seedTestData(count = 3): Promise<SeedResponse['events']> {
-  if (!ADMIN_API_KEY) {
-    throw new Error('ADMIN_API_KEY not set. Cannot seed test data.');
-  }
+  const BASE_URL = getBaseUrl();
+  const ADMIN_API_KEY = getAdminApiKey();
 
   const response = await fetch(`${BASE_URL}/api/test/seed`, {
     method: 'POST',
@@ -72,9 +93,8 @@ export async function seedTestData(count = 3): Promise<SeedResponse['events']> {
  * @returns Número de registros eliminados
  */
 export async function cleanupTestData(): Promise<CleanupResponse['deleted']> {
-  if (!ADMIN_API_KEY) {
-    throw new Error('ADMIN_API_KEY not set. Cannot cleanup test data.');
-  }
+  const BASE_URL = getBaseUrl();
+  const ADMIN_API_KEY = getAdminApiKey();
 
   const response = await fetch(`${BASE_URL}/api/test/cleanup`, {
     method: 'DELETE',

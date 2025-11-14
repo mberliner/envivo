@@ -1,4 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+
+// Cargar variables de entorno desde .env.local
+dotenv.config({ path: '.env.local' });
 
 export default defineConfig({
   testDir: './e2e',
@@ -30,5 +34,9 @@ export default defineConfig({
         url: 'http://localhost:3000',
         reuseExistingServer: !process.env.CI,
         timeout: 120000,
+        env: {
+          // Pasar ADMIN_API_KEY al servidor dev
+          ADMIN_API_KEY: process.env.ADMIN_API_KEY || '',
+        },
       },
 });
