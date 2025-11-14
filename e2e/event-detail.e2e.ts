@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { setupTestData, teardownTestData } from './helpers/testFixtures';
 
-test.describe('Event Detail - Fase 6', () => {
+test.describe.serial('Event Detail - Fase 6', () => {
   // Setup de datos antes de TODOS los tests
   test.beforeAll(async () => {
     await setupTestData(10, 'DETAIL'); // Crear 10 eventos con prefix único

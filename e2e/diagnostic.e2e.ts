@@ -9,7 +9,7 @@ import { setupTestData, teardownTestData } from './helpers/testFixtures';
  *   npx playwright test diagnostic.e2e.ts
  */
 
-test.describe('Diagnostic - Race Condition Analysis', () => {
+test.describe.serial('Diagnostic - Race Condition Analysis', () => {
   // Setup de datos antes de TODOS los tests de diagnóstico
   test.beforeAll(async () => {
     await setupTestData(10, 'DIAG'); // Crear 10 eventos con prefix único

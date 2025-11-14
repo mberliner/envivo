@@ -8,7 +8,7 @@ import { setupTestData, teardownTestData } from './helpers/testFixtures';
  * para crear datos de prueba y limpiarlos después.
  */
 
-test.describe('Example - Test con Fixtures', () => {
+test.describe.serial('Example - Test con Fixtures', () => {
   // Setup: crear datos ANTES de todos los tests
   test.beforeAll(async () => {
     await setupTestData(5, 'EXAMPLE'); // Crear 5 eventos con prefix único
