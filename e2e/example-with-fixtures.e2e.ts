@@ -66,12 +66,14 @@ test.describe.serial('Example - Test con Fixtures', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
-    // Buscar un evento de prueba
-    const testEventCard = page.locator('[data-testid="event-card"]:has-text("[EXAMPLE]")').first();
-    await expect(testEventCard).toBeVisible();
+    // Buscar SOLO eventos de este suite (prefix EXAMPLE)
+    const exampleEvents = page.locator('[data-testid="event-card"]:has-text("[EXAMPLE]")');
+    await expect(exampleEvents.first()).toBeVisible();
 
-    // Contar eventos antes
-    const initialCount = await page.locator('[data-testid="event-card"]').count();
+    // Contar eventos EXAMPLE antes
+    const initialCount = await exampleEvents.count();
+
+    const testEventCard = exampleEvents.first();
 
     // Configurar dialog handler (puede ser confirm o alert si hay error)
     page.on('dialog', async (dialog) => {
@@ -92,17 +94,17 @@ test.describe.serial('Example - Test con Fixtures', () => {
       (response) => response.url().includes('/api/events/') && response.request().method() === 'DELETE'
     );
 
-    // Verificar que el evento desapareció
+    // Verificar que el evento EXAMPLE desapareció
     await page.waitForFunction(
       (expectedCount) => {
-        const cards = document.querySelectorAll('[data-testid="event-card"]');
+        const cards = document.querySelectorAll('[data-testid="event-card"]:has-text("[EXAMPLE]")');
         return cards.length === expectedCount - 1;
       },
       initialCount,
       { timeout: 5000 }
     );
 
-    const finalCount = await page.locator('[data-testid="event-card"]').count();
+    const finalCount = await exampleEvents.count();
     expect(finalCount).toBe(initialCount - 1);
   });
 });

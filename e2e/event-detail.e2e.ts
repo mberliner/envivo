@@ -17,10 +17,11 @@ test.describe.serial('Event Detail - Fase 6', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
-    // 2. Esperar que haya al menos un evento y obtener su información
-    await expect(page.locator('[data-testid="event-card"]')).toHaveCount(await page.locator('[data-testid="event-card"]').count(), { timeout: 5000 });
+    // 2. Buscar SOLO eventos de este suite (prefix DETAIL)
+    const detailEvents = page.locator('[data-testid="event-card"]:has-text("[DETAIL]")');
+    await expect(detailEvents.first()).toBeVisible({ timeout: 5000 });
 
-    const firstEvent = page.locator('[data-testid="event-card"]').first();
+    const firstEvent = detailEvents.first();
     const title = await firstEvent.locator('h3').textContent();
 
     // Esperar que el link esté visible y con href válido (re-query automático en cada check)
@@ -50,8 +51,11 @@ test.describe.serial('Event Detail - Fase 6', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 25000 });
 
-    // Esperar que haya eventos y obtener el primero
-    const firstEvent = page.locator('[data-testid="event-card"]').first();
+    // Buscar SOLO eventos de este suite (prefix DETAIL)
+    const detailEvents = page.locator('[data-testid="event-card"]:has-text("[DETAIL]")');
+    await expect(detailEvents.first()).toBeVisible({ timeout: 5000 });
+
+    const firstEvent = detailEvents.first();
 
     // Esperar que el link esté visible y con href válido (re-query automático en cada check)
     await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toBeVisible();
@@ -82,12 +86,15 @@ test.describe.serial('Event Detail - Fase 6', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="event-card"]', { timeout: 15000 });
 
-    // 2. Contar eventos iniciales
-    const initialEventCount = await page.locator('[data-testid="event-card"]').count();
+    // 2. Buscar SOLO eventos de este suite (prefix DETAIL)
+    const detailEvents = page.locator('[data-testid="event-card"]:has-text("[DETAIL]")');
+    await expect(detailEvents.first()).toBeVisible({ timeout: 5000 });
+
+    const initialEventCount = await detailEvents.count();
     expect(initialEventCount).toBeGreaterThan(0);
 
     // 3. Obtener referencia al primer evento
-    const firstEvent = page.locator('[data-testid="event-card"]').first();
+    const firstEvent = detailEvents.first();
 
     // 4. Configurar manejo de dialog (puede ser confirm o alert si hay error)
     page.on('dialog', async (dialog) => {
@@ -109,18 +116,18 @@ test.describe.serial('Event Detail - Fase 6', () => {
     await page.waitForResponse((response) => response.url().includes('/api/events/') && response.request().method() === 'DELETE');
 
     // 7. Esperar a que el primer evento (el que eliminamos) desaparezca del DOM
-    // Verificamos que el conteo total disminuyó, sin importar si hay otros eventos con el mismo título
+    // Verificamos que el conteo de eventos DETAIL disminuyó
     await page.waitForFunction(
       (expectedCount) => {
-        const cards = document.querySelectorAll('[data-testid="event-card"]');
+        const cards = document.querySelectorAll('[data-testid="event-card"]:has-text("[DETAIL]")');
         return cards.length === expectedCount - 1;
       },
       initialEventCount,
       { timeout: 5000 }
     );
 
-    // 8. Verificar que el conteo de eventos disminuyó exactamente en 1
-    const finalEventCount = await page.locator('[data-testid="event-card"]').count();
+    // 8. Verificar que el conteo de eventos DETAIL disminuyó exactamente en 1
+    const finalEventCount = await detailEvents.count();
     expect(finalEventCount).toBe(initialEventCount - 1);
   });
 
