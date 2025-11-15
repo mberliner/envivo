@@ -149,7 +149,7 @@ export class PrismaEventRepository implements IEventRepository {
 
         upsertedCount++;
       } catch (error) {
-        console.error(`Failed to upsert event: ${rawEvent.title}`, error);
+        console.error(`Failed to upsert event: ${event.title}`, error);
         // Continuar con otros eventos
       }
     }
