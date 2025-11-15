@@ -618,6 +618,31 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
     }
   }
 
+  // Formato 4: "NOVIEMBRE 2025" o "OCTUBRE-NOVIEMBRE 2025" (solo mes y año, sin día)
+  // Asume el primer día del último mes mencionado
+  const monthOnlyMatch = normalized.match(
+    /(?:^|\s)([a-z]+)(?:-[a-z]+)?\s+(\d{4})(?:\s|$)/
+  );
+  if (monthOnlyMatch) {
+    const [, monthName, yearStr] = monthOnlyMatch;
+    const month = SPANISH_MONTHS[monthName];
+    const year = parseInt(yearStr);
+
+    if (
+      month !== undefined &&
+      !isNaN(year) &&
+      year >= minYear && year <= maxYear
+    ) {
+      const date = new Date(year, month, 1); // Día 1 del mes
+      if (!isNaN(date.getTime())) {
+        console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 4 (month-only): ${date.toISOString()} (assuming day 1)`);
+        return date;
+      }
+    } else if (year < minYear || year > maxYear) {
+      console.log(`[parseTeatroColiseoDate] REJECTED FORMAT 4: year ${year} out of range (${minYear}-${maxYear})`);
+    }
+  }
+
   // Fallback: intentar con parseSpanishDate genérico
   console.log(`[parseTeatroColiseoDate] NO MATCH, trying parseSpanishDate...`);
   const fallback = parseSpanishDate(dateString);
