@@ -267,7 +267,7 @@ export class GenericWebScraper implements IDataSource {
       externalId: this.generateExternalId(rawData), // Use raw data for ID (before transformation)
       title: transformedData.title,
       date: transformedData.date,
-      venue: transformedData.venue,
+      venue: transformedData.venue || defaultValues?.venue,
       city: transformedData.city || defaultValues?.city,
       country: transformedData.country || defaultValues?.country,
       address: transformedData.address,
