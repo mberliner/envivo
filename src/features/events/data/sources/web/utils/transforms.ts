@@ -554,9 +554,9 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
     }
   }
 
-  // Formato 2: "6 de mayo 20h 2026" (sin "de" antes del año, hora sin minutos)
+  // Formato 2: "6 de mayo 20h 2026" o "12 de diciembre 21h2025" (hora sin minutos, con/sin espacio antes del año)
   const hourOnlyMatch = normalized.match(
-    /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s+(\d{1,2})\s*h\s+(\d{4})/
+    /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s+(\d{1,2})\s*h\s*(\d{4})/
   );
   if (hourOnlyMatch) {
     const [, dayStr, monthName, hourStr, yearStr] = hourOnlyMatch;
