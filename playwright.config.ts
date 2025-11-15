@@ -35,8 +35,9 @@ export default defineConfig({
         reuseExistingServer: !process.env.CI,
         timeout: 120000,
         env: {
-          // Pasar ADMIN_API_KEY al servidor dev
+          // Pasar variables al servidor dev
           ADMIN_API_KEY: process.env.ADMIN_API_KEY || '',
+          DATABASE_URL_E2E: process.env.DATABASE_URL_E2E || 'file:./e2e.db',
         },
       },
 });

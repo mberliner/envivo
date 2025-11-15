@@ -136,7 +136,7 @@ import { env } from '@/shared/infrastructure/config/env';
 - **UI** (componentes): >60% 🟢 DESEABLE
 - **E2E** (flujos críticos): 100% happy paths 🔴 CRÍTICO
 
-**Testing Stack**: Vitest + React Testing Library + jsdom | Playwright (E2E planificado)
+**Testing Stack**: Vitest + React Testing Library + jsdom | Playwright (E2E con BD separada)
 
 ---
 
@@ -205,6 +205,10 @@ openssl rand -base64 32
 ```bash
 DATABASE_URL="file:./dev.db"
 ADMIN_API_KEY="..." # mínimo 32 caracteres
+
+# ⚠️ DATABASE_URL_E2E NO configurar en .env.local
+# Playwright la pasa automáticamente al ejecutar tests E2E
+# DATABASE_URL_E2E="file:./e2e.db"  # ← NO descomentar
 
 # Opcionales - para futuras APIs de eventos argentinas
 ALLACCESS_API_KEY="..."

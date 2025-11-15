@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { setupTestData, teardownTestData } from './helpers/testFixtures';
 
+// Extend Window interface for diagnostic tests
+interface DiagnosticWindow extends Window {
+  __renderCounts?: Map<string, number>;
+}
+
 /**
  * Tests diagnósticos para investigar race conditions
  *
@@ -119,7 +124,7 @@ test.describe.serial('Diagnostic - Race Condition Analysis', () => {
         subtree: true,
       });
 
-      (window as any).__renderCounts = renderCounts;
+      (window as DiagnosticWindow).__renderCounts = renderCounts;
     });
 
     await page.goto('/');
@@ -129,11 +134,11 @@ test.describe.serial('Diagnostic - Race Condition Analysis', () => {
     await page.waitForTimeout(3000);
 
     // Obtener conteos de renders
-    const renderCounts = await page.evaluate(() => (window as any).__renderCounts);
+    const renderCounts = await page.evaluate(() => (window as DiagnosticWindow).__renderCounts);
     console.log('[DIAG] Render counts:', renderCounts);
 
     // Si hay múltiples renders, es sospechoso
-    const eventCardRenders = renderCounts?.get?.('event-card') || 0;
+    const eventCardRenders = renderCounts ? renderCounts.get('event-card') || 0 : 0;
     if (eventCardRenders > 1) {
       console.log(`[DIAG] ⚠️ EventCard was added ${eventCardRenders} times (possible re-renders)`);
     } else {
