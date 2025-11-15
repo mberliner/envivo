@@ -3,7 +3,6 @@ import {
   EventFilters,
 } from '@/features/events/domain/interfaces/IEventRepository';
 import { Event, EventCategory } from '@/features/events/domain/entities/Event';
-import { RawEvent } from '@/features/events/domain/entities/Event';
 import { prisma } from '@/shared/infrastructure/database/prisma';
 import { Prisma } from '@prisma/client';
 
