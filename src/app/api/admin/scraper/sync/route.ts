@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaEventRepository } from '@/features/events/data/repositories/PrismaEventRepository';
 import { DataSourceOrchestrator } from '@/features/events/data/orchestrator/DataSourceOrchestrator';
+import { WebScraperFactory } from '@/features/events/data/sources/web/WebScraperFactory';
 import { env } from '@/shared/infrastructure/config/env';
 
 /**
@@ -53,7 +54,16 @@ export async function POST(req: NextRequest) {
     const repository = new PrismaEventRepository();
     const orchestrator = new DataSourceOrchestrator(repository);
 
-    // TODO: Registrar data sources aquí cuando estén disponibles
+    // Registrar web scrapers
+    // LivePass (Café Berlín)
+    const livepassScraper = await WebScraperFactory.create('livepass');
+    orchestrator.registerSource(livepassScraper);
+
+    // Teatro Coliseo
+    const teatroColiseoScraper = await WebScraperFactory.create('teatrocoliseo');
+    orchestrator.registerSource(teatroColiseoScraper);
+
+    // TODO: Registrar más data sources cuando estén disponibles
     // Ejemplo:
     // const allAccessSource = new AllAccessSource();
     // orchestrator.registerSource(allAccessSource);

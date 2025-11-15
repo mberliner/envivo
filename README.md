@@ -91,14 +91,16 @@ envivo/
 
 ## 🎯 Features del MVP
 
-- **Descubrir eventos** - Agregación de eventos de múltiples fuentes (APIs argentinas, LivePass, sitios locales)
+- **Descubrir eventos** - Agregación de eventos de múltiples fuentes:
+  - LivePass (Café Berlín) - Scraping con soporte para páginas de detalle
+  - Teatro Coliseo - Buenos Aires (CABA) - Teatro, Conciertos, Festivales
 - **Búsqueda inteligente** - Buscar por artista, título, venue con filtros (ciudad, fecha, categoría)
 - **Información completa** - Detalles de eventos, precios, links a compra de entradas
 - **Datos actualizados** - Scraping automático diario con validación y deduplicación
 - **Clean Architecture** - Codebase mantenible siguiendo principios SOLID
 
-> **💡 Nota**: La infraestructura de scraping está lista para integrar APIs argentinas (AllAccess, EventBrite Argentina, etc.).
-> Ver [CLAUDE.md - Workflows Comunes](CLAUDE.md#workflows-comunes) para agregar nuevas fuentes de datos.
+> **💡 Nota**: Scraping de Teatro Coliseo requiere validación manual de selectores CSS (sitio tiene protección 403).
+> Ver [docs/ADDING_SCRAPERS.md](docs/ADDING_SCRAPERS.md) para agregar nuevas fuentes de datos.
 
 **Ver roadmap completo**: [docs/PRODUCT.md](docs/PRODUCT.md)
 
