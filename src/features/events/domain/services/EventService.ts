@@ -65,6 +65,8 @@ export class EventService {
    * @returns Resumen del procesamiento
    */
   async processEvents(rawEvents: RawEvent[]): Promise<ProcessEventsResult> {
+    console.log(`[EventService] 📥 Processing ${rawEvents.length} raw events...`);
+
     const result: ProcessEventsResult = {
       accepted: 0,
       rejected: 0,
@@ -76,13 +78,16 @@ export class EventService {
     const eventsToUpsert: Event[] = [];
 
     for (const rawEvent of rawEvents) {
+      const source = (rawEvent as any)._source || rawEvent.source || 'unknown';
+      console.log(`[EventService] 🔄 Processing: "${rawEvent.title.substring(0, 40)}" from ${source}`);
+
       try {
         // 0. Verificar blacklist (US3.2)
         // IMPORTANTE: GenericWebScraper usa _source (no source)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const source = (rawEvent as any)._source || rawEvent.source || 'unknown';
 
         if (await this.isBlacklisted(source, rawEvent.externalId)) {
+          console.log(`[EventService] ⛔ REJECTED (blacklist): "${rawEvent.title.substring(0, 40)}"`);
           result.rejected++;
           result.errors.push({
             event: rawEvent,
@@ -104,6 +109,7 @@ export class EventService {
         // 1. Validar con business rules
         const validation = await this.businessRules.isAcceptable(event);
         if (!validation.valid) {
+          console.log(`[EventService] ⛔ REJECTED (business rules): "${rawEvent.title.substring(0, 40)}" - ${validation.reason}`);
           result.rejected++;
           result.errors.push({
             event: rawEvent,
@@ -119,6 +125,7 @@ export class EventService {
         const duplicate = await this.findDuplicate(normalizedEvent);
 
         if (duplicate) {
+          console.log(`[EventService] 🔁 DUPLICATE: "${rawEvent.title.substring(0, 40)}"`);
           result.duplicates++;
 
           // Decidir si actualizar
@@ -129,10 +136,12 @@ export class EventService {
           // Si no debe actualizar, ignorar
         } else {
           // Evento nuevo, agregar para inserción
+          console.log(`[EventService] ✅ ACCEPTED: "${rawEvent.title.substring(0, 40)}"`);
           eventsToUpsert.push(normalizedEvent);
           result.accepted++;
         }
       } catch (error) {
+        console.log(`[EventService] ❌ ERROR: "${rawEvent.title.substring(0, 40)}" - ${error instanceof Error ? error.message : 'Unknown error'}`);
         result.errors.push({
           event: rawEvent,
           reason: error instanceof Error ? error.message : 'Error desconocido',
