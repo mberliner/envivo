@@ -348,7 +348,7 @@ export class GenericWebScraper implements IDataSource {
                     console.log(`[${this.name}]      ✅ Valid date found at index ${i}`);
                     break;
                   }
-                } catch (e) {
+                } catch {
                   // Continuar buscando
                 }
               } else {
@@ -370,7 +370,7 @@ export class GenericWebScraper implements IDataSource {
                   value = titleText;
                   console.log(`[${this.name}]      ✅ Valid date found in title`);
                 }
-              } catch (e) {
+              } catch {
                 console.log(`[${this.name}]      ❌ No valid date in title either`);
               }
             }

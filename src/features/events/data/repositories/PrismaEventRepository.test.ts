@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { RawEvent } from '@/features/events/domain/entities/Event';
+import { Event } from '@/features/events/domain/entities/Event';
 
 // Mock Prisma Client - usar factory function
 vi.mock('@/shared/infrastructure/database/prisma', () => ({
@@ -182,25 +182,31 @@ describe('PrismaEventRepository', () => {
 
   describe('upsertMany', () => {
     it('should create new events if they do not exist', async () => {
-      const rawEvents: RawEvent[] = [
+      const events: Event[] = [
         {
+          id: 'temp-id',
           title: 'New Event',
           date: new Date('2025-12-01'),
           city: 'Buenos Aires',
           country: 'AR',
+          category: 'Concierto',
+          currency: 'ARS',
+          source: 'allaccess',
           externalId: 'tm-123',
-          _source: 'allaccess',
+          venueName: 'Test Venue',
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       ];
 
       mockPrismaEvent.findFirst.mockResolvedValueOnce(null); // No existe
       mockPrismaEvent.create.mockResolvedValueOnce({
         id: 'new-id',
-        ...rawEvents[0],
+        ...events[0],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
-      const count = await repository.upsertMany(rawEvents);
+      const count = await repository.upsertMany(events);
 
       expect(mockPrismaEvent.findFirst).toHaveBeenCalledWith({
         where: {
@@ -212,14 +218,20 @@ describe('PrismaEventRepository', () => {
     });
 
     it('should update existing events if they exist', async () => {
-      const rawEvents: RawEvent[] = [
+      const events: Event[] = [
         {
+          id: 'existing-id',
           title: 'Updated Event',
           date: new Date('2025-12-01'),
           city: 'Buenos Aires',
           country: 'AR',
+          category: 'Concierto',
+          currency: 'ARS',
+          source: 'allaccess',
           externalId: 'tm-123',
-          _source: 'allaccess',
+          venueName: 'Test Venue',
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       ];
 
@@ -237,7 +249,7 @@ describe('PrismaEventRepository', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
-      const count = await repository.upsertMany(rawEvents);
+      const count = await repository.upsertMany(events);
 
       expect(mockPrismaEvent.update).toHaveBeenCalledWith({
         where: { id: 'existing-id' },
@@ -249,18 +261,34 @@ describe('PrismaEventRepository', () => {
     });
 
     it('should continue with other events if one fails', async () => {
-      const rawEvents: RawEvent[] = [
+      const events: Event[] = [
         {
+          id: 'temp-id-1',
           title: 'Event 1',
           date: new Date('2025-12-01'),
+          city: 'Buenos Aires',
+          country: 'AR',
+          category: 'Concierto',
+          currency: 'ARS',
+          source: 'allaccess',
           externalId: 'tm-1',
-          _source: 'allaccess',
+          venueName: 'Venue 1',
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
         {
+          id: 'temp-id-2',
           title: 'Event 2',
           date: new Date('2025-12-02'),
+          city: 'Buenos Aires',
+          country: 'AR',
+          category: 'Concierto',
+          currency: 'ARS',
+          source: 'allaccess',
           externalId: 'tm-2',
-          _source: 'allaccess',
+          venueName: 'Venue 2',
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       ];
 
@@ -272,7 +300,7 @@ describe('PrismaEventRepository', () => {
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const count = await repository.upsertMany(rawEvents);
+      const count = await repository.upsertMany(events);
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Failed to upsert event'),

@@ -78,13 +78,13 @@ export class EventService {
     const eventsToUpsert: Event[] = [];
 
     for (const rawEvent of rawEvents) {
-      const source = (rawEvent as any)._source || rawEvent.source || 'unknown';
+      // GenericWebScraper adds _source property (allowed by RawEvent's index signature)
+      const source = '_source' in rawEvent ? (rawEvent as { _source: string })._source : rawEvent.source || 'unknown';
       console.log(`[EventService] 🔄 Processing: "${rawEvent.title.substring(0, 40)}" from ${source}`);
 
       try {
         // 0. Verificar blacklist (US3.2)
         // IMPORTANTE: GenericWebScraper usa _source (no source)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
         if (await this.isBlacklisted(source, rawEvent.externalId)) {
           console.log(`[EventService] ⛔ REJECTED (blacklist): "${rawEvent.title.substring(0, 40)}"`);
