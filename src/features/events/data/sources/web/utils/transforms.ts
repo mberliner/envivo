@@ -592,18 +592,27 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
     const month = SPANISH_MONTHS[monthName];
     const year = parseInt(yearStr);
 
+    // Validar que el año sea razonable para eventos (no fechas de nacimiento, etc.)
+    const currentYear = new Date().getFullYear();
+    const minYear = currentYear - 1; // Permitir eventos del año pasado
+    const maxYear = currentYear + 2; // Hasta 2 años en el futuro
+
     if (
       month !== undefined &&
       !isNaN(day) &&
       !isNaN(year) &&
       day >= 1 && day <= 31 &&
-      year >= 1900 && year <= 2100
+      year >= minYear && year <= maxYear // Validación de rango razonable
     ) {
       const date = new Date(year, month, day);
       if (!isNaN(date.getTime())) {
         console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 3: ${date.toISOString()}`);
         return date;
       }
+    } else if (year < minYear) {
+      console.log(`[parseTeatroColiseoDate] REJECTED FORMAT 3: year ${year} too old (min: ${minYear})`);
+    } else if (year > maxYear) {
+      console.log(`[parseTeatroColiseoDate] REJECTED FORMAT 3: year ${year} too far (max: ${maxYear})`);
     }
   }
 

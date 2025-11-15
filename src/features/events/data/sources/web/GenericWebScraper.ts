@@ -355,6 +355,23 @@ export class GenericWebScraper implements IDataSource {
               }
             }
           }
+
+          // Fallback: si no se encontró fecha en párrafos, intentar parsear del título
+          if (!value && selectors.title) {
+            const titleText = $(selectors.title).text().trim();
+            if (titleText && transforms && transforms.date) {
+              console.log(`[${this.name}]   🔄 No date in paragraphs, trying title: "${titleText.substring(0, 100)}..."`);
+              try {
+                const parsed = applyTransform(transforms.date, titleText, this.config.baseUrl);
+                if (parsed instanceof Date && !isNaN(parsed.getTime())) {
+                  value = titleText;
+                  console.log(`[${this.name}]      ✅ Valid date found in title`);
+                }
+              } catch (e) {
+                console.log(`[${this.name}]      ❌ No valid date in title either`);
+              }
+            }
+          }
         } else {
           // Para otros campos, comportamiento normal (primer elemento)
           value = $(selector).text().trim();
