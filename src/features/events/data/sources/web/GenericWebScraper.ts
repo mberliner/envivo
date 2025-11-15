@@ -326,8 +326,39 @@ export class GenericWebScraper implements IDataSource {
         const [cssSelector, attrName] = selector.split('@');
         value = $(cssSelector).attr(attrName);
       } else {
-        // Texto
-        value = $(selector).text().trim();
+        // Texto - para campo 'date', buscar en TODOS los elementos que coincidan
+        if (field === 'date') {
+          // Buscar en todos los elementos hasta encontrar uno con fecha válida
+          const elements = $(selector);
+          console.log(`[${this.name}]   🔍 Searching for date in ${elements.length} elements...`);
+
+          for (let i = 0; i < elements.length; i++) {
+            const text = $(elements[i]).text().trim();
+            if (text && text.length > 0) {
+              console.log(`[${this.name}]      [${i}] Testing: "${text.substring(0, 100)}..."`);
+              // Si hay un transform para date, intentar parsearlo
+              if (transforms && transforms.date) {
+                try {
+                  const parsed = applyTransform(transforms.date, text, this.config.baseUrl);
+                  if (parsed instanceof Date && !isNaN(parsed.getTime())) {
+                    value = text; // Guardar el texto que sí se pudo parsear
+                    console.log(`[${this.name}]      ✅ Valid date found at index ${i}`);
+                    break;
+                  }
+                } catch (e) {
+                  // Continuar buscando
+                }
+              } else {
+                // Sin transform, tomar el primer elemento con texto
+                value = text;
+                break;
+              }
+            }
+          }
+        } else {
+          // Para otros campos, comportamiento normal (primer elemento)
+          value = $(selector).text().trim();
+        }
       }
 
       if (value) {
