@@ -114,6 +114,7 @@ export class PrismaEventRepository implements IEventRepository {
             typeof rawEvent.endDate === 'string'
               ? new Date(rawEvent.endDate)
               : rawEvent.endDate || null,
+          venueName: rawEvent.venue || null,
           city: rawEvent.city || 'Unknown',
           country: rawEvent.country || 'Unknown',
           category: rawEvent.category || 'Otro',
@@ -173,7 +174,7 @@ export class PrismaEventRepository implements IEventRepository {
       date: prismaEvent.date,
       endDate: prismaEvent.endDate || undefined,
       venueId: prismaEvent.venueId || undefined,
-      venueName: undefined, // TODO: cargar venue en fase posterior
+      venueName: prismaEvent.venueName || undefined,
       city: prismaEvent.city,
       country: prismaEvent.country,
       category: prismaEvent.category as EventCategory,
