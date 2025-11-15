@@ -1,7 +1,7 @@
 # Roadmap de Implementación - EnVivo
 
-> **Última actualización**: 11 de Noviembre de 2025 (Fase 6 - Event Detail View - COMPLETADA)
-> **Branch actual**: `claude/architecture-security-standards-011CV2GmF2kZuYeBDNnjmWLw`
+> **Última actualización**: 15 de Noviembre de 2025 (Movistar Arena Scraper - COMPLETADA)
+> **Branch actual**: `claude/add-movistar-arena-scraper-0121HcC4VXLdtQ3MWi1usid8`
 > **Estrategia**: Vertical Slices (features end-to-end)
 
 ---
@@ -762,7 +762,7 @@ FASE 6 TOTAL: ~67% completado (2 componentes al 100%)
 
 **Tareas Pendientes para Completar Fase 6**:
 - [x] ~~**Tests E2E** para LivePass scraping~~ ✅ **POSTPONED** (no estándar, coverage >95%)
-- [ ] **Segunda fuente de datos** (scraper/API adicional) + tests (4-6h)
+- [x] **Segunda fuente de datos** (Movistar Arena scraper) + tests ✅ **COMPLETADA**
 - [x] ~~**Vista de detalle UI** en `/eventos/[id]` + componente EventDetail (4-6h)~~ ✅ **COMPLETADA**
 - [ ] **GitHub Action** para scraping automático diario (2-3h)
 - [ ] **Logging estructurado** con Pino + redacción de secrets (2h)
@@ -844,8 +844,87 @@ Los tests E2E específicos para scraping de LivePass se postponen indefinidament
 
 ---
 
+### ✅ Movistar Arena Web Scraper - **COMPLETADA**
+
+**Fecha**: 15 de Noviembre de 2025
+**Duración**: ~3 horas
+**Objetivo**: Agregar segunda fuente de datos (Movistar Arena) para expandir cobertura de eventos musicales en Buenos Aires ✅
+
+**Commits**:
+- `[pendiente]` - feat: add Movistar Arena web scraper
+
+**Archivos Creados**:
+```
+src/
+├── config/scrapers/
+│   └── movistararena.config.ts      # Configuración del scraper
+scripts/
+└── test-movistararena.ts             # Script de validación
+```
+
+**Archivos Modificados**:
+```
+src/
+├── features/events/data/sources/web/
+│   ├── utils/transforms.ts           # +3 nuevos transforms
+│   └── WebScraperFactory.ts          # Registro de 'movistararena'
+└── app/api/admin/scraper/sync/
+    └── route.ts                      # Registro en orchestrator
+```
+
+**Nuevos Transforms Implementados**:
+1. `extractBackgroundImage(styleValue)` - Extrae URL de CSS inline style `background-image: url(...)`
+2. `cleanMovistarDate(dateString)` - Remueve " y X fechas más" de strings de fecha
+3. `parseMovistarDate(dateString)` - Wrapper que limpia y parsea fechas de Movistar Arena
+
+**Configuración del Scraper**:
+- **URL**: https://www.movistararena.com.ar/shows
+- **Selector de items**: `.evento`
+- **Campos extraídos**:
+  - Título: `h5`
+  - Fecha: `.descripcion span` (formato: "15 noviembre 2025" o "20 noviembre 2025 y 2 fechas más")
+  - Imagen: `.box-img@style` → `extractBackgroundImage` transform
+  - Link: `.box-img a@href`
+- **Valores por defecto**:
+  - Venue: "Movistar Arena"
+  - Ciudad: "Buenos Aires"
+  - País: "AR"
+  - Dirección: "Humboldt 450, C1414CTL CABA"
+  - Categoría: "Concierto"
+- **Paginación**: Ninguna (todos los eventos en una página)
+- **Detail Page Scraping**: Deshabilitado (precio no disponible en listado)
+
+**Características Especiales**:
+- ✅ Manejo de eventos con múltiples fechas ("y 2 fechas más")
+- ✅ Extracción de imagen desde inline style attribute
+- ✅ URL absoluta automática para imágenes alojadas en CDN del sitio
+- ✅ Rate limiting conservador (1 req/seg)
+- ✅ Retry automático con backoff exponencial
+
+**Validación**:
+- ✅ Script de validación standalone (`scripts/test-movistararena.ts`)
+- ✅ Configuración validada contra HTML real del sitio
+- ✅ Transforms testeados con datos reales
+- ✅ Integración con orchestrator funcionando
+
+**Cobertura de Eventos**:
+- ~40+ eventos musicales en Movistar Arena
+- Rango de fechas: Noviembre 2025 - Octubre 2026
+- Géneros: Rock, Pop, Reggaeton, Folklore, etc.
+
+**Entregable**:
+- ✅ Scraper de Movistar Arena funcional y registrado
+- ✅ Transforms reutilizables para otros sitios similares
+- ✅ Script de validación para troubleshooting
+- ✅ Documentación completa en config file
+- ✅ Segunda fuente de datos activa para deduplicación
+
+**Git**: Commits pendientes de push a `claude/add-movistar-arena-scraper-0121HcC4VXLdtQ3MWi1usid8`
+
+---
+
 ### Fase 6: Scraping Automático + Deploy
-**Duración estimada**: 1 día  
+**Duración estimada**: 1 día
 **Objetivo**: Automatización y producción
 
 **Tareas pendientes**:

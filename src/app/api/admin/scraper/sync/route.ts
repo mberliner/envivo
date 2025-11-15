@@ -63,6 +63,10 @@ export async function POST(req: NextRequest) {
     const teatroColiseoScraper = await WebScraperFactory.create('teatrocoliseo');
     orchestrator.registerSource(teatroColiseoScraper);
 
+    // Movistar Arena
+    const movistarArenaScraper = await WebScraperFactory.create('movistararena');
+    orchestrator.registerSource(movistarArenaScraper);
+
     // TODO: Registrar más data sources cuando estén disponibles
     // Ejemplo:
     // const allAccessSource = new AllAccessSource();

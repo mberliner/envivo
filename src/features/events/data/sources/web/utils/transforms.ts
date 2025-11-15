@@ -704,6 +704,71 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
 }
 
 /**
+ * Extrae URL de CSS background-image
+ *
+ * Movistar Arena usa inline styles: background-image: url('...')
+ * Esta función extrae la URL del estilo.
+ *
+ * @param styleValue - Valor del atributo style
+ * @returns URL de la imagen o undefined
+ *
+ * @example
+ * extractBackgroundImage("background-image: url('https://example.com/image.jpg')")
+ * // => "https://example.com/image.jpg"
+ */
+export function extractBackgroundImage(styleValue: string): string | undefined {
+  if (!styleValue || typeof styleValue !== 'string') {
+    return undefined;
+  }
+
+  // Buscar patrón: url('...') o url("...")
+  const match = styleValue.match(/url\(['"]?([^'"()]+)['"]?\)/);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+
+  return undefined;
+}
+
+/**
+ * Limpia fechas de Movistar Arena removiendo información de fechas múltiples
+ *
+ * Movistar Arena incluye texto extra: "20 noviembre 2025 y 2 fechas más"
+ * Esta función extrae solo la primera fecha para poder parsearla.
+ *
+ * @param dateString - String con la fecha
+ * @returns String limpio con solo la primera fecha
+ *
+ * @example
+ * cleanMovistarDate("20 noviembre 2025 y 2 fechas más")
+ * // => "20 noviembre 2025"
+ *
+ * cleanMovistarDate("15 noviembre 2025")
+ * // => "15 noviembre 2025"
+ */
+export function cleanMovistarDate(dateString: string): string {
+  if (!dateString || typeof dateString !== 'string') {
+    return '';
+  }
+
+  // Remover " y X fecha(s) más" o " y X fechas mas" (con/sin tilde)
+  const cleaned = dateString.replace(/\s+y\s+\d+\s+fechas?\s+m[áa]s\s*$/i, '').trim();
+
+  return cleaned || dateString; // Si el resultado está vacío, devolver original
+}
+
+/**
+ * Parsea fechas de Movistar Arena (wrapper sobre parseSpanishDate con limpieza)
+ *
+ * @param dateString - String con la fecha
+ * @returns Date object o undefined si no se puede parsear
+ */
+export function parseMovistarDate(dateString: string): Date | undefined {
+  const cleaned = cleanMovistarDate(dateString);
+  return parseSpanishDate(cleaned);
+}
+
+/**
  * Mapeo de nombres de transformaciones a funciones
  *
  * Usado por GenericWebScraper para aplicar transformaciones por nombre.
@@ -719,6 +784,9 @@ export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: strin
   cleanLivepassTitle: (value: string) => cleanLivepassTitle(value),
   extractLivepassVenue: (value: string) => extractLivepassVenue(value),
   parseTeatroColiseoDate: (value: string) => parseTeatroColiseoDate(value),
+  extractBackgroundImage: (value: string) => extractBackgroundImage(value),
+  cleanMovistarDate: (value: string) => cleanMovistarDate(value),
+  parseMovistarDate: (value: string) => parseMovistarDate(value),
 };
 
 /**
