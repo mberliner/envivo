@@ -1,8 +1,8 @@
 {
   "dateRules": {
-    "minDaysInFuture": -1,
+    "minDaysInFuture": 0,
     "maxDaysInFuture": 365,
-    "allowPastEvents": true
+    "allowPastEvents": false
   },
   "locationRules": {
     "requiredLocation": true

@@ -262,12 +262,15 @@ export class GenericWebScraper implements IDataSource {
     }
 
     // Construir RawEvent
+    const venue = transformedData.venue || defaultValues?.venue;
+    console.log(`[${this.name}] 🏛️  Building RawEvent: venue="${venue}" (transformed="${transformedData.venue}", default="${defaultValues?.venue}")`);
+
     return {
       _source: this.name, // Using _source to match ExternalApiMapper pattern
       externalId: this.generateExternalId(rawData), // Use raw data for ID (before transformation)
       title: transformedData.title,
       date: transformedData.date,
-      venue: transformedData.venue,
+      venue: venue,
       city: transformedData.city || defaultValues?.city,
       country: transformedData.country || defaultValues?.country,
       address: transformedData.address,
@@ -326,8 +329,56 @@ export class GenericWebScraper implements IDataSource {
         const [cssSelector, attrName] = selector.split('@');
         value = $(cssSelector).attr(attrName);
       } else {
-        // Texto
-        value = $(selector).text().trim();
+        // Texto - para campo 'date', buscar en TODOS los elementos que coincidan
+        if (field === 'date') {
+          // Buscar en todos los elementos hasta encontrar uno con fecha válida
+          const elements = $(selector);
+          console.log(`[${this.name}]   🔍 Searching for date in ${elements.length} elements...`);
+
+          for (let i = 0; i < elements.length; i++) {
+            const text = $(elements[i]).text().trim();
+            if (text && text.length > 0) {
+              console.log(`[${this.name}]      [${i}] Testing: "${text.substring(0, 100)}..."`);
+              // Si hay un transform para date, intentar parsearlo
+              if (transforms && transforms.date) {
+                try {
+                  const parsed = applyTransform(transforms.date, text, this.config.baseUrl);
+                  if (parsed instanceof Date && !isNaN(parsed.getTime())) {
+                    value = text; // Guardar el texto que sí se pudo parsear
+                    console.log(`[${this.name}]      ✅ Valid date found at index ${i}`);
+                    break;
+                  }
+                } catch {
+                  // Continuar buscando
+                }
+              } else {
+                // Sin transform, tomar el primer elemento con texto
+                value = text;
+                break;
+              }
+            }
+          }
+
+          // Fallback: si no se encontró fecha en párrafos, intentar parsear del título
+          if (!value && selectors.title) {
+            const titleText = $(selectors.title).text().trim();
+            if (titleText && transforms && transforms.date) {
+              console.log(`[${this.name}]   🔄 No date in paragraphs, trying title: "${titleText.substring(0, 100)}..."`);
+              try {
+                const parsed = applyTransform(transforms.date, titleText, this.config.baseUrl);
+                if (parsed instanceof Date && !isNaN(parsed.getTime())) {
+                  value = titleText;
+                  console.log(`[${this.name}]      ✅ Valid date found in title`);
+                }
+              } catch {
+                console.log(`[${this.name}]      ❌ No valid date in title either`);
+              }
+            }
+          }
+        } else {
+          // Para otros campos, comportamiento normal (primer elemento)
+          value = $(selector).text().trim();
+        }
       }
 
       if (value) {

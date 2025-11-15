@@ -17,6 +17,10 @@ const SCRAPER_CONFIGS: Record<string, () => Promise<ScraperConfig>> = {
     const { livepassConfig } = await import('@/config/scrapers/livepass.config');
     return livepassConfig;
   },
+  teatrocoliseo: async () => {
+    const { teatroColiseoConfig } = await import('@/config/scrapers/teatrocoliseo.config');
+    return teatroColiseoConfig;
+  },
   // Agregar más scrapers aquí:
   // alternativa: async () => {
   //   const { alternativaConfig } = await import('@/config/scrapers/alternativa.config');

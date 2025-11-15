@@ -52,10 +52,11 @@ model Event {
   endDate     DateTime?
 
   // Ubicación
-  venueId String?
-  venue   Venue?  @relation(fields: [venueId], references: [id])
-  city    String
-  country String
+  venueId   String?
+  venue     Venue?  @relation(fields: [venueId], references: [id])
+  venueName String? // Nombre del venue (desnormalizado para performance)
+  city      String
+  country   String
 
   // Categorización
   category String  // "Concierto", "Festival", "Teatro"

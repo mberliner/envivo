@@ -493,6 +493,217 @@ export function extractLivepassVenue(text: string): string | undefined {
 }
 
 /**
+ * Parse fechas de Teatro Coliseo
+ *
+ * Teatro Coliseo usa formatos específicos en sus páginas:
+ * - Título: "ARTISTA <br> Viernes 19 de diciembre 20.30h <br> 2025"
+ * - Detalle: "Viernes 19 de diciembre 20.30h 2025"
+ * - También: "19 de diciembre de 2025"
+ *
+ * Soporta múltiples variaciones con/sin día de semana, con/sin hora.
+ *
+ * @param dateString - String con la fecha
+ * @returns Date object o undefined si no se puede parsear
+ *
+ * @example
+ * parseTeatroColiseoDate("Viernes 19 de diciembre 20.30h 2025")
+ * // => Date(2025, 11, 19, 20, 30)
+ *
+ * parseTeatroColiseoDate("19 de diciembre de 2025")
+ * // => Date(2025, 11, 19)
+ */
+export function parseTeatroColiseoDate(dateString: string): Date | undefined {
+  if (!dateString || typeof dateString !== 'string') {
+    return undefined;
+  }
+
+  // DEBUG: Log raw input
+  console.log(`[parseTeatroColiseoDate] RAW INPUT: "${dateString.substring(0, 200)}"`);
+
+  const normalized = dateString.toLowerCase().trim();
+
+  // Validar rango de años razonable (común a todos los formatos)
+  const currentYear = new Date().getFullYear();
+  const minYear = currentYear - 1; // Permitir eventos del año pasado
+  const maxYear = currentYear + 2; // Hasta 2 años en el futuro
+
+  // Formato 1: "Viernes 19 de diciembre 20.30h 2025"
+  // Con día de la semana, hora con punto, y año al final
+  const fullFormatMatch = normalized.match(
+    /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s+(\d{1,2})[.:](\d{2})\s*h?\s+(\d{4})/
+  );
+  if (fullFormatMatch) {
+    const [, dayStr, monthName, hourStr, minuteStr, yearStr] = fullFormatMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+    const year = parseInt(yearStr);
+
+    if (
+      month !== undefined &&
+      !isNaN(day) &&
+      !isNaN(hour) &&
+      !isNaN(minute) &&
+      !isNaN(year) &&
+      day >= 1 && day <= 31 &&
+      hour >= 0 && hour <= 23 &&
+      minute >= 0 && minute <= 59 &&
+      year >= minYear && year <= maxYear // Validación de rango
+    ) {
+      const date = new Date(year, month, day, hour, minute);
+      if (!isNaN(date.getTime())) {
+        console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 1: ${date.toISOString()}`);
+        return date;
+      }
+    } else if (year < minYear || year > maxYear) {
+      console.log(`[parseTeatroColiseoDate] REJECTED FORMAT 1: year ${year} out of range (${minYear}-${maxYear})`);
+    }
+  }
+
+  // Formato 2: "6 de mayo 20h 2026" o "12 de diciembre 21h2025" (hora sin minutos, con/sin espacio antes del año)
+  const hourOnlyMatch = normalized.match(
+    /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s+(\d{1,2})\s*h\s*(\d{4})/
+  );
+  if (hourOnlyMatch) {
+    const [, dayStr, monthName, hourStr, yearStr] = hourOnlyMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const hour = parseInt(hourStr);
+    const year = parseInt(yearStr);
+
+    if (
+      month !== undefined &&
+      !isNaN(day) &&
+      !isNaN(hour) &&
+      !isNaN(year) &&
+      day >= 1 && day <= 31 &&
+      hour >= 0 && hour <= 23 &&
+      year >= minYear && year <= maxYear // Validación de rango
+    ) {
+      const date = new Date(year, month, day, hour, 0);
+      if (!isNaN(date.getTime())) {
+        console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 2: ${date.toISOString()}`);
+        return date;
+      }
+    } else if (year < minYear || year > maxYear) {
+      console.log(`[parseTeatroColiseoDate] REJECTED FORMAT 2: year ${year} out of range (${minYear}-${maxYear})`);
+    }
+  }
+
+  // Formato 3: "Viernes 19 de diciembre 2025" (sin hora)
+  const dateOnlyMatch = normalized.match(
+    /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s+(?:de\s+)?(\d{4})/
+  );
+  if (dateOnlyMatch) {
+    const [, dayStr, monthName, yearStr] = dateOnlyMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const year = parseInt(yearStr);
+
+    if (
+      month !== undefined &&
+      !isNaN(day) &&
+      !isNaN(year) &&
+      day >= 1 && day <= 31 &&
+      year >= minYear && year <= maxYear // Validación de rango
+    ) {
+      const date = new Date(year, month, day);
+      if (!isNaN(date.getTime())) {
+        console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 3: ${date.toISOString()}`);
+        return date;
+      }
+    } else if (year < minYear || year > maxYear) {
+      console.log(`[parseTeatroColiseoDate] REJECTED FORMAT 3: year ${year} out of range (${minYear}-${maxYear})`);
+    }
+  }
+
+  // Formato 4: "NOVIEMBRE 2025" o "OCTUBRE-NOVIEMBRE 2025" (solo mes y año, sin día)
+  // Asume el primer día del último mes mencionado
+  const monthOnlyMatch = normalized.match(
+    /(?:^|\s)([a-z]+)(?:-[a-z]+)?\s+(\d{4})(?:\s|$)/
+  );
+  if (monthOnlyMatch) {
+    const [, monthName, yearStr] = monthOnlyMatch;
+    const month = SPANISH_MONTHS[monthName];
+    const year = parseInt(yearStr);
+
+    if (
+      month !== undefined &&
+      !isNaN(year) &&
+      year >= minYear && year <= maxYear
+    ) {
+      const date = new Date(year, month, 1); // Día 1 del mes
+      if (!isNaN(date.getTime())) {
+        console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 4 (month-only): ${date.toISOString()} (assuming day 1)`);
+        return date;
+      }
+    } else if (year < minYear || year > maxYear) {
+      console.log(`[parseTeatroColiseoDate] REJECTED FORMAT 4: year ${year} out of range (${minYear}-${maxYear})`);
+    }
+  }
+
+  // Formato 5: Fechas SIN año (inferir año automáticamente)
+  // - "Viernes 31 de octubre 20.30h" (con hora y minutos)
+  // - "Sábado 1 de noviembre 20.30h" (con hora y minutos)
+  // Inferir año: si el mes ya pasó o el día ya pasó en el mes actual, usar año siguiente
+  const noYearWithTimeMatch = normalized.match(
+    /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s+(\d{1,2})[.:](\d{2})\s*h?\s*$/
+  );
+  if (noYearWithTimeMatch) {
+    const [, dayStr, monthName, hourStr, minuteStr] = noYearWithTimeMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+
+    if (
+      month !== undefined &&
+      !isNaN(day) &&
+      !isNaN(hour) &&
+      !isNaN(minute) &&
+      day >= 1 && day <= 31 &&
+      hour >= 0 && hour <= 23 &&
+      minute >= 0 && minute <= 59
+    ) {
+      // Inferir año basado en si el mes/día ya pasó
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentDay = now.getDate();
+
+      let year = currentYear;
+      if (month < currentMonth || (month === currentMonth && day < currentDay)) {
+        year = currentYear + 1;
+      }
+
+      const date = new Date(year, month, day, hour, minute);
+      if (!isNaN(date.getTime())) {
+        console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 5 (no year, inferred ${year}): ${date.toISOString()}`);
+        return date;
+      }
+    }
+  }
+
+  // Fallback: intentar con parseSpanishDate genérico
+  console.log(`[parseTeatroColiseoDate] NO MATCH, trying parseSpanishDate...`);
+  const fallback = parseSpanishDate(dateString);
+  if (fallback) {
+    // Validar que el año del fallback también esté en rango razonable
+    const fallbackYear = fallback.getFullYear();
+    if (fallbackYear >= minYear && fallbackYear <= maxYear) {
+      console.log(`[parseTeatroColiseoDate] FALLBACK SUCCESS: ${fallback.toISOString()}`);
+      return fallback;
+    } else {
+      console.log(`[parseTeatroColiseoDate] FALLBACK REJECTED: year ${fallbackYear} out of range (${minYear}-${maxYear})`);
+      return undefined;
+    }
+  } else {
+    console.log(`[parseTeatroColiseoDate] FALLBACK FAILED: returning undefined`);
+    return undefined;
+  }
+}
+
+/**
  * Mapeo de nombres de transformaciones a funciones
  *
  * Usado por GenericWebScraper para aplicar transformaciones por nombre.
@@ -507,6 +718,7 @@ export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: strin
   parseLivepassDateTime: (value: string) => parseLivepassDateTime(value),
   cleanLivepassTitle: (value: string) => cleanLivepassTitle(value),
   extractLivepassVenue: (value: string) => extractLivepassVenue(value),
+  parseTeatroColiseoDate: (value: string) => parseTeatroColiseoDate(value),
 };
 
 /**

@@ -61,8 +61,8 @@ export const DEFAULT_PREFERENCES: Omit<GlobalPreferences, 'id' | 'updatedAt'> = 
   // Sin géneros bloqueados
   blockedGenres: [],
 
-  // Solo música
-  allowedCategories: ['Music', 'Concert', 'Festival'],
+  // Categorías permitidas (en español, debe coincidir con scrapers)
+  allowedCategories: ['Concierto', 'Festival', 'Teatro'],
 
   // Todos los tamaños de venue
   allowedVenueSizes: ['small', 'medium', 'large'],

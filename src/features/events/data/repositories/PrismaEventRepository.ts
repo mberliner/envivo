@@ -3,7 +3,6 @@ import {
   EventFilters,
 } from '@/features/events/domain/interfaces/IEventRepository';
 import { Event, EventCategory } from '@/features/events/domain/entities/Event';
-import { RawEvent } from '@/features/events/domain/entities/Event';
 import { prisma } from '@/shared/infrastructure/database/prisma';
 import { Prisma } from '@prisma/client';
 
@@ -91,40 +90,44 @@ export class PrismaEventRepository implements IEventRepository {
    * Inserta o actualiza múltiples eventos
    * Usa externalId + source como clave única para detectar duplicados
    */
-  async upsertMany(rawEvents: RawEvent[]): Promise<number> {
+  async upsertMany(events: Event[]): Promise<number> {
     let upsertedCount = 0;
 
-    for (const rawEvent of rawEvents) {
+    for (const event of events) {
       try {
         // Buscar evento existente por externalId + source
-        const existingEvent = rawEvent.externalId
+        const existingEvent = event.externalId
           ? await prisma.event.findFirst({
               where: {
-                externalId: rawEvent.externalId,
+                externalId: event.externalId,
                 // TODO: agregar source cuando tengamos múltiples fuentes
               },
             })
           : null;
 
+        const venueName = event.venueName || null;
+        console.log(`[PrismaEventRepository] 💾 Saving event: "${event.title.substring(0, 40)}" | event.venueName="${event.venueName}" | venueName="${venueName}"`);
+
         const eventData = {
-          title: rawEvent.title,
-          description: rawEvent.description || null,
-          date: typeof rawEvent.date === 'string' ? new Date(rawEvent.date) : rawEvent.date,
+          title: event.title,
+          description: event.description || null,
+          date: typeof event.date === 'string' ? new Date(event.date) : event.date,
           endDate:
-            typeof rawEvent.endDate === 'string'
-              ? new Date(rawEvent.endDate)
-              : rawEvent.endDate || null,
-          city: rawEvent.city || 'Unknown',
-          country: rawEvent.country || 'Unknown',
-          category: rawEvent.category || 'Otro',
-          genre: rawEvent.genre || null,
-          imageUrl: rawEvent.imageUrl || null,
-          ticketUrl: rawEvent.ticketUrl || null,
-          price: rawEvent.price ?? null,
-          priceMax: rawEvent.priceMax ?? null,
-          currency: rawEvent.currency || 'USD',
-          source: rawEvent.source || 'unknown', // Fix: usar source (Events ya tienen source, no _source)
-          externalId: rawEvent.externalId || null,
+            typeof event.endDate === 'string'
+              ? new Date(event.endDate)
+              : event.endDate || null,
+          venueName: venueName,
+          city: event.city || 'Unknown',
+          country: event.country || 'Unknown',
+          category: event.category || 'Otro',
+          genre: event.genre || null,
+          imageUrl: event.imageUrl || null,
+          ticketUrl: event.ticketUrl || null,
+          price: event.price ?? null,
+          priceMax: event.priceMax ?? null,
+          currency: event.currency || 'ARS',
+          source: event.source || 'unknown',
+          externalId: event.externalId || null,
         };
 
         if (existingEvent) {
@@ -145,7 +148,7 @@ export class PrismaEventRepository implements IEventRepository {
 
         upsertedCount++;
       } catch (error) {
-        console.error(`Failed to upsert event: ${rawEvent.title}`, error);
+        console.error(`Failed to upsert event: ${event.title}`, error);
         // Continuar con otros eventos
       }
     }
@@ -173,7 +176,7 @@ export class PrismaEventRepository implements IEventRepository {
       date: prismaEvent.date,
       endDate: prismaEvent.endDate || undefined,
       venueId: prismaEvent.venueId || undefined,
-      venueName: undefined, // TODO: cargar venue en fase posterior
+      venueName: prismaEvent.venueName || undefined,
       city: prismaEvent.city,
       country: prismaEvent.country,
       category: prismaEvent.category as EventCategory,
