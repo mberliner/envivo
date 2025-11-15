@@ -79,7 +79,7 @@ export class EventService {
 
     for (const rawEvent of rawEvents) {
       // GenericWebScraper adds _source property (allowed by RawEvent's index signature)
-      const source = '_source' in rawEvent ? (rawEvent as { _source: string })._source : rawEvent.source || 'unknown';
+      const source = '_source' in rawEvent ? (rawEvent as unknown as { _source: string })._source : rawEvent.source || 'unknown';
       console.log(`[EventService] 🔄 Processing: "${rawEvent.title.substring(0, 40)}" from ${source}`);
 
       try {

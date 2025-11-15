@@ -201,8 +201,8 @@ describe('PrismaEventRepository', () => {
 
       mockPrismaEvent.findFirst.mockResolvedValueOnce(null); // No existe
       mockPrismaEvent.create.mockResolvedValueOnce({
-        id: 'new-id',
         ...events[0],
+        id: 'new-id', // Override temp-id with actual DB id
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
