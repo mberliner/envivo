@@ -643,6 +643,47 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
     }
   }
 
+  // Formato 5: Fechas SIN año (inferir año automáticamente)
+  // - "Viernes 31 de octubre 20.30h" (con hora y minutos)
+  // - "Sábado 1 de noviembre 20.30h" (con hora y minutos)
+  // Inferir año: si el mes ya pasó o el día ya pasó en el mes actual, usar año siguiente
+  const noYearWithTimeMatch = normalized.match(
+    /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s+(\d{1,2})[.:](\d{2})\s*h?\s*$/
+  );
+  if (noYearWithTimeMatch) {
+    const [, dayStr, monthName, hourStr, minuteStr] = noYearWithTimeMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+
+    if (
+      month !== undefined &&
+      !isNaN(day) &&
+      !isNaN(hour) &&
+      !isNaN(minute) &&
+      day >= 1 && day <= 31 &&
+      hour >= 0 && hour <= 23 &&
+      minute >= 0 && minute <= 59
+    ) {
+      // Inferir año basado en si el mes/día ya pasó
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentDay = now.getDate();
+
+      let year = currentYear;
+      if (month < currentMonth || (month === currentMonth && day < currentDay)) {
+        year = currentYear + 1;
+      }
+
+      const date = new Date(year, month, day, hour, minute);
+      if (!isNaN(date.getTime())) {
+        console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 5 (no year, inferred ${year}): ${date.toISOString()}`);
+        return date;
+      }
+    }
+  }
+
   // Fallback: intentar con parseSpanishDate genérico
   console.log(`[parseTeatroColiseoDate] NO MATCH, trying parseSpanishDate...`);
   const fallback = parseSpanishDate(dateString);
