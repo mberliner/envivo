@@ -24,48 +24,38 @@ export const teatroColiseoConfig: ScraperConfig = {
   baseUrl: 'https://www.teatrocoliseo.org.ar',
 
   listing: {
-    // TODO: Validar la URL correcta de la página de cartelera
-    // Opciones comunes: /cartelera, /eventos, /programacion, /agenda
+    // URL validada: /cartelera
     url: '/cartelera',
 
-    // TODO: Validar selectores con DevTools
-    // Contenedor principal (opcional - mejora performance)
-    containerSelector: '.cartelera, .eventos, .programacion',
+    // Contenedor principal: grid de Visual Composer
+    containerSelector: '.vc_grid-container',
 
-    // TODO: Validar selector de cada evento
-    // Selectores comunes: .evento, .show, .event-card, .card, .item
-    itemSelector: '.evento, .event-card, .show',
+    // Cada evento es un grid-item
+    itemSelector: '.vc_grid-item',
 
-    // Asumimos que no hay paginación inicialmente
-    // Si hay paginación, actualizar después de validar
+    // No hay paginación (todos los eventos en una página)
     pagination: {
       type: 'none',
     },
   },
 
   selectors: {
-    // TODO: Validar TODOS estos selectores con DevTools
-    // Estos son patrones comunes en sitios de teatro argentinos
+    // Título del evento (incluye fecha en el texto, separada por <br>)
+    // Ejemplo: "ENRIQUE PIÑEYRO <br> VOLAR ES HUMANO, ATERRIZAR ES DIVINO <br> OCTUBRE-NOVIEMBRE<BR> 2025"
+    title: '.vc_custom_heading h4 a',
 
-    // Título del evento
-    // Selectores comunes: h2, h3, .title, .event-title, .nombre
-    title: 'h2, h3, .title, .event-title',
+    // Fecha: NO hay selector separado, está incluida en el título
+    // Se parseará del título o se obtendrá de la página de detalle
+    date: undefined,
 
-    // Fecha del evento
-    // Selectores comunes: .fecha, .date, time, .when
-    date: '.fecha, .date, time',
+    // Imagen: usa lazy loading con data-src
+    image: '.vc_gitem-zone-img@data-src',
 
-    // Imagen del evento
-    // Selectores comunes: img@src, .poster img@src, .imagen img@src
-    image: 'img@src',
+    // Link a página de detalle
+    link: 'a.vc_gitem-link@href',
 
-    // Link a detalles del evento
-    // Selectores comunes: a@href, .ver-mas@href, .link@href
-    link: 'a@href',
-
-    // Precio (puede no estar en el listado)
-    // Selectores comunes: .precio, .price, .valor
-    price: '.precio, .price',
+    // Precio: NO disponible en el listado, solo en página de detalle
+    price: undefined,
 
     // Campos sin selector (usamos defaultValues)
     venue: undefined,
@@ -88,23 +78,13 @@ export const teatroColiseoConfig: ScraperConfig = {
   },
 
   transforms: {
-    // Transformación de fechas
-    // TODO: Validar formato de fechas en el sitio
-    // Opciones comunes:
-    // - parseSpanishDate: para "15 de marzo de 2025" o "15/03/2025"
-    // - parseLivepassDate: para "09 NOV" (sin año)
-    // - parseLivepassDateTime: para "9 de noviembre de 2025 a las 21:00"
-    date: 'parseSpanishDate',
+    // Limpiar título: remover <br> y normalizar espacios
+    // El título viene como "TITULO <br> FECHA <br> AÑO"
+    title: 'cleanWhitespace',
 
     // Convertir URLs relativas a absolutas
     image: 'toAbsoluteUrl',
     link: 'toAbsoluteUrl',
-
-    // Limpiar whitespace
-    title: 'cleanWhitespace',
-
-    // Extraer precio si está en formato "$1.500" o "Desde $1.500"
-    price: 'extractPrice',
   },
 
   rateLimit: {
@@ -131,21 +111,22 @@ export const teatroColiseoConfig: ScraperConfig = {
   },
 
   // Configuración para scraping de página de detalles
-  // TODO: Habilitar después de validar que funciona el listado
+  // HABILITADO: La fecha y otros datos solo están disponibles en la página de detalle
   detailPage: {
-    enabled: false, // Deshabilitar hasta validar selectores
+    enabled: true,
     delayBetweenRequests: 500, // 500ms entre requests de detalles
 
     selectors: {
-      // TODO: Validar estos selectores en una página de detalle específica
-      date: '.fecha, .date, time',
-      venue: '.venue, .lugar, .teatro',
-      address: '.direccion, .address',
-      price: '.precio, .price',
-      description: '.descripcion, .description, .info',
-      title: 'h1',
-      image: 'meta[property="og:image"]@content, img.poster@src',
-      category: '.categoria, .category, .genero',
+      // Selectores para la página de detalle (a validar)
+      // Los datos estarán en el contenido de la página individual
+      date: '.entry-content .wpb_wrapper p, .event-date, time',
+      venue: undefined, // Siempre es Teatro Coliseo
+      address: undefined, // Siempre es la misma dirección
+      price: '.precio, .price, .entry-content strong',
+      description: '.entry-content .wpb_wrapper',
+      title: 'h1.entry-title, .entry-header h1',
+      image: 'meta[property="og:image"]@content',
+      category: undefined, // Determinar por tipo de evento
     },
 
     defaultValues: {
@@ -153,6 +134,7 @@ export const teatroColiseoConfig: ScraperConfig = {
       city: 'Buenos Aires',
       country: 'AR',
       address: 'Marcelo T. de Alvear 1125, C1058 CABA',
+      category: 'Teatro', // Default, puede variar por evento
     },
 
     transforms: {
