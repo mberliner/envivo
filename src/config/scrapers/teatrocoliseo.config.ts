@@ -27,11 +27,11 @@ export const teatroColiseoConfig: ScraperConfig = {
     // URL validada: /cartelera
     url: '/cartelera',
 
-    // Contenedor principal: SOLO la sección de "PROGRAMACIÓN ACTUAL"
-    // Usar un selector más específico que filtre solo esa sección
-    containerSelector: '#programacion-actual .vc_grid-container, [id*="actual"] .vc_grid-container, .programacion-actual .vc_grid-container',
+    // Contenedor principal: SOLO el PRIMER .vc_grid-container
+    // (asume que "PROGRAMACIÓN ACTUAL" es siempre la primera sección)
+    containerSelector: '.vc_grid-container:first',
 
-    // Cada evento es un grid-item dentro del contenedor de programación actual
+    // Cada evento es un grid-item dentro del contenedor
     itemSelector: '.vc_grid-item',
 
     // No hay paginación (todos los eventos en una página)
@@ -154,9 +154,10 @@ export const teatroColiseoConfig: ScraperConfig = {
  * 0. SECCIÓN A SCRAPEAR:
  *    - SOLO scrapear eventos de "PROGRAMACIÓN ACTUAL"
  *    - NO scrapear "PRÓXIMAMENTE", "ESTRENOS" u otras secciones
- *    - El containerSelector debe filtrar solo esa sección específica
- *    - Si el selector falla, inspeccionar manualmente la estructura HTML
- *    - Ver cuál es el ID o clase del contenedor de "PROGRAMACIÓN ACTUAL"
+ *    - Solución: usar `.vc_grid-container:first` (toma solo el primer grid)
+ *    - ASUME que "PROGRAMACIÓN ACTUAL" es siempre la primera sección
+ *    - Si el orden cambia, el selector debe ajustarse manualmente
+ *    - No hay ID/clase única para diferenciar secciones en el HTML
  *
  * 1. PROTECCIÓN CONTRA BOTS:
  *    - El sitio devuelve 403 Forbidden para requests automáticos
