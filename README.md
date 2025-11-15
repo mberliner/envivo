@@ -10,7 +10,7 @@ Agregador de eventos musicales en vivo con scraping asíncrono, Clean Architectu
 - **Base de Datos**: SQLite con Prisma ORM (MVP) / PostgreSQL (producción)
 - **Búsqueda**: SQLite FTS5 (Full-Text Search) - Planificado Fase 3
 - **Testing**: Vitest + React Testing Library + Playwright (E2E)
-  - BD separada para tests E2E (ver [docs/E2E_DATABASE_SETUP.md](docs/E2E_DATABASE_SETUP.md))
+  - BD separada para tests E2E (ver [docs/E2E_TESTING.md](docs/E2E_TESTING.md))
 - **Scraping**: Axios (API clients)
   - Cheerio planificado para scrapers HTML (Fase 5)
 - **Deploy**: Vercel (gratis)
@@ -137,7 +137,7 @@ npm run test:e2e:ui           # UI de Playwright
 
 **Ver:**
 - [docs/DEVELOPMENT.md#testing](docs/DEVELOPMENT.md#testing) - Objetivos de cobertura por capa
-- [docs/E2E_DATABASE_SETUP.md](docs/E2E_DATABASE_SETUP.md) - Setup de BD E2E separada
+- [docs/E2E_TESTING.md](docs/E2E_TESTING.md) - Guía de tests E2E
 
 ## 🔒 Seguridad
 

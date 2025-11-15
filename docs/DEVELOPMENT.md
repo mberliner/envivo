@@ -581,7 +581,7 @@ npx prisma studio                    # BD desarrollo
 npm run db:e2e:studio                # BD E2E
 ```
 
-**Ver [E2E_DATABASE_SETUP.md](E2E_DATABASE_SETUP.md) para detalles completos de la configuración E2E.**
+**Ver [E2E_TESTING.md](E2E_TESTING.md) para detalles completos de la configuración E2E.**
 
 ### Schema de Base de Datos
 
