@@ -522,6 +522,11 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
 
   const normalized = dateString.toLowerCase().trim();
 
+  // Validar rango de años razonable (común a todos los formatos)
+  const currentYear = new Date().getFullYear();
+  const minYear = currentYear - 1; // Permitir eventos del año pasado
+  const maxYear = currentYear + 2; // Hasta 2 años en el futuro
+
   // Formato 1: "Viernes 19 de diciembre 20.30h 2025"
   // Con día de la semana, hora con punto, y año al final
   const fullFormatMatch = normalized.match(
@@ -544,13 +549,15 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
       day >= 1 && day <= 31 &&
       hour >= 0 && hour <= 23 &&
       minute >= 0 && minute <= 59 &&
-      year >= 1900 && year <= 2100
+      year >= minYear && year <= maxYear // Validación de rango
     ) {
       const date = new Date(year, month, day, hour, minute);
       if (!isNaN(date.getTime())) {
         console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 1: ${date.toISOString()}`);
         return date;
       }
+    } else if (year < minYear || year > maxYear) {
+      console.log(`[parseTeatroColiseoDate] REJECTED FORMAT 1: year ${year} out of range (${minYear}-${maxYear})`);
     }
   }
 
@@ -572,13 +579,15 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
       !isNaN(year) &&
       day >= 1 && day <= 31 &&
       hour >= 0 && hour <= 23 &&
-      year >= 1900 && year <= 2100
+      year >= minYear && year <= maxYear // Validación de rango
     ) {
       const date = new Date(year, month, day, hour, 0);
       if (!isNaN(date.getTime())) {
         console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 2: ${date.toISOString()}`);
         return date;
       }
+    } else if (year < minYear || year > maxYear) {
+      console.log(`[parseTeatroColiseoDate] REJECTED FORMAT 2: year ${year} out of range (${minYear}-${maxYear})`);
     }
   }
 
@@ -592,27 +601,20 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
     const month = SPANISH_MONTHS[monthName];
     const year = parseInt(yearStr);
 
-    // Validar que el año sea razonable para eventos (no fechas de nacimiento, etc.)
-    const currentYear = new Date().getFullYear();
-    const minYear = currentYear - 1; // Permitir eventos del año pasado
-    const maxYear = currentYear + 2; // Hasta 2 años en el futuro
-
     if (
       month !== undefined &&
       !isNaN(day) &&
       !isNaN(year) &&
       day >= 1 && day <= 31 &&
-      year >= minYear && year <= maxYear // Validación de rango razonable
+      year >= minYear && year <= maxYear // Validación de rango
     ) {
       const date = new Date(year, month, day);
       if (!isNaN(date.getTime())) {
         console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 3: ${date.toISOString()}`);
         return date;
       }
-    } else if (year < minYear) {
-      console.log(`[parseTeatroColiseoDate] REJECTED FORMAT 3: year ${year} too old (min: ${minYear})`);
-    } else if (year > maxYear) {
-      console.log(`[parseTeatroColiseoDate] REJECTED FORMAT 3: year ${year} too far (max: ${maxYear})`);
+    } else if (year < minYear || year > maxYear) {
+      console.log(`[parseTeatroColiseoDate] REJECTED FORMAT 3: year ${year} out of range (${minYear}-${maxYear})`);
     }
   }
 
@@ -620,11 +622,19 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
   console.log(`[parseTeatroColiseoDate] NO MATCH, trying parseSpanishDate...`);
   const fallback = parseSpanishDate(dateString);
   if (fallback) {
-    console.log(`[parseTeatroColiseoDate] FALLBACK SUCCESS: ${fallback.toISOString()}`);
+    // Validar que el año del fallback también esté en rango razonable
+    const fallbackYear = fallback.getFullYear();
+    if (fallbackYear >= minYear && fallbackYear <= maxYear) {
+      console.log(`[parseTeatroColiseoDate] FALLBACK SUCCESS: ${fallback.toISOString()}`);
+      return fallback;
+    } else {
+      console.log(`[parseTeatroColiseoDate] FALLBACK REJECTED: year ${fallbackYear} out of range (${minYear}-${maxYear})`);
+      return undefined;
+    }
   } else {
     console.log(`[parseTeatroColiseoDate] FALLBACK FAILED: returning undefined`);
+    return undefined;
   }
-  return fallback;
 }
 
 /**
