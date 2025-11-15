@@ -317,7 +317,7 @@ npm install
 
 - **Vitest**: Tests unitarios e integración
 - **React Testing Library**: Tests de componentes
-- **Playwright** (planificado Fase 7): Tests E2E
+- **Playwright**: Tests E2E con BD separada (e2e.db)
 
 ### Comandos de Testing
 
@@ -336,6 +336,16 @@ npm run test:coverage
 
 # Type checking
 npm run type-check
+
+# Tests E2E con Playwright
+npm run test:e2e              # Modo desarrollo
+npm run test:e2e:prod         # Modo producción (build)
+npm run test:e2e:ui           # UI de Playwright
+npm run test:e2e:debug        # Debug mode
+
+# Setup de BD E2E (primera vez)
+npm run db:e2e:init           # Verificar/inicializar BD E2E
+npm run db:e2e:studio         # Prisma Studio en BD E2E
 ```
 
 ### Objetivos de Cobertura
@@ -346,7 +356,7 @@ npm run type-check
 | **Data** (Repositories) | >70% | 100% (Fase 1 ✅) | 🟡 IMPORTANTE |
 | **Data** (Scrapers) | >60% | 100% (Fase 1 ✅) | 🟡 IMPORTANTE |
 | **UI** (Componentes) | >60% | 0% (Fase 3+) | 🟢 DESEABLE |
-| **E2E** (Flujos críticos) | 100% happy paths | 0% (Fase 7) | 🔴 CRÍTICO |
+| **E2E** (Flujos críticos) | 100% happy paths | ✅ Implementado | 🔴 CRÍTICO |
 
 ### Organización de Tests
 
@@ -537,6 +547,20 @@ export const env = envSchema.parse(process.env);
 
 ## Database Setup (Prisma + SQLite)
 
+### Bases de Datos Separadas
+
+Este proyecto usa **2 bases de datos SQLite separadas**:
+
+| Base de Datos | Archivo | Uso | Variable |
+|---------------|---------|-----|----------|
+| **Desarrollo** | `dev.db` | Desarrollo normal (`npm run dev`) | `DATABASE_URL` |
+| **E2E/Testing** | `e2e.db` | Tests E2E (`npm run test:e2e`) | `DATABASE_URL_E2E` |
+
+**Beneficios:**
+- ✅ Tests E2E no contaminan datos de desarrollo
+- ✅ Reseteo independiente de cada BD
+- ✅ Ejecución paralela de tests sin conflictos
+
 ### Setup Inicial
 
 ```bash
@@ -546,12 +570,18 @@ npm install
 # 2. Generar Prisma Client
 npx prisma generate
 
-# 3. Ejecutar migraciones
-npx prisma migrate dev
+# 3. Crear BD de desarrollo
+DATABASE_URL="file:./dev.db" npx prisma db push
 
-# 4. (Opcional) Abrir Prisma Studio
-npx prisma studio
+# 4. Crear BD E2E (para tests)
+DATABASE_URL="file:./e2e.db" npx prisma db push
+
+# 5. (Opcional) Abrir Prisma Studio
+npx prisma studio                    # BD desarrollo
+npm run db:e2e:studio                # BD E2E
 ```
+
+**Ver [E2E_DATABASE_SETUP.md](E2E_DATABASE_SETUP.md) para detalles completos de la configuración E2E.**
 
 ### Schema de Base de Datos
 

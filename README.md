@@ -9,8 +9,8 @@ Agregador de eventos musicales en vivo con scraping asíncrono, Clean Architectu
 - **Styling**: Tailwind CSS
 - **Base de Datos**: SQLite con Prisma ORM (MVP) / PostgreSQL (producción)
 - **Búsqueda**: SQLite FTS5 (Full-Text Search) - Planificado Fase 3
-- **Testing**: Vitest + React Testing Library
-  - Playwright planificado para tests E2E (Fase 7)
+- **Testing**: Vitest + React Testing Library + Playwright (E2E)
+  - BD separada para tests E2E (ver [docs/E2E_DATABASE_SETUP.md](docs/E2E_DATABASE_SETUP.md))
 - **Scraping**: Axios (API clients)
   - Cheerio planificado para scrapers HTML (Fase 5)
 - **Deploy**: Vercel (gratis)
@@ -122,13 +122,22 @@ npm run test:coverage
 
 # Type checking
 npm run type-check
+
+# Tests E2E (Playwright)
+npm run test:e2e              # Modo desarrollo
+npm run test:e2e:prod         # Modo producción (build)
+npm run test:e2e:ui           # UI de Playwright
 ```
 
-**Stack**: Vitest + React Testing Library + jsdom
-**Cobertura**: Data layer, security utilities, UI components
-**Planificado**: E2E tests con Playwright en Fase 7
+**Stack**:
+- **Unitarios**: Vitest + React Testing Library + jsdom
+- **E2E**: Playwright con BD separada (e2e.db)
 
-**Ver [docs/DEVELOPMENT.md#testing](docs/DEVELOPMENT.md#testing) para objetivos de cobertura por capa.**
+**Cobertura**: Data layer, security utilities, UI components, flujos E2E
+
+**Ver:**
+- [docs/DEVELOPMENT.md#testing](docs/DEVELOPMENT.md#testing) - Objetivos de cobertura por capa
+- [docs/E2E_DATABASE_SETUP.md](docs/E2E_DATABASE_SETUP.md) - Setup de BD E2E separada
 
 ## 🔒 Seguridad
 
