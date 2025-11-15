@@ -262,12 +262,15 @@ export class GenericWebScraper implements IDataSource {
     }
 
     // Construir RawEvent
+    const venue = transformedData.venue || defaultValues?.venue;
+    console.log(`[${this.name}] 🏛️  Building RawEvent: venue="${venue}" (transformed="${transformedData.venue}", default="${defaultValues?.venue}")`);
+
     return {
       _source: this.name, // Using _source to match ExternalApiMapper pattern
       externalId: this.generateExternalId(rawData), // Use raw data for ID (before transformation)
       title: transformedData.title,
       date: transformedData.date,
-      venue: transformedData.venue || defaultValues?.venue,
+      venue: venue,
       city: transformedData.city || defaultValues?.city,
       country: transformedData.country || defaultValues?.country,
       address: transformedData.address,
