@@ -517,6 +517,9 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
     return undefined;
   }
 
+  // DEBUG: Log raw input
+  console.log(`[parseTeatroColiseoDate] RAW INPUT: "${dateString.substring(0, 200)}"`);
+
   const normalized = dateString.toLowerCase().trim();
 
   // Formato 1: "Viernes 19 de diciembre 20.30h 2025"
@@ -545,12 +548,41 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
     ) {
       const date = new Date(year, month, day, hour, minute);
       if (!isNaN(date.getTime())) {
+        console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 1: ${date.toISOString()}`);
         return date;
       }
     }
   }
 
-  // Formato 2: "Viernes 19 de diciembre 2025" (sin hora)
+  // Formato 2: "6 de mayo 20h 2026" (sin "de" antes del año, hora sin minutos)
+  const hourOnlyMatch = normalized.match(
+    /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s+(\d{1,2})\s*h\s+(\d{4})/
+  );
+  if (hourOnlyMatch) {
+    const [, dayStr, monthName, hourStr, yearStr] = hourOnlyMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const hour = parseInt(hourStr);
+    const year = parseInt(yearStr);
+
+    if (
+      month !== undefined &&
+      !isNaN(day) &&
+      !isNaN(hour) &&
+      !isNaN(year) &&
+      day >= 1 && day <= 31 &&
+      hour >= 0 && hour <= 23 &&
+      year >= 1900 && year <= 2100
+    ) {
+      const date = new Date(year, month, day, hour, 0);
+      if (!isNaN(date.getTime())) {
+        console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 2: ${date.toISOString()}`);
+        return date;
+      }
+    }
+  }
+
+  // Formato 3: "Viernes 19 de diciembre 2025" (sin hora)
   const dateOnlyMatch = normalized.match(
     /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s+(?:de\s+)?(\d{4})/
   );
@@ -569,13 +601,21 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
     ) {
       const date = new Date(year, month, day);
       if (!isNaN(date.getTime())) {
+        console.log(`[parseTeatroColiseoDate] MATCHED FORMAT 3: ${date.toISOString()}`);
         return date;
       }
     }
   }
 
   // Fallback: intentar con parseSpanishDate genérico
-  return parseSpanishDate(dateString);
+  console.log(`[parseTeatroColiseoDate] NO MATCH, trying parseSpanishDate...`);
+  const fallback = parseSpanishDate(dateString);
+  if (fallback) {
+    console.log(`[parseTeatroColiseoDate] FALLBACK SUCCESS: ${fallback.toISOString()}`);
+  } else {
+    console.log(`[parseTeatroColiseoDate] FALLBACK FAILED: returning undefined`);
+  }
+  return fallback;
 }
 
 /**
