@@ -493,6 +493,92 @@ export function extractLivepassVenue(text: string): string | undefined {
 }
 
 /**
+ * Parse fechas de Teatro Coliseo
+ *
+ * Teatro Coliseo usa formatos específicos en sus páginas:
+ * - Título: "ARTISTA <br> Viernes 19 de diciembre 20.30h <br> 2025"
+ * - Detalle: "Viernes 19 de diciembre 20.30h 2025"
+ * - También: "19 de diciembre de 2025"
+ *
+ * Soporta múltiples variaciones con/sin día de semana, con/sin hora.
+ *
+ * @param dateString - String con la fecha
+ * @returns Date object o undefined si no se puede parsear
+ *
+ * @example
+ * parseTeatroColiseoDate("Viernes 19 de diciembre 20.30h 2025")
+ * // => Date(2025, 11, 19, 20, 30)
+ *
+ * parseTeatroColiseoDate("19 de diciembre de 2025")
+ * // => Date(2025, 11, 19)
+ */
+export function parseTeatroColiseoDate(dateString: string): Date | undefined {
+  if (!dateString || typeof dateString !== 'string') {
+    return undefined;
+  }
+
+  const normalized = dateString.toLowerCase().trim();
+
+  // Formato 1: "Viernes 19 de diciembre 20.30h 2025"
+  // Con día de la semana, hora con punto, y año al final
+  const fullFormatMatch = normalized.match(
+    /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s+(\d{1,2})[.:](\d{2})\s*h?\s+(\d{4})/
+  );
+  if (fullFormatMatch) {
+    const [, dayStr, monthName, hourStr, minuteStr, yearStr] = fullFormatMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+    const year = parseInt(yearStr);
+
+    if (
+      month !== undefined &&
+      !isNaN(day) &&
+      !isNaN(hour) &&
+      !isNaN(minute) &&
+      !isNaN(year) &&
+      day >= 1 && day <= 31 &&
+      hour >= 0 && hour <= 23 &&
+      minute >= 0 && minute <= 59 &&
+      year >= 1900 && year <= 2100
+    ) {
+      const date = new Date(year, month, day, hour, minute);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+  }
+
+  // Formato 2: "Viernes 19 de diciembre 2025" (sin hora)
+  const dateOnlyMatch = normalized.match(
+    /(?:\w+\s+)?(\d{1,2})\s+de\s+([a-z]+)\s+(?:de\s+)?(\d{4})/
+  );
+  if (dateOnlyMatch) {
+    const [, dayStr, monthName, yearStr] = dateOnlyMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const year = parseInt(yearStr);
+
+    if (
+      month !== undefined &&
+      !isNaN(day) &&
+      !isNaN(year) &&
+      day >= 1 && day <= 31 &&
+      year >= 1900 && year <= 2100
+    ) {
+      const date = new Date(year, month, day);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+  }
+
+  // Fallback: intentar con parseSpanishDate genérico
+  return parseSpanishDate(dateString);
+}
+
+/**
  * Mapeo de nombres de transformaciones a funciones
  *
  * Usado por GenericWebScraper para aplicar transformaciones por nombre.
@@ -507,6 +593,7 @@ export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: strin
   parseLivepassDateTime: (value: string) => parseLivepassDateTime(value),
   cleanLivepassTitle: (value: string) => cleanLivepassTitle(value),
   extractLivepassVenue: (value: string) => extractLivepassVenue(value),
+  parseTeatroColiseoDate: (value: string) => parseTeatroColiseoDate(value),
 };
 
 /**

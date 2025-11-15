@@ -138,7 +138,7 @@ export const teatroColiseoConfig: ScraperConfig = {
     },
 
     transforms: {
-      date: 'parseSpanishDate',
+      date: 'parseTeatroColiseoDate',
       description: 'sanitizeHtml',
       price: 'extractPrice',
       image: 'toAbsoluteUrl',
