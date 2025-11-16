@@ -121,16 +121,16 @@ export const movistarArenaConfig: ScraperConfig = {
       // Título completo del evento
       title: '.evento-titulo',
 
-      // Descripción: TEMPORALMENTE DESHABILITADO - selector '.evento-row' captura metadata en lugar de descripción
-      // TODO: Encontrar selector correcto para descripción del evento
-      description: undefined,
+      // Descripción: párrafos sin clase dentro de .box-descipcion (typo intencional del HTML)
+      // Captura múltiples <p> sin atributo class que contienen la descripción del evento
+      description: '.box-descipcion p:not([class])',
 
       // Hora del show (segundo elemento .hora es el show, primero es puertas)
       time: '.horarios .hora:nth-child(2)', // "21:00 hs Show" (segundo .hora dentro de .horarios)
 
-      // Precio: dentro de aside .card (estructura: aside > .card > .top > span con "$")
+      // Precio: dentro de aside .card .top span (estructura: aside > .card > .top > span con "$")
       // extractMovistarPrice parseará el formato argentino: "$ 45.000" → 45000
-      price: 'aside .card',
+      price: 'aside .card .top span',
 
       // Campos que no cambian (usar defaults)
       venue: undefined,
@@ -150,7 +150,7 @@ export const movistarArenaConfig: ScraperConfig = {
 
     transforms: {
       title: 'cleanWhitespace',
-      description: 'sanitizeHtml',
+      description: 'extractMovistarDescription', // Filtrar info de transporte/estacionamiento + sanitizar
       time: 'extractMovistarTime', // Extraer "21:00" de "21:00 hs Show"
       price: 'extractMovistarPrice', // Extraer "$ 60.000" del texto
     },

@@ -828,6 +828,45 @@ export function extractMovistarPrice(bodyText: string): number | undefined {
 }
 
 /**
+ * Extrae y limpia la descripción de eventos de Movistar Arena
+ *
+ * Filtra párrafos que contienen información de transporte/estacionamiento
+ * y sanitiza el HTML resultante.
+ *
+ * @param rawDescription - Texto completo de la descripción (puede contener múltiples párrafos)
+ * @returns Descripción limpia y sanitizada
+ */
+export function extractMovistarDescription(rawDescription: string): string {
+  if (!rawDescription) return '';
+
+  // Filtros para eliminar párrafos no relacionados con la descripción del evento
+  const excludePatterns = [
+    /colectivos?\s+\d+/i, // "Colectivos 34, 42, 55..."
+    /estacionamiento/i, // Información de estacionamiento
+    /registres de nuevo/i, // Mensajes de registro
+    /reservá tu estacionamiento/i, // Call-to-action de estacionamiento
+    /encontrá estacionamiento/i, // Títulos de sección de estacionamiento
+  ];
+
+  // Dividir en párrafos (separados por múltiples espacios/saltos de línea)
+  const paragraphs = rawDescription
+    .split(/\n\n+/)
+    .map(p => p.trim())
+    .filter(p => p.length > 0);
+
+  // Filtrar párrafos no deseados
+  const filteredParagraphs = paragraphs.filter(paragraph => {
+    return !excludePatterns.some(pattern => pattern.test(paragraph));
+  });
+
+  // Unir párrafos con doble salto de línea
+  const cleanedDescription = filteredParagraphs.join('\n\n');
+
+  // Sanitizar HTML para seguridad
+  return sanitizeHtml(cleanedDescription);
+}
+
+/**
  * Mapeo de nombres de transformaciones a funciones
  *
  * Usado por GenericWebScraper para aplicar transformaciones por nombre.
@@ -848,6 +887,7 @@ export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: strin
   parseMovistarDate: (value: string) => parseMovistarDate(value),
   extractMovistarTime: (value: string) => extractMovistarTime(value),
   extractMovistarPrice: (value: string) => extractMovistarPrice(value),
+  extractMovistarDescription: (value: string) => extractMovistarDescription(value),
 };
 
 /**

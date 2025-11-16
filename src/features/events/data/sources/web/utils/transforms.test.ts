@@ -13,6 +13,9 @@ import {
   parseLivepassDateTime,
   cleanLivepassTitle,
   extractLivepassVenue,
+  extractMovistarPrice,
+  extractMovistarTime,
+  extractMovistarDescription,
   applyTransform,
 } from './transforms';
 
@@ -782,5 +785,149 @@ describe('extractLivepassVenue', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = extractLivepassVenue(null as any);
     expect(result).toBeUndefined();
+  });
+});
+
+describe('extractMovistarPrice', () => {
+  it('should extract price in Argentine format with thousands separator', () => {
+    const result = extractMovistarPrice('desde $ 60.000 16 noviembre');
+    expect(result).toBe(60000);
+  });
+
+  it('should extract price with decimal in Argentine format', () => {
+    const result = extractMovistarPrice('Precio: $ 45.000,50 por persona');
+    expect(result).toBe(45000.5);
+  });
+
+  it('should extract price without thousands separator', () => {
+    const result = extractMovistarPrice('Entrada general $ 500');
+    expect(result).toBe(500);
+  });
+
+  it('should prevent backtracking when followed by digits with space', () => {
+    // Caso real documentado en commit: texto con día del mes separado por espacio
+    const result = extractMovistarPrice('desde $ 60.000 16 noviembre');
+    expect(result).toBe(60000);
+  });
+
+  it('should handle price with proper thousands separator format', () => {
+    // Formato válido argentino con separador de miles
+    const result = extractMovistarPrice('Precio $ 75.000 disponible');
+    expect(result).toBe(75000);
+  });
+
+  it('should handle price without space after $', () => {
+    const result = extractMovistarPrice('Costo: $50.000');
+    expect(result).toBe(50000);
+  });
+
+  it('should return undefined if no price found', () => {
+    const result = extractMovistarPrice('Sin precio disponible');
+    expect(result).toBeUndefined();
+  });
+
+  it('should return undefined for empty string', () => {
+    const result = extractMovistarPrice('');
+    expect(result).toBeUndefined();
+  });
+
+  it('should handle multiple prices and capture the first', () => {
+    const result = extractMovistarPrice('desde $ 30.000 hasta $ 80.000');
+    expect(result).toBe(30000);
+  });
+
+  it('should handle large prices with multiple thousands separators', () => {
+    const result = extractMovistarPrice('VIP $ 1.250.000');
+    expect(result).toBe(1250000);
+  });
+});
+
+describe('extractMovistarTime', () => {
+  it('should extract time from "21:00 hs Show" format', () => {
+    const result = extractMovistarTime('21:00 hs Show');
+    expect(result).toBe('21:00');
+  });
+
+  it('should extract time from "19:00 hs Puertas" format', () => {
+    const result = extractMovistarTime('19:00 hs Puertas');
+    expect(result).toBe('19:00');
+  });
+
+  it('should extract time without extra text', () => {
+    const result = extractMovistarTime('20:30');
+    expect(result).toBe('20:30');
+  });
+
+  it('should extract single digit hour', () => {
+    const result = extractMovistarTime('9:00 hs');
+    expect(result).toBe('9:00');
+  });
+
+  it('should return undefined if no time pattern found', () => {
+    const result = extractMovistarTime('Horario a confirmar');
+    expect(result).toBeUndefined();
+  });
+
+  it('should return undefined for empty string', () => {
+    const result = extractMovistarTime('');
+    expect(result).toBeUndefined();
+  });
+
+  it('should handle time with extra whitespace', () => {
+    const result = extractMovistarTime('   21:00 hs   ');
+    expect(result).toBe('21:00');
+  });
+});
+
+describe('extractMovistarDescription', () => {
+  it('should preserve event description paragraphs', () => {
+    const input = '¡Melendi celebra 20 años de carrera!\n\nEl reconocido cantautor español regresa.';
+    const result = extractMovistarDescription(input);
+    expect(result).toContain('Melendi');
+    expect(result).toContain('cantautor español');
+  });
+
+  it('should filter out transport information', () => {
+    const input = 'Descripción del evento.\n\nColectivos 34, 42, 55, 63';
+    const result = extractMovistarDescription(input);
+    expect(result).toContain('Descripción del evento');
+    expect(result).not.toContain('Colectivos');
+  });
+
+  it('should filter out parking information', () => {
+    const input = 'Evento musical.\n\nEncontrá estacionamiento para tu show';
+    const result = extractMovistarDescription(input);
+    expect(result).toContain('Evento musical');
+    expect(result).not.toContain('estacionamiento');
+  });
+
+  it('should filter out registration messages', () => {
+    const input = 'Gran concierto.\n\nPara comprar entradas, registres de nuevo en el sitio.';
+    const result = extractMovistarDescription(input);
+    expect(result).toContain('Gran concierto');
+    expect(result).not.toContain('registres');
+  });
+
+  it('should handle empty string', () => {
+    const result = extractMovistarDescription('');
+    expect(result).toBe('');
+  });
+
+  it('should preserve multiple valid paragraphs', () => {
+    const input = 'Párrafo 1 del evento.\n\nPárrafo 2 del evento.\n\nPárrafo 3 del evento.';
+    const result = extractMovistarDescription(input);
+    expect(result).toContain('Párrafo 1');
+    expect(result).toContain('Párrafo 2');
+    expect(result).toContain('Párrafo 3');
+  });
+
+  it('should filter mixed content correctly', () => {
+    const input =
+      'Descripción válida.\n\nColectivos 10, 20.\n\nMás descripción.\n\nReservá tu estacionamiento.';
+    const result = extractMovistarDescription(input);
+    expect(result).toContain('Descripción válida');
+    expect(result).toContain('Más descripción');
+    expect(result).not.toContain('Colectivos');
+    expect(result).not.toContain('estacionamiento');
   });
 });
