@@ -42,7 +42,7 @@ async function debugMovistarArenaDetail() {
     console.log('✅ Detail page loaded\n');
 
     // Esperar un poco para que Blazor cargue todo
-    await page.waitForTimeout(3000);
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
     // Obtener HTML
     const html = await page.content();

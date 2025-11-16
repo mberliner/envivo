@@ -235,7 +235,7 @@ export class PuppeteerWebScraper implements IDataSource {
    * Extrae datos de un evento individual (reutiliza lógica de GenericWebScraper)
    */
   private async extractEventData(
-    $item: cheerio.Cheerio<cheerio.Element>
+    $item: cheerio.Cheerio<any>
   ): Promise<RawEvent | null> {
     const { selectors, transforms, defaultValues } = this.config;
 

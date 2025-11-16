@@ -54,7 +54,7 @@ async function testMovistarArena() {
 
     console.log('\n3️⃣ Extracting first 5 events:\n');
 
-    eventBoxes.slice(0, 5).each((i: number, element: cheerio.Element) => {
+    eventBoxes.slice(0, 5).each((i: number, element) => {
       const $item = $(element);
 
       // Extraer datos usando los selectores exactos de la config
@@ -105,7 +105,7 @@ async function testMovistarArena() {
 
     // Contar eventos válidos
     let validCount = 0;
-    eventBoxes.each((_: number, element: cheerio.Element) => {
+    eventBoxes.each((_: number, element) => {
       const $item = $(element);
       const titleRaw = $item.find('h5').text().trim();
       const dateRaw = $item.find('.descripcion span').text().trim();
