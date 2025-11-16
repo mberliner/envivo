@@ -495,10 +495,10 @@ export class PuppeteerWebScraper implements IDataSource {
         } else {
           // Texto
           // CASO ESPECIAL: Para precio, remover iframes y scripts antes de buscar
-          if (field === 'price' && (selector === 'body' || selector === 'main' || selector.includes('body') || selector.includes('main'))) {
+          if (field === 'price') {
             // Clonar el selector para no modificar el DOM original
             const $clone = $(selector).clone();
-            // Remover iframes, scripts, noscript
+            // Remover iframes, scripts, noscript, style (puede haber en cualquier contenedor)
             $clone.find('iframe, script, noscript, style').remove();
             value = $clone.text().trim();
           } else {
