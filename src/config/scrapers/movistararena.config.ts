@@ -111,7 +111,7 @@ export const movistarArenaConfig: ScraperConfig = {
   // HABILITADO para obtener hora (descripción y precio temporalmente deshabilitados)
   detailPage: {
     enabled: true,
-    delayBetweenRequests: 1000, // 1 segundo entre requests de detalles
+    delayBetweenRequests: 3000, // 3 segundos entre requests (evitar throttling de Blazor Server)
 
     // CRÍTICO: Esperar a que Blazor cargue el contenido antes de scrapear
     waitForSelector: '.evento-titulo', // Esperar título del evento
