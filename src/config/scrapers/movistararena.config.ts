@@ -121,9 +121,9 @@ export const movistarArenaConfig: ScraperConfig = {
       // Título completo del evento
       title: '.evento-titulo',
 
-      // Descripción: párrafos sin clase dentro de .box-descipcion (typo intencional del HTML)
-      // Captura múltiples <p> sin atributo class que contienen la descripción del evento
-      description: '.box-descipcion p:not([class])',
+      // Descripción: todos los párrafos dentro de .box-descipcion (typo intencional del HTML)
+      // El transform extractMovistarDescription filtrará contenido irrelevante
+      description: '.box-descipcion p',
 
       // Hora del show (segundo elemento .hora es el show, primero es puertas)
       time: '.horarios .hora:nth-child(2)', // "21:00 hs Show" (segundo .hora dentro de .horarios)

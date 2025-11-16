@@ -77,7 +77,7 @@ async function testFullScrape() {
 
     // 6. Extraer descripción
     console.log('6️⃣  Extracting description...');
-    const descSelector = '.box-descipcion p:not([class])';
+    const descSelector = '.box-descipcion p'; // Selector más permisivo
     const descElements = $(descSelector);
     console.log(`   Found ${descElements.length} paragraph elements`);
 

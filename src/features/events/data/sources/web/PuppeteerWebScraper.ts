@@ -520,13 +520,27 @@ export class PuppeteerWebScraper implements IDataSource {
               console.log(`[${this.name}]   ❌ DEBUG price - selector "${selector}" not found in HTML`);
             }
           } else {
-            value = $(selector).text().trim();
+            // Manejar selectores que devuelven múltiples elementos (ej: descripción con múltiples <p>)
+            const elements = $(selector);
+            if (elements.length > 1) {
+              // Multi-elemento: extraer cada uno y unir con \n\n
+              value = elements.map((i, el) => $(el).text().trim()).get().join('\n\n');
+            } else {
+              // Single-elemento: comportamiento actual
+              value = $(selector).text().trim();
+            }
           }
         }
 
         if (value) {
           rawData[field] = cleanWhitespace(value);
           console.log(`[${this.name}]   ✅ ${field}: "${value.substring(0, 60)}${value.length > 60 ? '...' : ''}"`);
+
+          // Debug especial para description
+          if (field === 'description') {
+            console.log(`[${this.name}]   📝 DEBUG description - length: ${value.length} chars`);
+            console.log(`[${this.name}]   📝 DEBUG description - first 200 chars: "${value.substring(0, 200)}..."`);
+          }
         } else {
           console.log(`[${this.name}]   ❌ ${field}: NOT found with selector "${selector}"`);
 
@@ -559,9 +573,14 @@ export class PuppeteerWebScraper implements IDataSource {
                 this.config.baseUrl
               );
 
-              // Debug resultado del transform para precio
+              // Debug resultado del transform para precio y description
               if (field === 'price') {
                 console.log(`[${this.name}]      Transform result: ${transformedData[field]}`);
+              }
+              if (field === 'description') {
+                const descResult = transformedData[field] as string;
+                console.log(`[${this.name}]   📝 DEBUG description transform - result length: ${descResult?.length || 0} chars`);
+                console.log(`[${this.name}]   📝 DEBUG description transform - first 200 chars: "${descResult?.substring(0, 200) || 'EMPTY'}..."`);
               }
             } catch (error: unknown) {
               const errorMessage = error instanceof Error ? error.message : 'Unknown error';
