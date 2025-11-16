@@ -805,10 +805,11 @@ export function extractMovistarTime(timeString: string): string | undefined {
 export function extractMovistarPrice(bodyText: string): number | undefined {
   if (!bodyText) return undefined;
 
-  // Buscar patrón "desde $ XXXXX" o "$ XXXXX" seguido de espacio/salto de línea
+  // Buscar patrón "desde $ XXXXX" o "$ XXXXX"
   // Formato argentino: $ 60.000 o $ 60.000,50 (punto = separador miles, coma = decimal)
-  // El \s+ al final asegura que hay un espacio después (evita capturar dígitos de fechas)
-  const match = bodyText.match(/\$\s*([\d]{1,3}(?:[.,]\d{3})*(?:,\d{1,2})?)\s+/);
+  // Usa negative lookahead (?!\d) para evitar capturar dígitos del día del mes que viene después
+  // Ejemplo: "$ 75.00016" captura solo "75.000" (no el "16")
+  const match = bodyText.match(/\$\s*([\d]{1,3}(?:[.,]\d{3})*(?:,\d{1,2})?)(?!\d)/);
   if (!match) return undefined;
 
   let priceStr = match[1];
