@@ -58,27 +58,28 @@ async function debugMovistarArenaDetail() {
     console.log(`   Title: ${title}`);
 
     // Fecha y hora
-    const dateInfo = await page.$$eval('[class*="date"], [class*="fecha"], time, .event-date', (elements) =>
+    const dateInfo = await page.$$eval('[class*="date"], [class*="fecha"], [class*="hora"], [class*="time"], time, .event-date, .event-time', (elements) =>
       elements.map((el) => ({
         class: el.className,
         text: el.textContent?.trim(),
       }))
     ).catch(() => []);
     console.log(`\n   Date/Time elements found: ${dateInfo.length}`);
-    dateInfo.slice(0, 5).forEach((info, i) => {
+    dateInfo.slice(0, 10).forEach((info, i) => {
       console.log(`      ${i + 1}. class="${info.class}" → "${info.text}"`);
     });
 
-    // Precio
-    const priceInfo = await page.$$eval('[class*="price"], [class*="precio"], .ticket-price, .buy-button', (elements) =>
+    // Precio (buscar más ampliamente)
+    const priceInfo = await page.$$eval('[class*="price"], [class*="precio"], [class*="ticket"], [class*="entry"], button, a[href*="ticket"], a[href*="compra"]', (elements) =>
       elements.map((el) => ({
         class: el.className,
-        text: el.textContent?.trim(),
+        text: el.textContent?.trim()?.substring(0, 100),
+        tag: el.tagName.toLowerCase(),
       }))
     ).catch(() => []);
-    console.log(`\n   Price elements found: ${priceInfo.length}`);
-    priceInfo.slice(0, 5).forEach((info, i) => {
-      console.log(`      ${i + 1}. class="${info.class}" → "${info.text}"`);
+    console.log(`\n   Price/Button elements found: ${priceInfo.length}`);
+    priceInfo.slice(0, 10).forEach((info, i) => {
+      console.log(`      ${i + 1}. <${info.tag}> class="${info.class}" → "${info.text}"`);
     });
 
     // Descripción
@@ -122,11 +123,15 @@ async function debugMovistarArenaDetail() {
       const elements = Array.from(document.querySelectorAll('*'));
       const classes = new Set<string>();
       elements.forEach((el) => {
-        el.className.split(' ').forEach((cls) => {
-          if (cls && !cls.startsWith('_') && cls.length > 2) {
-            classes.add(cls);
-          }
-        });
+        // className puede ser un string o SVGAnimatedString
+        const className = typeof el.className === 'string' ? el.className : '';
+        if (className) {
+          className.split(' ').forEach((cls) => {
+            if (cls && !cls.startsWith('_') && cls.length > 2) {
+              classes.add(cls);
+            }
+          });
+        }
       });
       return Array.from(classes).sort();
     });
@@ -135,6 +140,40 @@ async function debugMovistarArenaDetail() {
     console.log('   ' + uniqueClasses.slice(0, 50).join(', '));
     if (uniqueClasses.length > 50) {
       console.log(`   ... and ${uniqueClasses.length - 50} more`);
+    }
+
+    // Buscar patrones de hora (HH:MM o similar)
+    console.log('\n7️⃣ Searching for time patterns (HH:MM):\n');
+    const timeMatches = await page.evaluate(() => {
+      const bodyText = document.body.innerText;
+      const timePattern = /\b(\d{1,2}):(\d{2})\s*(hs|hrs|pm|am|PM|AM)?\b/g;
+      const matches = Array.from(bodyText.matchAll(timePattern));
+      return matches.slice(0, 5).map(m => m[0]);
+    });
+    if (timeMatches.length > 0) {
+      console.log('   Found time patterns:');
+      timeMatches.forEach((time, i) => {
+        console.log(`      ${i + 1}. "${time}"`);
+      });
+    } else {
+      console.log('   ❌ No time patterns found (HH:MM format)');
+    }
+
+    // Buscar patrones de precio ($ o ARS)
+    console.log('\n8️⃣ Searching for price patterns ($, ARS, USD):\n');
+    const priceMatches = await page.evaluate(() => {
+      const bodyText = document.body.innerText;
+      const pricePattern = /(\$|ARS|USD)\s*[\d.,]+|\b[\d.,]+\s*(pesos?|dólares?|ARS|USD)\b/gi;
+      const matches = Array.from(bodyText.matchAll(pricePattern));
+      return matches.slice(0, 10).map(m => m[0].trim());
+    });
+    if (priceMatches.length > 0) {
+      console.log('   Found price patterns:');
+      priceMatches.forEach((price, i) => {
+        console.log(`      ${i + 1}. "${price}"`);
+      });
+    } else {
+      console.log('   ❌ No price patterns found');
     }
 
     console.log('\n✅ Analysis complete!');
