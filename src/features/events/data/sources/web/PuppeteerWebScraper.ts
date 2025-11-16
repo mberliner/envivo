@@ -325,12 +325,21 @@ export class PuppeteerWebScraper implements IDataSource {
             const hours = parseInt(timeMatch[1], 10);
             const minutes = parseInt(timeMatch[2], 10);
 
-            // Crear nueva fecha con la hora especificada (UTC para evitar problemas de timezone)
+            // IMPORTANTE: La hora viene de sitio argentino (UTC-3)
+            // Convertir hora local Argentina a UTC: UTC = hora_local + 3
+            // Ejemplo: 21:00 Argentina → 00:00 UTC del día siguiente
+            const ARGENTINA_UTC_OFFSET = 3; // Argentina está UTC-3
+            const utcHours = hours + ARGENTINA_UTC_OFFSET;
+
+            // Crear fecha base en UTC (medianoche)
             const dateWithTime = new Date(transformedData.date);
-            dateWithTime.setUTCHours(hours, minutes, 0, 0);
+            dateWithTime.setUTCHours(0, 0, 0, 0);
+
+            // Agregar hora UTC (setUTCHours maneja automáticamente overflow al día siguiente)
+            dateWithTime.setUTCHours(utcHours, minutes, 0, 0);
 
             transformedData.date = dateWithTime;
-            console.log(`[${this.name}] ⏰ Combined date + time: ${dateWithTime.toISOString()} (${hours}:${String(minutes).padStart(2, '0')} UTC)`);
+            console.log(`[${this.name}] ⏰ Combined date + time: ${hours}:${String(minutes).padStart(2, '0')} Argentina → ${dateWithTime.toISOString()}`);
           }
         }
 
