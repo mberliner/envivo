@@ -18,6 +18,9 @@
 /test-results/
 /diagnostic-output/
 
+# browser caches
+/.cache/
+
 # next.js
 /.next/
 /out/
