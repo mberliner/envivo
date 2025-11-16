@@ -10,7 +10,9 @@
  */
 
 import * as cheerio from 'cheerio';
+import type { AnyNode } from 'domhandler';
 import pLimit from 'p-limit';
+import type { Browser } from 'puppeteer';
 import { IDataSource } from '@/features/events/domain/interfaces/IDataSource';
 import { RawEvent } from '@/features/events/domain/entities/Event';
 import { ScraperConfig, DEFAULT_SCRAPER_CONFIG } from './types/ScraperConfig';
@@ -235,8 +237,8 @@ export class PuppeteerWebScraper implements IDataSource {
    * Extrae datos de un evento individual (reutiliza lógica de GenericWebScraper)
    */
   private async extractEventData(
-    $item: cheerio.Cheerio<any>,
-    browser: any // Browser from Puppeteer
+    $item: cheerio.Cheerio<AnyNode>,
+    browser: Browser
   ): Promise<RawEvent | null> {
     const { selectors, transforms, defaultValues } = this.config;
 
@@ -416,7 +418,7 @@ export class PuppeteerWebScraper implements IDataSource {
   /**
    * Scrapea la página de detalles de un evento usando Puppeteer
    */
-  private async scrapeDetailPage(browser: any, url: string): Promise<Record<string, unknown>> {
+  private async scrapeDetailPage(browser: Browser, url: string): Promise<Record<string, unknown>> {
     if (!this.config.detailPage) {
       return {};
     }
