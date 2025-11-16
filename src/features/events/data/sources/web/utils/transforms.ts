@@ -792,24 +792,34 @@ export function extractMovistarTime(timeString: string): string | undefined {
  * Extrae el precio de Movistar Arena del texto de la página
  *
  * Ejemplos:
- * extractMovistarPrice("... $ 60.000 ...") → "$60000"
- * extractMovistarPrice("Desde $ 15.500 hasta $ 85.000") → "$15500" (primer precio)
+ * extractMovistarPrice("... $ 60.000 ...") → 60000
+ * extractMovistarPrice("Desde $ 15.500 hasta $ 85.000") → 15500 (primer precio)
+ * extractMovistarPrice("$ 45.000,50") → 45000.50
  *
  * @param bodyText - Texto completo de la página
- * @returns String con el precio normalizado o undefined si no se encuentra
+ * @returns Número con el precio o undefined si no se encuentra
  */
-export function extractMovistarPrice(bodyText: string): string | undefined {
+export function extractMovistarPrice(bodyText: string): number | undefined {
   if (!bodyText) return undefined;
 
-  // Buscar patrón de precio: $ seguido de números y puntos/comas
+  // Buscar patrón de precio: $ seguido de números, puntos y/o comas
+  // Formato argentino: $ 60.000 o $ 60.000,50 (punto = separador miles, coma = decimal)
   const match = bodyText.match(/\$\s*([\d.,]+)/);
   if (!match) return undefined;
 
-  // Limpiar el precio: remover puntos y comas, mantener solo dígitos
-  const cleanPrice = match[1].replace(/[.,]/g, '');
+  let priceStr = match[1];
 
-  // Retornar en formato "$XXXXX"
-  return `$${cleanPrice}`;
+  // Detectar si tiene coma decimal (formato argentino: $ 60.000,50)
+  if (priceStr.includes(',')) {
+    // Remover puntos (separadores de miles) y reemplazar coma por punto (decimal)
+    priceStr = priceStr.replace(/\./g, '').replace(',', '.');
+  } else {
+    // Solo tiene puntos, son separadores de miles → removerlos
+    priceStr = priceStr.replace(/\./g, '');
+  }
+
+  const price = parseFloat(priceStr);
+  return isNaN(price) ? undefined : price;
 }
 
 /**

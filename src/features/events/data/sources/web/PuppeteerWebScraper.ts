@@ -316,6 +316,24 @@ export class PuppeteerWebScraper implements IDataSource {
         // Mergear datos: detalles tienen prioridad sobre listado
         transformedData = { ...transformedData, ...detailData };
 
+        // Si tenemos fecha y hora separadas, combinarlas
+        if (transformedData.date instanceof Date && transformedData.time) {
+          const timeStr = transformedData.time as string;
+          const timeMatch = timeStr.match(/(\d{1,2}):(\d{2})/);
+
+          if (timeMatch) {
+            const hours = parseInt(timeMatch[1], 10);
+            const minutes = parseInt(timeMatch[2], 10);
+
+            // Crear nueva fecha con la hora especificada
+            const dateWithTime = new Date(transformedData.date);
+            dateWithTime.setHours(hours, minutes, 0, 0);
+
+            transformedData.date = dateWithTime;
+            console.log(`[${this.name}] ⏰ Combined date + time: ${dateWithTime.toISOString()}`);
+          }
+        }
+
         // Delay entre requests de detalles
         const delay = this.config.detailPage.delayBetweenRequests || 1000;
         await new Promise(resolve => setTimeout(resolve, delay));
