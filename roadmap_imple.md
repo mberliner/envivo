@@ -919,6 +919,58 @@ src/
 - ✅ Documentación completa en config file
 - ✅ Segunda fuente de datos activa para deduplicación
 
+**Actualización - Implementación con Puppeteer**:
+
+Durante la investigación inicial, se descubrió que Movistar Arena usa **Blazor Server** (framework .NET) que renderiza TODO el contenido dinámicamente con JavaScript vía WebSocket. El scraper original con Cheerio encontraba 0 eventos porque el HTML inicial (~14KB) está vacío.
+
+**Solución arquitectónica implementada**:
+1. ✅ Creado `PuppeteerWebScraper` - Nueva implementación con navegador headless
+2. ✅ Extendido `ScraperConfig` con flags: `requiresJavaScript`, `waitForSelector`, `waitForTimeout`
+3. ✅ `WebScraperFactory` auto-detecta qué scraper usar basándose en `requiresJavaScript`
+4. ✅ Arquitectura aislada: Puppeteer solo se carga cuando se usa (lazy loading)
+5. ✅ Reutiliza selectores, transforms y TODA la lógica de GenericWebScraper
+6. ✅ Mismo `IDataSource` interface - funciona transparentemente con orchestrator
+
+**Commits adicionales**:
+- `7a049d1` - debug: add diagnostic script for Movistar Arena scraper
+- `[pendiente]` - feat: add Puppeteer support for JavaScript-rendered sites
+
+**Archivos adicionales creados**:
+```
+src/features/events/data/sources/web/
+└── PuppeteerWebScraper.ts           # ~400 líneas - Implementación con Puppeteer
+PUPPETEER_SETUP.md                    # Guía de instalación y uso
+scripts/
+└── debug-movistararena.ts            # Script diagnóstico
+```
+
+**Archivos modificados adicionales**:
+```
+src/features/events/data/sources/web/types/
+└── ScraperConfig.ts                  # +3 campos opcionales
+src/features/events/data/sources/web/
+└── WebScraperFactory.ts              # Auto-detección de tipo de scraper
+src/config/scrapers/
+└── movistararena.config.ts           # Marcado con requiresJavaScript: true
+```
+
+**Dependencia adicional**:
+```bash
+npm install puppeteer  # ~170MB (incluye Chromium)
+```
+
+**Performance comparativa**:
+- GenericWebScraper (Cheerio): ~500ms/página ← LivePass, Teatro Coliseo
+- PuppeteerWebScraper: ~5-10 seg/página ← Movistar Arena
+
+**Ventajas arquitectónicas**:
+- ✅ Sin código duplicado: Cheerio parsea el HTML en ambos casos
+- ✅ Extensible: Fácil agregar más sitios con JavaScript
+- ✅ Tipo de scraper transparente para el orchestrator
+- ✅ Puppeteer solo se instala si se necesita
+
+**Instrucciones de instalación**: Ver `PUPPETEER_SETUP.md`
+
 **Git**: Commits pendientes de push a `claude/add-movistar-arena-scraper-0121HcC4VXLdtQ3MWi1usid8`
 
 ---

@@ -14,6 +14,12 @@ export const movistarArenaConfig: ScraperConfig = {
   type: 'web',
   baseUrl: 'https://www.movistararena.com.ar',
 
+  // CRÍTICO: Este sitio usa Blazor (JavaScript rendering)
+  // Requiere Puppeteer en lugar de Cheerio
+  requiresJavaScript: true,
+  waitForSelector: '.evento', // Esperar a que los eventos se carguen
+  waitForTimeout: 30000, // 30 segundos máximo
+
   listing: {
     // URL de eventos
     url: '/shows',
@@ -139,6 +145,13 @@ export const movistarArenaConfig: ScraperConfig = {
 
 /**
  * NOTAS SOBRE MOVISTAR ARENA:
+ *
+ * 0. IMPORTANTE - BLAZOR SERVER:
+ *    - El sitio usa Blazor Server (framework .NET)
+ *    - El contenido se carga DINÁMICAMENTE vía JavaScript/WebSocket
+ *    - REQUIERE Puppeteer (navegador headless) para renderizar
+ *    - NO funciona con Cheerio (HTML estático)
+ *    - El scraper automáticamente usa PuppeteerWebScraper cuando detecta requiresJavaScript: true
  *
  * 1. FORMATO DE FECHA:
  *    - Formato: "15 noviembre 2025" (día + mes + año)

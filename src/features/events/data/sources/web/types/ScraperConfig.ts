@@ -180,6 +180,24 @@ export interface ScraperConfig {
   userAgent?: string;
   /** Headers HTTP adicionales */
   headers?: Record<string, string>;
+  /**
+   * Si requiere JavaScript para renderizar contenido (Blazor, React, Vue, etc.)
+   * Si true, se usará PuppeteerWebScraper en lugar de GenericWebScraper
+   * Default: false
+   */
+  requiresJavaScript?: boolean;
+  /**
+   * Selector CSS que debe aparecer después de que JS cargue el contenido
+   * Solo se usa si requiresJavaScript = true
+   * El scraper esperará a que este selector esté visible antes de extraer datos
+   */
+  waitForSelector?: string;
+  /**
+   * Timeout máximo para esperar que JS cargue el contenido (ms)
+   * Solo se usa si requiresJavaScript = true
+   * Default: 30000 (30 segundos)
+   */
+  waitForTimeout?: number;
 }
 
 /**
