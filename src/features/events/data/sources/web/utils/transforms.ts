@@ -807,9 +807,9 @@ export function extractMovistarPrice(bodyText: string): number | undefined {
 
   // Buscar patrón "desde $ XXXXX" o "$ XXXXX"
   // Formato argentino: $ 60.000 o $ 60.000,50 (punto = separador miles, coma = decimal)
-  // Usa negative lookahead (?!\d) para evitar capturar dígitos del día del mes que viene después
-  // Ejemplo: "$ 75.00016" captura solo "75.000" (no el "16")
-  const match = bodyText.match(/\$\s*([\d]{1,3}(?:[.,]\d{3})*(?:,\d{1,2})?)(?!\d)/);
+  // Usa negative lookahead (?![.,\d]) para evitar backtracking y captura parcial
+  // Ejemplo: "$ 60.00010" captura "60.000" completo (no permite . , o dígitos después)
+  const match = bodyText.match(/\$\s*([\d]{1,3}(?:[.,]\d{3})*(?:,\d{1,2})?)(?![.,\d])/);
   if (!match) return undefined;
 
   let priceStr = match[1];
