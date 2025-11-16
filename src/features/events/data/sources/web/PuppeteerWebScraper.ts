@@ -425,10 +425,11 @@ export class PuppeteerWebScraper implements IDataSource {
       });
 
       // Esperar un poco para que JavaScript cargue todo
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
       // Obtener HTML renderizado
       const html = await page.content();
+      console.log(`[${this.name}]   HTML length: ${html.length} bytes`);
 
       // Parsear con Cheerio (reutiliza toda la lógica)
       const $ = cheerio.load(html);
@@ -436,6 +437,7 @@ export class PuppeteerWebScraper implements IDataSource {
       const rawData: Record<string, string> = {};
 
       // Extraer campos usando selectores de detailPage
+      console.log(`[${this.name}]   Testing ${Object.keys(selectors).length} selectors...`);
       Object.entries(selectors).forEach(([field, selector]) => {
         if (!selector) {
           // Si no hay selector, usar valor por defecto si existe
@@ -462,11 +464,16 @@ export class PuppeteerWebScraper implements IDataSource {
 
         if (value) {
           rawData[field] = cleanWhitespace(value);
-        } else if (defaultValues && field in defaultValues) {
-          // Si no se encontró valor, usar default si existe
-          const defaultValue = defaultValues[field as keyof typeof defaultValues];
-          if (defaultValue) {
-            rawData[field] = defaultValue;
+          console.log(`[${this.name}]   ✅ ${field}: "${value.substring(0, 60)}${value.length > 60 ? '...' : ''}"`);
+        } else {
+          console.log(`[${this.name}]   ❌ ${field}: NOT found with selector "${selector}"`);
+
+          if (defaultValues && field in defaultValues) {
+            // Si no se encontró valor, usar default si existe
+            const defaultValue = defaultValues[field as keyof typeof defaultValues];
+            if (defaultValue) {
+              rawData[field] = defaultValue;
+            }
           }
         }
       });
