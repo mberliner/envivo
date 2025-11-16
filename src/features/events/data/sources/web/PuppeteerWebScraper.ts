@@ -545,11 +545,22 @@ export class PuppeteerWebScraper implements IDataSource {
         Object.entries(transforms).forEach(([field, transformName]) => {
           if (rawData[field] && transformName) {
             try {
+              // Debug especial para precio
+              if (field === 'price') {
+                console.log(`[${this.name}]   🔍 DEBUG transform - applying "${transformName}" to price text (full):`);
+                console.log(`[${this.name}]      Input text: "${rawData[field]}"`);
+              }
+
               transformedData[field] = applyTransform(
                 transformName,
                 rawData[field],
                 this.config.baseUrl
               );
+
+              // Debug resultado del transform para precio
+              if (field === 'price') {
+                console.log(`[${this.name}]      Transform result: ${transformedData[field]}`);
+              }
             } catch (error: unknown) {
               const errorMessage = error instanceof Error ? error.message : 'Unknown error';
               console.warn(
