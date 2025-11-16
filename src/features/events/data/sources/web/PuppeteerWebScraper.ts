@@ -496,11 +496,27 @@ export class PuppeteerWebScraper implements IDataSource {
           // Texto
           // CASO ESPECIAL: Para precio, remover iframes y scripts antes de buscar
           if (field === 'price') {
-            // Clonar el selector para no modificar el DOM original
-            const $clone = $(selector).clone();
-            // Remover iframes, scripts, noscript, style (puede haber en cualquier contenedor)
-            $clone.find('iframe, script, noscript, style').remove();
-            value = $clone.text().trim();
+            // Debug: verificar si el selector existe
+            const elementCount = $(selector).length;
+            console.log(`[${this.name}]   🔍 DEBUG price - selector: "${selector}", elements found: ${elementCount}`);
+
+            if (elementCount > 0) {
+              // Clonar el selector para no modificar el DOM original
+              const $clone = $(selector).clone();
+
+              // Debug: texto antes de remover iframes/scripts
+              const textBefore = $clone.text().trim().substring(0, 100);
+              console.log(`[${this.name}]   🔍 DEBUG price - text before cleanup: "${textBefore}"`);
+
+              // Remover iframes, scripts, noscript, style (puede haber en cualquier contenedor)
+              $clone.find('iframe, script, noscript, style').remove();
+              value = $clone.text().trim();
+
+              // Debug: texto después de cleanup
+              console.log(`[${this.name}]   🔍 DEBUG price - text after cleanup: "${value.substring(0, 100)}"`);
+            } else {
+              console.log(`[${this.name}]   ❌ DEBUG price - selector "${selector}" not found in HTML`);
+            }
           } else {
             value = $(selector).text().trim();
           }
