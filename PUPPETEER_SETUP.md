@@ -10,11 +10,35 @@ Puppeteer lanza un navegador headless (Chromium) que ejecuta JavaScript y espera
 
 ## Instalación
 
+### Opción 1: Instalación Automática (Recomendada)
+
 ```bash
 npm install puppeteer
 ```
 
 **Nota**: Puppeteer descargará Chromium (~170MB) automáticamente.
+
+### Opción 2: Si la instalación automática falla
+
+Si obtienes error 403 o problemas de red:
+
+```bash
+# Instalar Chromium manualmente
+npx puppeteer browsers install chrome
+
+# O especificar versión
+npx puppeteer browsers install chrome@stable
+```
+
+### Verificar instalación
+
+```bash
+# Ver navegadores instalados
+npx puppeteer browsers list
+
+# Debería mostrar algo como:
+# chrome@142.0.7444.162 /root/.cache/puppeteer/chrome/linux-142.0.7444.162/chrome-linux64/chrome
+```
 
 ---
 
@@ -106,21 +130,94 @@ Por eso solo usamos Puppeteer cuando es absolutamente necesario.
 
 ## Troubleshooting
 
-**Error: `Cannot find module 'puppeteer'`**
+### Error: `Cannot find module 'puppeteer'`
 → Ejecuta `npm install puppeteer`
 
-**Error: `Failed to launch browser`**
+### Error: `Could not find Chrome (ver. 142.0.7444.162)`
+→ Chromium no está instalado. Ejecuta:
+```bash
+npx puppeteer browsers install chrome
+```
+
+### Error: `Got status code 403` durante instalación
+→ El firewall/proxy está bloqueando la descarga. Opciones:
+1. **Configurar proxy** (si aplica):
+   ```bash
+   npm config set proxy http://proxy.example.com:8080
+   npm config set https-proxy http://proxy.example.com:8080
+   ```
+2. **Usar Chromium del sistema** (Ubuntu/Debian):
+   ```bash
+   sudo apt-get install chromium-browser
+   # Luego configurar PUPPETEER_EXECUTABLE_PATH
+   export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+   ```
+3. **Descargar Chromium manualmente**:
+   - Descargar desde: https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html
+   - Extraer en `~/.cache/puppeteer/chrome/`
+   - Configurar `PUPPETEER_EXECUTABLE_PATH`
+
+### Error: `Failed to launch browser`
 → En servidores sin GUI, instala dependencias:
 ```bash
 # Ubuntu/Debian
-sudo apt-get install -y chromium-browser
-
-# O usa puppeteer con bundled Chromium
-npm install puppeteer  # (no puppeteer-core)
+sudo apt-get install -y \
+  chromium-browser \
+  ca-certificates \
+  fonts-liberation \
+  libappindicator3-1 \
+  libasound2 \
+  libatk-bridge2.0-0 \
+  libatk1.0-0 \
+  libc6 \
+  libcairo2 \
+  libcups2 \
+  libdbus-1-3 \
+  libexpat1 \
+  libfontconfig1 \
+  libgbm1 \
+  libgcc1 \
+  libglib2.0-0 \
+  libgtk-3-0 \
+  libnspr4 \
+  libnss3 \
+  libpango-1.0-0 \
+  libpangocairo-1.0-0 \
+  libstdc++6 \
+  libx11-6 \
+  libx11-xcb1 \
+  libxcb1 \
+  libxcomposite1 \
+  libxcursor1 \
+  libxdamage1 \
+  libxext6 \
+  libxfixes3 \
+  libxi6 \
+  libxrandr2 \
+  libxrender1 \
+  libxss1 \
+  libxtst6 \
+  lsb-release \
+  wget \
+  xdg-utils
 ```
 
-**Timeout esperando selector**
+### Timeout esperando selector
 → Aumenta `waitForTimeout` en la config o ajusta `waitForSelector`
+
+### Sandbox restrictions (Docker/CI)
+→ Agrega flags al launch de Puppeteer:
+```typescript
+await puppeteer.launch({
+  headless: true,
+  args: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+  ],
+});
+```
+**Nota**: `PuppeteerWebScraper` ya incluye estos flags por defecto.
 
 ---
 
