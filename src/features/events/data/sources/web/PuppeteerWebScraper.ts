@@ -419,14 +419,20 @@ export class PuppeteerWebScraper implements IDataSource {
 
     try {
       // Navegar a la página de detalles
+      // Usar 'load' en lugar de 'networkidle2' para Blazor - más permisivo
       await page.goto(url, {
-        waitUntil: 'networkidle2',
+        waitUntil: 'load',
         timeout: this.config.detailPage.timeout || 30000,
       });
 
+      // CRÍTICO para Blazor: Delay fijo para que Blazor Server inicialice SignalR/WebSocket
+      const blazorInitDelay = 5000; // 5 segundos para inicialización de Blazor
+      console.log(`[${this.name}]   Waiting ${blazorInitDelay}ms for Blazor initialization...`);
+      await new Promise(resolve => setTimeout(resolve, blazorInitDelay));
+
       // Esperar a que el selector específico aparezca (detailPage)
       const detailWaitSelector = this.config.detailPage.waitForSelector || '.evento-titulo';
-      const detailWaitTimeout = this.config.detailPage.waitForTimeout || 30000;
+      const detailWaitTimeout = this.config.detailPage.waitForTimeout || 45000; // Aumentado a 45s
 
       console.log(`[${this.name}]   Waiting for detail selector: ${detailWaitSelector}`);
 
@@ -434,8 +440,17 @@ export class PuppeteerWebScraper implements IDataSource {
         await page.waitForSelector(detailWaitSelector, { timeout: detailWaitTimeout });
         console.log(`[${this.name}]   ✅ Detail selector found: ${detailWaitSelector}`);
       } catch {
-        console.warn(`[${this.name}]   ⚠️  Timeout waiting for ${detailWaitSelector}, Blazor may not have loaded`);
-        // Continuar de todos modos - loggear que puede fallar
+        // Si falla, intentar un delay adicional por si Blazor es muy lento
+        console.warn(`[${this.name}]   ⚠️  Timeout waiting for ${detailWaitSelector}, retrying with additional delay...`);
+        await new Promise(resolve => setTimeout(resolve, 5000));
+
+        // Verificar si ahora el selector está presente
+        const html = await page.content();
+        console.log(`[${this.name}]   HTML length after retry: ${html.length} bytes`);
+
+        if (html.length < 20000) {
+          console.warn(`[${this.name}]   ❌ Blazor did not load (HTML too small: ${html.length} bytes)`);
+        }
       }
 
       // Obtener HTML renderizado
