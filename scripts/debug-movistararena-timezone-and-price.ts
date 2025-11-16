@@ -106,6 +106,29 @@ async function diagnosePage(url: string) {
       }
     });
 
+    console.log('\n--- PRICE CONTAINER STRUCTURE ---');
+    // Encontrar el span con el precio y mostrar su jerarquía
+    $('span').each((_, el) => {
+      const text = $(el).text().trim();
+      if (text.includes('$') && text.length < 50) {
+        const $el = $(el);
+        console.log('\nFound price span:', text);
+
+        // Mostrar padres
+        console.log('Parent chain:');
+        let $parent = $el.parent();
+        let depth = 0;
+        while ($parent.length > 0 && depth < 5) {
+          const tagName = $parent.get(0)?.tagName?.toLowerCase() || 'unknown';
+          const className = $parent.attr('class') || '(no class)';
+          const id = $parent.attr('id') || '(no id)';
+          console.log(`  ${depth + 1}. <${tagName}> class="${className}" id="${id}"`);
+          $parent = $parent.parent();
+          depth++;
+        }
+      }
+    });
+
   } finally {
     await page.close();
     await browser.close();
