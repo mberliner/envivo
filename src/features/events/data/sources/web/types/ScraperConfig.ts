@@ -110,6 +110,18 @@ export interface DetailPageConfig {
   delayBetweenRequests?: number;
   /** Timeout para cada página de detalles (ms) - default 30000ms */
   timeout?: number;
+  /**
+   * Selector CSS que debe aparecer después de que JS cargue el contenido de la página de detalles
+   * Solo se usa si requiresJavaScript = true
+   * El scraper esperará a que este selector esté visible antes de extraer datos
+   */
+  waitForSelector?: string;
+  /**
+   * Timeout máximo para esperar que JS cargue el contenido de la página de detalles (ms)
+   * Solo se usa si requiresJavaScript = true
+   * Default: 30000 (30 segundos)
+   */
+  waitForTimeout?: number;
 }
 
 /**

@@ -108,24 +108,29 @@ export const movistarArenaConfig: ScraperConfig = {
   },
 
   // Configuración para scraping de página de detalles
-  // HABILITADO para obtener hora, descripción y precio
+  // HABILITADO para obtener hora (descripción y precio temporalmente deshabilitados)
   detailPage: {
     enabled: true,
     delayBetweenRequests: 1000, // 1 segundo entre requests de detalles
+
+    // CRÍTICO: Esperar a que Blazor cargue el contenido antes de scrapear
+    waitForSelector: '.evento-titulo', // Esperar título del evento
+    waitForTimeout: 30000, // 30 segundos máximo
 
     selectors: {
       // Título completo del evento
       title: '.evento-titulo',
 
-      // Descripción del evento: capturar todos los párrafos <p> dentro de la sección principal
-      // (div.descripcion no existe, hay varios <p class="descripcion"> con fragmentos)
-      description: '.evento-row',
+      // Descripción: TEMPORALMENTE DESHABILITADO - selector '.evento-row' captura metadata en lugar de descripción
+      // TODO: Encontrar selector correcto para descripción del evento
+      description: undefined,
 
       // Hora del show (segundo elemento .hora es el show, primero es puertas)
       time: '.horarios .hora:nth-child(2)', // "21:00 hs Show" (segundo .hora dentro de .horarios)
 
-      // Precio: buscar en section o main content para evitar precios del footer/menu
-      price: 'main, section, .content, body', // Buscar en contenido principal primero
+      // Precio: TEMPORALMENTE DESHABILITADO - selector captura Google Tag Manager iframe
+      // TODO: Encontrar selector correcto o extraer de otra forma
+      price: undefined,
 
       // Campos que no cambian (usar defaults)
       venue: undefined,

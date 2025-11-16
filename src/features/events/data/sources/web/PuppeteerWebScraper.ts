@@ -325,12 +325,12 @@ export class PuppeteerWebScraper implements IDataSource {
             const hours = parseInt(timeMatch[1], 10);
             const minutes = parseInt(timeMatch[2], 10);
 
-            // Crear nueva fecha con la hora especificada
+            // Crear nueva fecha con la hora especificada (UTC para evitar problemas de timezone)
             const dateWithTime = new Date(transformedData.date);
-            dateWithTime.setHours(hours, minutes, 0, 0);
+            dateWithTime.setUTCHours(hours, minutes, 0, 0);
 
             transformedData.date = dateWithTime;
-            console.log(`[${this.name}] ⏰ Combined date + time: ${dateWithTime.toISOString()}`);
+            console.log(`[${this.name}] ⏰ Combined date + time: ${dateWithTime.toISOString()} (${hours}:${String(minutes).padStart(2, '0')} UTC)`);
           }
         }
 
@@ -424,8 +424,19 @@ export class PuppeteerWebScraper implements IDataSource {
         timeout: this.config.detailPage.timeout || 30000,
       });
 
-      // Esperar un poco para que JavaScript cargue todo
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Esperar a que el selector específico aparezca (detailPage)
+      const detailWaitSelector = this.config.detailPage.waitForSelector || '.evento-titulo';
+      const detailWaitTimeout = this.config.detailPage.waitForTimeout || 30000;
+
+      console.log(`[${this.name}]   Waiting for detail selector: ${detailWaitSelector}`);
+
+      try {
+        await page.waitForSelector(detailWaitSelector, { timeout: detailWaitTimeout });
+        console.log(`[${this.name}]   ✅ Detail selector found: ${detailWaitSelector}`);
+      } catch {
+        console.warn(`[${this.name}]   ⚠️  Timeout waiting for ${detailWaitSelector}, Blazor may not have loaded`);
+        // Continuar de todos modos - loggear que puede fallar
+      }
 
       // Obtener HTML renderizado
       const html = await page.content();
