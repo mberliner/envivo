@@ -35,6 +35,8 @@ export interface EventSelectors {
   title?: string;
   /** Selector de la fecha/hora */
   date?: string;
+  /** Selector de la hora específica (HH:MM) */
+  time?: string;
   /** Selector del venue/lugar */
   venue?: string;
   /** Selector de la ciudad */
@@ -106,6 +108,8 @@ export interface DetailPageConfig {
   transforms?: TransformFunctions;
   /** Delay entre requests de detalles (ms) - default 500ms */
   delayBetweenRequests?: number;
+  /** Timeout para cada página de detalles (ms) - default 30000ms */
+  timeout?: number;
 }
 
 /**

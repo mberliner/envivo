@@ -769,6 +769,50 @@ export function parseMovistarDate(dateString: string): Date | undefined {
 }
 
 /**
+ * Extrae la hora del show de Movistar Arena
+ *
+ * Ejemplos:
+ * extractMovistarTime("21:00 hs Show") → "21:00"
+ * extractMovistarTime("19:00 hs\n                    Puertas") → "19:00"
+ *
+ * @param timeString - String con la hora del evento
+ * @returns String con la hora en formato HH:MM o undefined si no se encuentra
+ */
+export function extractMovistarTime(timeString: string): string | undefined {
+  if (!timeString) return undefined;
+
+  // Buscar patrón HH:MM en el texto
+  const match = timeString.match(/\b(\d{1,2}):(\d{2})\b/);
+  if (!match) return undefined;
+
+  return match[0]; // Retorna "21:00"
+}
+
+/**
+ * Extrae el precio de Movistar Arena del texto de la página
+ *
+ * Ejemplos:
+ * extractMovistarPrice("... $ 60.000 ...") → "$60000"
+ * extractMovistarPrice("Desde $ 15.500 hasta $ 85.000") → "$15500" (primer precio)
+ *
+ * @param bodyText - Texto completo de la página
+ * @returns String con el precio normalizado o undefined si no se encuentra
+ */
+export function extractMovistarPrice(bodyText: string): string | undefined {
+  if (!bodyText) return undefined;
+
+  // Buscar patrón de precio: $ seguido de números y puntos/comas
+  const match = bodyText.match(/\$\s*([\d.,]+)/);
+  if (!match) return undefined;
+
+  // Limpiar el precio: remover puntos y comas, mantener solo dígitos
+  const cleanPrice = match[1].replace(/[.,]/g, '');
+
+  // Retornar en formato "$XXXXX"
+  return `$${cleanPrice}`;
+}
+
+/**
  * Mapeo de nombres de transformaciones a funciones
  *
  * Usado por GenericWebScraper para aplicar transformaciones por nombre.
@@ -787,6 +831,8 @@ export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: strin
   extractBackgroundImage: (value: string) => extractBackgroundImage(value),
   cleanMovistarDate: (value: string) => cleanMovistarDate(value),
   parseMovistarDate: (value: string) => parseMovistarDate(value),
+  extractMovistarTime: (value: string) => extractMovistarTime(value),
+  extractMovistarPrice: (value: string) => extractMovistarPrice(value),
 };
 
 /**

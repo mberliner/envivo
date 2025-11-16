@@ -108,21 +108,32 @@ export const movistarArenaConfig: ScraperConfig = {
   },
 
   // Configuración para scraping de página de detalles
-  // DESHABILITADO inicialmente - habilitar si se necesita precio u otros datos
+  // HABILITADO para obtener hora, descripción y precio
   detailPage: {
-    enabled: false,
-    delayBetweenRequests: 500,
+    enabled: true,
+    delayBetweenRequests: 1000, // 1 segundo entre requests de detalles
 
     selectors: {
-      // Selectores para la página de detalle (a validar si se habilita)
-      date: 'meta[name="description"]@content',
-      venue: undefined, // Siempre es Movistar Arena
-      address: undefined, // Siempre es la misma dirección
-      price: '.precio, .price',
-      description: '.description, .event-description',
-      title: 'h1',
-      image: 'meta[property="og:image"]@content',
-      category: undefined, // Siempre es Concierto
+      // Título completo del evento
+      title: '.evento-titulo',
+
+      // Descripción del evento
+      description: '.descripcion',
+
+      // Hora del show (segundo elemento .hora contiene la hora del show)
+      // Usamos .horarios que contiene todo el bloque de horarios
+      time: '.hora:nth-of-type(2)', // "21:00 hs Show"
+
+      // Precio: no hay selector específico, se extrae del texto completo de la página
+      // El transform extractMovistarPrice buscará el patrón "$ X.XXX"
+      price: 'body', // Buscar en todo el body
+
+      // Campos que no cambian (usar defaults)
+      venue: undefined,
+      address: undefined,
+      category: undefined,
+      city: undefined,
+      country: undefined,
     },
 
     defaultValues: {
@@ -134,11 +145,10 @@ export const movistarArenaConfig: ScraperConfig = {
     },
 
     transforms: {
-      date: 'parseMovistarDate',
-      description: 'sanitizeHtml',
-      price: 'extractPrice',
-      image: 'toAbsoluteUrl',
       title: 'cleanWhitespace',
+      description: 'sanitizeHtml',
+      time: 'extractMovistarTime', // Extraer "21:00" de "21:00 hs Show"
+      price: 'extractMovistarPrice', // Extraer "$ 60.000" del texto
     },
   },
 };

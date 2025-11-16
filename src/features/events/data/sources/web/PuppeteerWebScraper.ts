@@ -200,7 +200,7 @@ export class PuppeteerWebScraper implements IDataSource {
 
       $items.each((_, element) => {
         const $item = $(element);
-        const promise = this.extractEventData($item).catch((error: unknown) => {
+        const promise = this.extractEventData($item, browser).catch((error: unknown) => {
           if (this.config.errorHandling?.skipFailedEvents) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             console.warn(
@@ -235,7 +235,8 @@ export class PuppeteerWebScraper implements IDataSource {
    * Extrae datos de un evento individual (reutiliza lógica de GenericWebScraper)
    */
   private async extractEventData(
-    $item: cheerio.Cheerio<any>
+    $item: cheerio.Cheerio<any>,
+    browser: any // Browser from Puppeteer
   ): Promise<RawEvent | null> {
     const { selectors, transforms, defaultValues } = this.config;
 
@@ -278,7 +279,7 @@ export class PuppeteerWebScraper implements IDataSource {
     });
 
     // Aplicar transformaciones
-    const transformedData: Record<string, unknown> = { ...rawData };
+    let transformedData: Record<string, unknown> = { ...rawData };
 
     if (transforms) {
       Object.entries(transforms).forEach(([field, transformName]) => {
@@ -297,6 +298,34 @@ export class PuppeteerWebScraper implements IDataSource {
           }
         }
       });
+    }
+
+    // Si detailPage está habilitado, scrapear detalles adicionales
+    if (this.config.detailPage?.enabled && transformedData.link) {
+      try {
+        const detailUrl = toAbsoluteUrl(transformedData.link as string, this.config.baseUrl);
+        console.log(`[${this.name}] 🔍 Scraping detail page: ${detailUrl}`);
+
+        const detailData = await this.scrapeDetailPage(browser, detailUrl);
+        console.log(`[${this.name}] ✅ Detail data scraped:`, {
+          time: detailData.time,
+          price: detailData.price,
+          description: detailData.description ? `${(detailData.description as string).substring(0, 50)}...` : undefined,
+        });
+
+        // Mergear datos: detalles tienen prioridad sobre listado
+        transformedData = { ...transformedData, ...detailData };
+
+        // Delay entre requests de detalles
+        const delay = this.config.detailPage.delayBetweenRequests || 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.warn(
+          `[${this.name}] ❌ Failed to scrape detail page for ${transformedData.link}: ${errorMessage}`
+        );
+        // Continuar con datos del listado solamente
+      }
     }
 
     // Validar campos obligatorios
@@ -355,6 +384,102 @@ export class PuppeteerWebScraper implements IDataSource {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '_')
       .substring(0, 100);
+  }
+
+  /**
+   * Scrapea la página de detalles de un evento usando Puppeteer
+   */
+  private async scrapeDetailPage(browser: any, url: string): Promise<Record<string, unknown>> {
+    if (!this.config.detailPage) {
+      return {};
+    }
+
+    const { selectors, transforms, defaultValues } = this.config.detailPage;
+
+    // Crear nueva página
+    const page = await browser.newPage();
+
+    try {
+      // Navegar a la página de detalles
+      await page.goto(url, {
+        waitUntil: 'networkidle2',
+        timeout: this.config.detailPage.timeout || 30000,
+      });
+
+      // Esperar un poco para que JavaScript cargue todo
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Obtener HTML renderizado
+      const html = await page.content();
+
+      // Parsear con Cheerio (reutiliza toda la lógica)
+      const $ = cheerio.load(html);
+
+      const rawData: Record<string, string> = {};
+
+      // Extraer campos usando selectores de detailPage
+      Object.entries(selectors).forEach(([field, selector]) => {
+        if (!selector) {
+          // Si no hay selector, usar valor por defecto si existe
+          if (defaultValues && field in defaultValues) {
+            const defaultValue = defaultValues[field as keyof typeof defaultValues];
+            if (defaultValue) {
+              rawData[field] = defaultValue;
+            }
+          }
+          return;
+        }
+
+        let value: string | undefined;
+
+        // Extraer valor según el tipo de selector
+        if (selector.includes('@')) {
+          // Atributo (ej: ".event-img@src", "a@href")
+          const [cssSelector, attrName] = selector.split('@');
+          value = $(cssSelector).attr(attrName);
+        } else {
+          // Texto
+          value = $(selector).text().trim();
+        }
+
+        if (value) {
+          rawData[field] = cleanWhitespace(value);
+        } else if (defaultValues && field in defaultValues) {
+          // Si no se encontró valor, usar default si existe
+          const defaultValue = defaultValues[field as keyof typeof defaultValues];
+          if (defaultValue) {
+            rawData[field] = defaultValue;
+          }
+        }
+      });
+
+      // Aplicar transformaciones específicas de detailPage
+      const transformedData: Record<string, unknown> = { ...rawData };
+
+      if (transforms) {
+        Object.entries(transforms).forEach(([field, transformName]) => {
+          if (rawData[field] && transformName) {
+            try {
+              transformedData[field] = applyTransform(
+                transformName,
+                rawData[field],
+                this.config.baseUrl
+              );
+            } catch (error: unknown) {
+              const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+              console.warn(
+                `[${this.name}] Failed to transform detail field ${field}: ${errorMessage}`
+              );
+            }
+          }
+        });
+      }
+
+      return transformedData;
+    } finally {
+      // Siempre cerrar la página
+      await page.close();
+    }
   }
 
   /**
