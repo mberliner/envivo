@@ -792,9 +792,12 @@ export function extractMovistarTime(timeString: string): string | undefined {
  * Extrae el precio de Movistar Arena del texto de la página
  *
  * Ejemplos:
- * extractMovistarPrice("... $ 60.000 ...") → 60000
- * extractMovistarPrice("Desde $ 15.500 hasta $ 85.000") → 15500 (primer precio)
+ * extractMovistarPrice("desde $ 60.000") → 60000
+ * extractMovistarPrice("$ 15.500") → 15500
  * extractMovistarPrice("$ 45.000,50") → 45000.50
+ *
+ * IMPORTANTE: Evita capturar números de fecha que aparecen después del precio
+ * (ej: "$ 60.000 16 noviembre" no debe capturar "16" como parte del precio)
  *
  * @param bodyText - Texto completo de la página
  * @returns Número con el precio o undefined si no se encuentra
@@ -802,9 +805,10 @@ export function extractMovistarTime(timeString: string): string | undefined {
 export function extractMovistarPrice(bodyText: string): number | undefined {
   if (!bodyText) return undefined;
 
-  // Buscar patrón de precio: $ seguido de números, puntos y/o comas
+  // Buscar patrón "desde $ XXXXX" o "$ XXXXX" seguido de espacio/salto de línea
   // Formato argentino: $ 60.000 o $ 60.000,50 (punto = separador miles, coma = decimal)
-  const match = bodyText.match(/\$\s*([\d.,]+)/);
+  // El \s+ al final asegura que hay un espacio después (evita capturar dígitos de fechas)
+  const match = bodyText.match(/\$\s*([\d]{1,3}(?:[.,]\d{3})*(?:,\d{1,2})?)\s+/);
   if (!match) return undefined;
 
   let priceStr = match[1];

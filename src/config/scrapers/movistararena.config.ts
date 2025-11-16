@@ -117,11 +117,12 @@ export const movistarArenaConfig: ScraperConfig = {
       // Título completo del evento
       title: '.evento-titulo',
 
-      // Descripción del evento (div.descripcion para ser más específico)
-      description: 'div.descripcion',
+      // Descripción del evento: capturar todos los párrafos <p> dentro de la sección principal
+      // (div.descripcion no existe, hay varios <p class="descripcion"> con fragmentos)
+      description: '.evento-row',
 
-      // Hora del show (segundo elemento .hora contiene la hora del show)
-      time: '.hora:nth-of-type(2)', // "21:00 hs Show"
+      // Hora del show (segundo elemento .hora es el show, primero es puertas)
+      time: '.horarios .hora:nth-child(2)', // "21:00 hs Show" (segundo .hora dentro de .horarios)
 
       // Precio: buscar en section o main content para evitar precios del footer/menu
       price: 'main, section, .content, body', // Buscar en contenido principal primero
