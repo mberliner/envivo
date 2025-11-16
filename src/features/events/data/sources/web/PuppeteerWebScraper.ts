@@ -494,7 +494,16 @@ export class PuppeteerWebScraper implements IDataSource {
           value = $(cssSelector).attr(attrName);
         } else {
           // Texto
-          value = $(selector).text().trim();
+          // CASO ESPECIAL: Para precio, remover iframes y scripts antes de buscar
+          if (field === 'price' && (selector === 'body' || selector === 'main' || selector.includes('body') || selector.includes('main'))) {
+            // Clonar el selector para no modificar el DOM original
+            const $clone = $(selector).clone();
+            // Remover iframes, scripts, noscript
+            $clone.find('iframe, script, noscript, style').remove();
+            value = $clone.text().trim();
+          } else {
+            value = $(selector).text().trim();
+          }
         }
 
         if (value) {

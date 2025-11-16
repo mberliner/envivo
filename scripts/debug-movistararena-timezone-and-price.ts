@@ -113,5 +113,5 @@ async function diagnosePage(url: string) {
 }
 
 // Test con evento específico
-const testUrl = 'https://www.movistararena.com.ar/evento/luciano-pereyra-tour-te-sigo-amando';
+const testUrl = 'https://www.movistararena.com.ar/show/59efb1a5-e06e-4dfa-8af6-50770bc80d90';
 diagnosePage(testUrl).catch(console.error);

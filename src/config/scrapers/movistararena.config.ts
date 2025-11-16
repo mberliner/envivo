@@ -128,9 +128,9 @@ export const movistarArenaConfig: ScraperConfig = {
       // Hora del show (segundo elemento .hora es el show, primero es puertas)
       time: '.horarios .hora:nth-child(2)', // "21:00 hs Show" (segundo .hora dentro de .horarios)
 
-      // Precio: TEMPORALMENTE DESHABILITADO - selector captura Google Tag Manager iframe
-      // TODO: Encontrar selector correcto o extraer de otra forma
-      price: undefined,
+      // Precio: buscar en body (PuppeteerWebScraper filtra iframes/scripts automáticamente)
+      // extractMovistarPrice parseará el formato argentino: "$ 60.000" → 60000
+      price: 'body',
 
       // Campos que no cambian (usar defaults)
       venue: undefined,
