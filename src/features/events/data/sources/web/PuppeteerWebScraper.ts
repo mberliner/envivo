@@ -171,7 +171,7 @@ export class PuppeteerWebScraper implements IDataSource {
       try {
         await page.waitForSelector(waitForSelector, { timeout: waitForTimeout });
         console.log(`[${this.name}] ✅ Selector found: ${waitForSelector}`);
-      } catch (error) {
+      } catch {
         console.warn(`[${this.name}] ⚠️  Timeout waiting for ${waitForSelector}, continuing anyway...`);
         // Continuar de todos modos - puede que el selector sea incorrecto pero el contenido esté ahí
       }
@@ -200,7 +200,7 @@ export class PuppeteerWebScraper implements IDataSource {
 
       $items.each((_, element) => {
         const $item = $(element);
-        const promise = this.extractEventData($item, $).catch((error: unknown) => {
+        const promise = this.extractEventData($item).catch((error: unknown) => {
           if (this.config.errorHandling?.skipFailedEvents) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             console.warn(
@@ -235,8 +235,7 @@ export class PuppeteerWebScraper implements IDataSource {
    * Extrae datos de un evento individual (reutiliza lógica de GenericWebScraper)
    */
   private async extractEventData(
-    $item: cheerio.Cheerio<cheerio.Element>,
-    $: cheerio.CheerioAPI
+    $item: cheerio.Cheerio<cheerio.Element>
   ): Promise<RawEvent | null> {
     const { selectors, transforms, defaultValues } = this.config;
 
@@ -279,7 +278,7 @@ export class PuppeteerWebScraper implements IDataSource {
     });
 
     // Aplicar transformaciones
-    let transformedData: Record<string, unknown> = { ...rawData };
+    const transformedData: Record<string, unknown> = { ...rawData };
 
     if (transforms) {
       Object.entries(transforms).forEach(([field, transformName]) => {
