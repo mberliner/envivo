@@ -345,6 +345,8 @@ scrapers.forEach(scraper => orchestrator.registerSource(scraper));
 
 ## Agregar un Nuevo Sitio
 
+> **💡 Guía Rápida**: Ver [ADDING_SCRAPERS.md](ADDING_SCRAPERS.md) para prompt template y checklist completo de implementación.
+
 ### Paso 1: Inspeccionar HTML
 
 1. Abrir el sitio en navegador (ej: `https://example.com/eventos`)
@@ -798,4 +800,4 @@ console.log('Items found:', $items.length); // Ver cuántos items se encuentran
 
 ---
 
-**Última actualización**: 9 de Noviembre de 2025
+**Última actualización**: Diciembre 2025

@@ -2,6 +2,8 @@
 
 **Prompt-oriented**: Esta guía se enfoca en el prompt, no en código que puede quedar obsoleto.
 
+> **Ver también**: [WEB_SCRAPING.md](WEB_SCRAPING.md) para documentación técnica completa del sistema de scraping (arquitectura, configuración avanzada, transformaciones, testing).
+
 ---
 
 ## Prompt Template
@@ -61,7 +63,6 @@ Si SÍ, proveer:
 
 **Documentación (CRÍTICO):**
 Actualizar estos archivos:
-- roadmap_imple.md (agregar nueva fuente en sección correspondiente)
 - README.md (si es fuente principal)
 - docs/DEVELOPMENT.md (si requiere API key o setup especial)
 - .env.example (si requiere secrets)
@@ -120,7 +121,7 @@ NO requiere scraping de detalle
 - src/features/events/data/sources/web/utils/transforms.ts (transforms)
 
 **Documentación:**
-Actualizar: roadmap_imple.md, README.md
+Actualizar: README.md
 
 **Commits:**
 1. feat: add Teatro Coliseo web scraper
@@ -157,7 +158,6 @@ Actualizar: roadmap_imple.md, README.md
 - [ ] Tests unitarios >60% coverage
 
 **Documentación:**
-- [ ] roadmap_imple.md actualizado
 - [ ] README.md actualizado (si aplica)
 - [ ] docs/DEVELOPMENT.md actualizado (si requiere setup)
 - [ ] .env.example actualizado (si requiere secrets)
@@ -236,5 +236,4 @@ Ver transforms disponibles en: `src/features/events/data/sources/web/utils/trans
 
 ---
 
-**Última actualización**: Noviembre 2025
-**Versión**: 1.0
+**Última actualización**: Diciembre 2025

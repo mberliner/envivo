@@ -742,4 +742,4 @@ Cuando documentes código o features, sigue el principio **"Single Source of Tru
 
 ---
 
-**Última actualización**: Noviembre 2025
+**Última actualización**: Diciembre 2025

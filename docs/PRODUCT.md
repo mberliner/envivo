@@ -33,8 +33,6 @@ Ordenadas por criticidad desde perspectiva de **Vertical Slices** - fundamentos 
 | **Deploy en producción** | Vercel con CI/CD automático desde GitHub | 🔴 CRÍTICO | Fase 7 |
 | **Experiencia pulida** | Tests E2E, responsive design, loading states, optimización de performance | 🟡 IMPORTANTE | Fase 8 |
 
-> **Nota**: Ver `roadmap_imple.md` para tracking detallado del estado actual de implementación.
-
 ### 🚫 NO Incluir en MVP (Post-MVP)
 
 #### Features de Usuario
@@ -580,4 +578,4 @@ Aplica a todas las historias de usuario del MVP.
 
 ---
 
-**Última actualización**: 10 de Noviembre de 2025
+**Última actualización**: Diciembre 2025

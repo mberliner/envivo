@@ -909,7 +909,7 @@ src/
 
 **Cobertura de Eventos**:
 - ~40+ eventos musicales en Movistar Arena
-- Rango de fechas: Noviembre 2025 - Octubre 2026
+- Rango de fechas: Diciembre 2025 - Octubre 2026
 - Géneros: Rock, Pop, Reggaeton, Folklore, etc.
 
 **Entregable**:
