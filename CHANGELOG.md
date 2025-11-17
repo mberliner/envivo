@@ -41,7 +41,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [0.1.0] - 2025-11-09
 
 ### Agregado
-- **Ticketmaster API**: Integración con API oficial de Ticketmaster Argentina
+- **Ticketmaster API**: Eliminada la Integración con API oficial de Ticketmaster porque no contiene espectaculos en argentina
 - **LivePass scraper**: Web scraping de Café Berlín con soporte para páginas de detalle
 - Clean Architecture con 3 capas (Domain, Data, UI)
 - DataSourceOrchestrator para scraping asíncrono de múltiples fuentes

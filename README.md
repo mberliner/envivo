@@ -4,7 +4,7 @@
 
 ## ✨ Características
 
-- 🔍 **Búsqueda unificada** - Eventos de Ticketmaster, LivePass, Movistar Arena, Teatro Coliseo y más
+- 🔍 **Búsqueda unificada** - Eventos de LivePass, Movistar Arena, Teatro Coliseo y más
 - 🎯 **Filtros inteligentes** - Por ciudad, fecha, género y categoría musical
 - 🎵 **Sin duplicados** - Deduplicación automática entre fuentes
 - 📱 **Responsive** - Funciona en desktop, tablet y móvil
@@ -39,7 +39,6 @@ Abrir [http://localhost:3000](http://localhost:3000)
 
 ## 🎯 Fuentes de Datos Activas
 
-- **Ticketmaster** - Eventos de Ticketmaster Argentina (API oficial)
 - **LivePass** - Café Berlín y otros venues locales (web scraping)
 - **Movistar Arena** - Eventos de Movistar Arena Buenos Aires
 - **Teatro Coliseo** - Teatro, conciertos y festivales en Buenos Aires
