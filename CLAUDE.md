@@ -11,6 +11,7 @@
 ### Enlaces Rápidos a Documentación
 
 - **[README.md](README.md)** - Quick start, estructura del proyecto, comandos básicos
+- **[CHANGELOG.md](CHANGELOG.md)** - Historia de cambios del proyecto
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Clean Architecture, SOLID, scraping asíncrono, ADRs
 - **[docs/PRODUCT.md](docs/PRODUCT.md)** - Features del MVP, user stories, roadmap
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Setup, testing, debugging, best practices

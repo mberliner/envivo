@@ -82,6 +82,7 @@ src/
 - **[ADDING_SCRAPERS.md](docs/ADDING_SCRAPERS.md)** - Cómo agregar nuevos sitios web
 - **[E2E_TESTING.md](docs/E2E_TESTING.md)** - Tests E2E con Playwright
 - **[CLAUDE.md](CLAUDE.md)** - Contexto completo para Claude Code
+- **[CHANGELOG.md](CHANGELOG.md)** - Historia de cambios del proyecto
 
 ### Principios de Documentación
 
