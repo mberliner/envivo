@@ -97,8 +97,7 @@ export class EventBusinessRules {
     }
 
     // 4. Validar contra preferencias globales
-    const preferencesValidation =
-      await this.preferencesService.shouldAcceptEvent(event);
+    const preferencesValidation = await this.preferencesService.shouldAcceptEvent(event);
     if (!preferencesValidation.valid) {
       return preferencesValidation;
     }
@@ -142,14 +141,11 @@ export class EventBusinessRules {
    * Valida que la fecha del evento esté en el rango permitido
    */
   private validateDate(event: Event): ValidationResult {
-    const { minDaysInFuture, maxDaysInFuture, allowPastEvents } =
-      this.config.dateRules;
+    const { minDaysInFuture, maxDaysInFuture, allowPastEvents } = this.config.dateRules;
 
     const now = new Date();
     const eventDate = new Date(event.date);
-    const diffInDays = Math.floor(
-      (eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    const diffInDays = Math.floor((eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
     // Evento muy en el pasado
     if (diffInDays < minDaysInFuture) {
@@ -321,13 +317,11 @@ export class EventBusinessRules {
    * @returns true si son duplicados
    */
   isDuplicate(incoming: Event, existing: Event): boolean {
-    const { dateToleranceHours, fuzzyMatchThreshold } =
-      this.config.duplicateRules;
+    const { dateToleranceHours, fuzzyMatchThreshold } = this.config.duplicateRules;
 
     // 1. Validar fecha similar
     const hoursDiff = Math.abs(
-      (new Date(incoming.date).getTime() - new Date(existing.date).getTime()) /
-        (1000 * 60 * 60)
+      (new Date(incoming.date).getTime() - new Date(existing.date).getTime()) / (1000 * 60 * 60)
     );
 
     if (hoursDiff > dateToleranceHours) {

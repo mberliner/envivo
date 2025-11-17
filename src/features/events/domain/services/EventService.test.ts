@@ -324,11 +324,13 @@ describe('EventService', () => {
 
       expect(result.accepted).toBe(3);
       expect(mockRepository.upsertMany).toHaveBeenCalledTimes(1);
-      expect(mockRepository.upsertMany).toHaveBeenCalledWith(expect.arrayContaining([
-        expect.objectContaining({ title: 'Evento 1' }),
-        expect.objectContaining({ title: 'Evento 2' }),
-        expect.objectContaining({ title: 'Evento 3' }),
-      ]));
+      expect(mockRepository.upsertMany).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ title: 'Evento 1' }),
+          expect.objectContaining({ title: 'Evento 2' }),
+          expect.objectContaining({ title: 'Evento 3' }),
+        ])
+      );
     });
 
     test('procesa mix de eventos válidos e inválidos', async () => {
@@ -383,8 +385,16 @@ describe('EventService', () => {
       futureDate3.setDate(futureDate3.getDate() + 90);
 
       const rawEvents = [
-        createRawEvent({ externalId: 'tm-001', title: 'Metallica en Buenos Aires', date: futureDate1 }),
-        createRawEvent({ externalId: 'tm-002', title: 'Iron Maiden en Córdoba', date: futureDate2 }),
+        createRawEvent({
+          externalId: 'tm-001',
+          title: 'Metallica en Buenos Aires',
+          date: futureDate1,
+        }),
+        createRawEvent({
+          externalId: 'tm-002',
+          title: 'Iron Maiden en Córdoba',
+          date: futureDate2,
+        }),
         createRawEvent({ externalId: 'tm-003', title: 'AC/DC en Rosario', date: futureDate3 }),
       ];
 
@@ -597,9 +607,7 @@ describe('EventService', () => {
       expect(result.accepted).toBe(0);
 
       // Buscar el error específico
-      const customError = result.errors.find(e =>
-        e.reason.includes('Custom validation error')
-      );
+      const customError = result.errors.find((e) => e.reason.includes('Custom validation error'));
       expect(customError).toBeDefined();
     });
   });

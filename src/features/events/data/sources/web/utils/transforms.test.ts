@@ -299,12 +299,8 @@ describe('toAbsoluteUrl', () => {
   const baseUrl = 'https://example.com';
 
   it('should keep absolute URLs unchanged', () => {
-    expect(toAbsoluteUrl('https://other.com/path', baseUrl)).toBe(
-      'https://other.com/path'
-    );
-    expect(toAbsoluteUrl('http://other.com/path', baseUrl)).toBe(
-      'http://other.com/path'
-    );
+    expect(toAbsoluteUrl('https://other.com/path', baseUrl)).toBe('https://other.com/path');
+    expect(toAbsoluteUrl('http://other.com/path', baseUrl)).toBe('http://other.com/path');
   });
 
   it('should convert relative URLs to absolute', () => {
@@ -314,15 +310,11 @@ describe('toAbsoluteUrl', () => {
   });
 
   it('should add leading slash if missing', () => {
-    expect(toAbsoluteUrl('images/photo.jpg', baseUrl)).toBe(
-      'https://example.com/images/photo.jpg'
-    );
+    expect(toAbsoluteUrl('images/photo.jpg', baseUrl)).toBe('https://example.com/images/photo.jpg');
   });
 
   it('should handle baseUrl with trailing slash', () => {
-    expect(toAbsoluteUrl('/path', 'https://example.com/')).toBe(
-      'https://example.com/path'
-    );
+    expect(toAbsoluteUrl('/path', 'https://example.com/')).toBe('https://example.com/path');
   });
 
   it('should return empty string for empty input', () => {
@@ -383,10 +375,25 @@ describe('parseLivepassDate', () => {
 
       // Pick a month in the future
       const futureMonth = (now.getMonth() + 2) % 12;
-      const monthNames = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+      const monthNames = [
+        'ENE',
+        'FEB',
+        'MAR',
+        'ABR',
+        'MAY',
+        'JUN',
+        'JUL',
+        'AGO',
+        'SEP',
+        'OCT',
+        'NOV',
+        'DIC',
+      ];
 
       const result = parseLivepassDate(`15 ${monthNames[futureMonth]}`);
-      expect(result?.getFullYear()).toBe(futureMonth < now.getMonth() ? currentYear + 1 : currentYear);
+      expect(result?.getFullYear()).toBe(
+        futureMonth < now.getMonth() ? currentYear + 1 : currentYear
+      );
     });
   });
 
@@ -883,7 +890,8 @@ describe('extractMovistarTime', () => {
 
 describe('extractMovistarDescription', () => {
   it('should preserve event description paragraphs', () => {
-    const input = '¡Melendi celebra 20 años de carrera!\n\nEl reconocido cantautor español regresa.';
+    const input =
+      '¡Melendi celebra 20 años de carrera!\n\nEl reconocido cantautor español regresa.';
     const result = extractMovistarDescription(input);
     expect(result).toContain('Melendi');
     expect(result).toContain('cantautor español');

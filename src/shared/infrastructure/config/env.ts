@@ -15,10 +15,7 @@ const envSchema = z.object({
   ALLACCESS_API_KEY: z.string().optional(), // Optional - for AllAccess Argentina
 
   // Admin
-  ADMIN_API_KEY: z
-    .string()
-    .min(32, 'ADMIN_API_KEY must be at least 32 characters')
-    .optional(),
+  ADMIN_API_KEY: z.string().min(32, 'ADMIN_API_KEY must be at least 32 characters').optional(),
 
   // Environment
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),

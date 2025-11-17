@@ -8,7 +8,7 @@ import { resolve } from 'path';
 
 const dbs = [
   { name: 'dev.db', desc: 'Development' },
-  { name: 'e2e.db', desc: 'E2E Testing' }
+  { name: 'e2e.db', desc: 'E2E Testing' },
 ];
 
 dbs.forEach(({ name, desc }) => {

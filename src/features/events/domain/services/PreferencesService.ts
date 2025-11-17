@@ -14,10 +14,7 @@
  */
 
 import { Event } from '../entities/Event';
-import {
-  GlobalPreferences,
-  VenueSize,
-} from '../entities/GlobalPreferences';
+import { GlobalPreferences, VenueSize } from '../entities/GlobalPreferences';
 import { IPreferencesRepository } from '../interfaces/IPreferencesRepository';
 
 /**
@@ -68,9 +65,7 @@ export class PreferencesService {
    * @param updates - Preferencias a actualizar (parcial)
    * @returns Preferencias actualizadas
    */
-  async updatePreferences(
-    updates: Partial<GlobalPreferences>
-  ): Promise<GlobalPreferences> {
+  async updatePreferences(updates: Partial<GlobalPreferences>): Promise<GlobalPreferences> {
     // Marcar que se necesita re-scraping
     const updatesWithFlag = {
       ...updates,
@@ -112,8 +107,7 @@ export class PreferencesService {
     // Validar ciudad (si está especificada)
     if (prefs.allowedCities.length > 0 && event.city) {
       const cityMatch = prefs.allowedCities.some(
-        (allowedCity) =>
-          allowedCity.toLowerCase() === event.city.toLowerCase()
+        (allowedCity) => allowedCity.toLowerCase() === event.city.toLowerCase()
       );
 
       if (!cityMatch) {
@@ -163,10 +157,7 @@ export class PreferencesService {
 
     // Validar capacidad de venue (solo si el evento tiene capacidad)
     if (prefs.allowedVenueSizes.length > 0 && event.venueCapacity != null) {
-      const venueSize = this.calculateVenueSize(
-        event.venueCapacity,
-        prefs.venueSizeThresholds
-      );
+      const venueSize = this.calculateVenueSize(event.venueCapacity, prefs.venueSizeThresholds);
 
       if (!prefs.allowedVenueSizes.includes(venueSize)) {
         return {
@@ -236,10 +227,7 @@ export class PreferencesService {
    * @param preferences - Preferencias globales
    * @returns ValidationResult
    */
-  shouldAcceptEventSync(
-    event: Event,
-    preferences: GlobalPreferences
-  ): ValidationResult {
+  shouldAcceptEventSync(event: Event, preferences: GlobalPreferences): ValidationResult {
     // Validar país
     if (preferences.allowedCountries.length > 0) {
       if (!preferences.allowedCountries.includes(event.country)) {
@@ -254,8 +242,7 @@ export class PreferencesService {
     // Validar ciudad
     if (preferences.allowedCities.length > 0 && event.city) {
       const cityMatch = preferences.allowedCities.some(
-        (allowedCity) =>
-          allowedCity.toLowerCase() === event.city.toLowerCase()
+        (allowedCity) => allowedCity.toLowerCase() === event.city.toLowerCase()
       );
 
       if (!cityMatch) {
@@ -296,14 +283,11 @@ export class PreferencesService {
           reason: `Categoría no permitida: ${event.category}`,
           field: 'category',
         };
-        }
+      }
     }
 
     // Validar capacidad de venue
-    if (
-      preferences.allowedVenueSizes.length > 0 &&
-      event.venueCapacity != null
-    ) {
+    if (preferences.allowedVenueSizes.length > 0 && event.venueCapacity != null) {
       const venueSize = this.calculateVenueSize(
         event.venueCapacity,
         preferences.venueSizeThresholds

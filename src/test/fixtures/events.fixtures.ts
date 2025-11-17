@@ -15,7 +15,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-001',
     title: 'Metallica - World Tour 2025',
-    description: 'La legendaria banda de heavy metal regresa a Argentina con su tour mundial, presentando sus grandes éxitos y canciones de su último álbum.',
+    description:
+      'La legendaria banda de heavy metal regresa a Argentina con su tour mundial, presentando sus grandes éxitos y canciones de su último álbum.',
     date: new Date('2025-03-15T21:00:00'),
     endDate: new Date('2025-03-15T23:30:00'),
     venueName: 'Estadio River Plate',
@@ -36,7 +37,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-002',
     title: 'Coldplay - Music of the Spheres Tour',
-    description: 'Coldplay vuelve a Argentina con un show espectacular lleno de luces, efectos visuales y todos sus grandes éxitos.',
+    description:
+      'Coldplay vuelve a Argentina con un show espectacular lleno de luces, efectos visuales y todos sus grandes éxitos.',
     date: new Date('2025-04-20T20:00:00'),
     venueName: 'Estadio Monumental',
     city: 'Buenos Aires',
@@ -56,7 +58,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-003',
     title: 'Taylor Swift - The Eras Tour',
-    description: 'El evento más esperado del año. Taylor Swift presenta todos sus álbumes en un show de más de 3 horas.',
+    description:
+      'El evento más esperado del año. Taylor Swift presenta todos sus álbumes en un show de más de 3 horas.',
     date: new Date('2025-05-10T19:00:00'),
     venueName: 'Estadio River Plate',
     city: 'Buenos Aires',
@@ -78,7 +81,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-004',
     title: 'Fito Páez - Euforia Tour',
-    description: 'Fito Páez presenta su nuevo disco "Euforia" en un concierto imperdible en el Luna Park.',
+    description:
+      'Fito Páez presenta su nuevo disco "Euforia" en un concierto imperdible en el Luna Park.',
     date: new Date('2025-02-14T21:00:00'),
     venueName: 'Luna Park',
     city: 'Buenos Aires',
@@ -98,7 +102,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-005',
     title: 'Los Fabulosos Cadillacs - 40 Años',
-    description: 'Celebrando 40 años de trayectoria, Los Fabulosos Cadillacs presentan todos sus clásicos en un show único.',
+    description:
+      'Celebrando 40 años de trayectoria, Los Fabulosos Cadillacs presentan todos sus clásicos en un show único.',
     date: new Date('2025-03-08T21:00:00'),
     venueName: 'Movistar Arena',
     city: 'Buenos Aires',
@@ -120,7 +125,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-006',
     title: 'Iron Maiden - Legacy of the Beast',
-    description: 'La bestia vuelve a Córdoba con su icónico show lleno de pirotecnia y grandes clásicos del heavy metal.',
+    description:
+      'La bestia vuelve a Córdoba con su icónico show lleno de pirotecnia y grandes clásicos del heavy metal.',
     date: new Date('2025-04-05T21:00:00'),
     venueName: 'Estadio Mario Alberto Kempes',
     city: 'Córdoba',
@@ -162,7 +168,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-008',
     title: 'Divididos - Gira Por Siempre',
-    description: 'Ricardo Mollo y Divididos presentan lo mejor de su repertorio en el Gigante de Arroyito.',
+    description:
+      'Ricardo Mollo y Divididos presentan lo mejor de su repertorio en el Gigante de Arroyito.',
     date: new Date('2025-03-22T21:00:00'),
     venueName: 'Estadio Gigante de Arroyito',
     city: 'Rosario',
@@ -184,7 +191,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-009',
     title: 'Lollapalooza Argentina 2025',
-    description: 'El festival más grande de Argentina regresa con un line-up increíble de artistas nacionales e internacionales.',
+    description:
+      'El festival más grande de Argentina regresa con un line-up increíble de artistas nacionales e internacionales.',
     date: new Date('2025-03-28T12:00:00'),
     endDate: new Date('2025-03-30T23:00:00'),
     venueName: 'Hipódromo de San Isidro',
@@ -205,7 +213,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-010',
     title: 'Cosquín Rock 2025',
-    description: 'El festival de rock más tradicional de Argentina con bandas nacionales e internacionales.',
+    description:
+      'El festival de rock más tradicional de Argentina con bandas nacionales e internacionales.',
     date: new Date('2025-02-08T14:00:00'),
     endDate: new Date('2025-02-09T23:00:00'),
     venueName: 'Aeródromo Santa María de Punilla',
@@ -228,7 +237,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-011',
     title: 'Les Luthiers - Viejos Hazmerreíres',
-    description: 'El legendario grupo de humor vuelve con su espectáculo más exitoso, lleno de música y risas.',
+    description:
+      'El legendario grupo de humor vuelve con su espectáculo más exitoso, lleno de música y risas.',
     date: new Date('2025-02-20T20:00:00'),
     venueName: 'Teatro Colón',
     city: 'Buenos Aires',
@@ -248,7 +258,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-012',
     title: 'Dalia Gutmann - Nada del Otro Mundo',
-    description: 'Stand-up de Dalia Gutmann con su nuevo show lleno de anécdotas y observaciones cotidianas.',
+    description:
+      'Stand-up de Dalia Gutmann con su nuevo show lleno de anécdotas y observaciones cotidianas.',
     date: new Date('2025-01-25T21:00:00'),
     venueName: 'Teatro Metropolitan',
     city: 'Buenos Aires',
@@ -290,7 +301,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-014',
     title: 'Red Hot Chili Peppers - Unlimited Love Tour',
-    description: 'Los californianos regresan a Argentina con su gira mundial presentando su último álbum.',
+    description:
+      'Los californianos regresan a Argentina con su gira mundial presentando su último álbum.',
     date: new Date('2025-11-18T20:00:00'),
     venueName: 'Estadio Vélez Sarsfield',
     city: 'Buenos Aires',
@@ -310,7 +322,8 @@ export const mockEvents: Event[] = [
   {
     id: 'evt-015',
     title: 'Charly García - Piano Bar',
-    description: 'Charly García en formato íntimo presentando sus clásicos al piano en el Teatro Gran Rex.',
+    description:
+      'Charly García en formato íntimo presentando sus clásicos al piano en el Teatro Gran Rex.',
     date: new Date('2025-12-12T21:00:00'),
     venueName: 'Teatro Gran Rex',
     city: 'Buenos Aires',
@@ -333,14 +346,14 @@ export const mockEvents: Event[] = [
  * Obtener ciudades únicas de los fixtures
  */
 export const getUniqueCities = (): string[] => {
-  return Array.from(new Set(mockEvents.map(e => e.city))).sort();
+  return Array.from(new Set(mockEvents.map((e) => e.city))).sort();
 };
 
 /**
  * Obtener categorías únicas de los fixtures
  */
 export const getUniqueCategories = (): string[] => {
-  return Array.from(new Set(mockEvents.map(e => e.category))).sort();
+  return Array.from(new Set(mockEvents.map((e) => e.category))).sort();
 };
 
 /**
@@ -348,11 +361,12 @@ export const getUniqueCategories = (): string[] => {
  */
 export const filterEventsByQuery = (query: string): Event[] => {
   const lowerQuery = query.toLowerCase();
-  return mockEvents.filter(event =>
-    event.title.toLowerCase().includes(lowerQuery) ||
-    event.description?.toLowerCase().includes(lowerQuery) ||
-    event.venueName?.toLowerCase().includes(lowerQuery) ||
-    event.genre?.toLowerCase().includes(lowerQuery)
+  return mockEvents.filter(
+    (event) =>
+      event.title.toLowerCase().includes(lowerQuery) ||
+      event.description?.toLowerCase().includes(lowerQuery) ||
+      event.venueName?.toLowerCase().includes(lowerQuery) ||
+      event.genre?.toLowerCase().includes(lowerQuery)
   );
 };
 
@@ -360,21 +374,21 @@ export const filterEventsByQuery = (query: string): Event[] => {
  * Filtrar eventos por ciudad
  */
 export const filterEventsByCity = (city: string): Event[] => {
-  return mockEvents.filter(event => event.city === city);
+  return mockEvents.filter((event) => event.city === city);
 };
 
 /**
  * Filtrar eventos por categoría
  */
 export const filterEventsByCategory = (category: string): Event[] => {
-  return mockEvents.filter(event => event.category === category);
+  return mockEvents.filter((event) => event.category === category);
 };
 
 /**
  * Filtrar eventos por rango de fechas
  */
 export const filterEventsByDateRange = (from?: Date, to?: Date): Event[] => {
-  return mockEvents.filter(event => {
+  return mockEvents.filter((event) => {
     if (from && event.date < from) return false;
     if (to && event.date > to) return false;
     return true;

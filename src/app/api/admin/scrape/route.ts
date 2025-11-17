@@ -24,10 +24,7 @@ export async function POST(request: NextRequest) {
     const expectedAuth = `Bearer ${env.ADMIN_API_KEY}`;
 
     if (authHeader !== expectedAuth) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Crear orchestrator

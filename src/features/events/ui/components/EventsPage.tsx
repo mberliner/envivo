@@ -168,9 +168,7 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
             EnVivo
             <span className="text-purple-600">.</span>
           </h1>
-          <p className="text-gray-600 mt-1">
-            Descubrí los mejores eventos musicales cerca tuyo
-          </p>
+          <p className="text-gray-600 mt-1">Descubrí los mejores eventos musicales cerca tuyo</p>
         </div>
       </header>
 
@@ -204,7 +202,8 @@ export function EventsPage({ initialCities, initialCategories }: EventsPageProps
             <p className="text-sm text-gray-600">
               {total === 0 && 'No se encontraron eventos'}
               {total === 1 && '1 evento encontrado'}
-              {total > 1 && `${total} eventos encontrados • Mostrando ${offset + 1}-${Math.min(offset + limit, total)}`}
+              {total > 1 &&
+                `${total} eventos encontrados • Mostrando ${offset + 1}-${Math.min(offset + limit, total)}`}
             </p>
           )}
         </div>

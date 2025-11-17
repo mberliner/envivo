@@ -8,6 +8,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Documentación
+
 - Revisión exhaustiva y simplificación de documentación completa
 - Eliminados archivos obsoletos (MIGRATION_INSTRUCCIONES, INSTRUCCIONES_PRISMA, MEJORAS)
 - CLAUDE.md simplificado en 47% eliminando redundancias (SSOT consolidado)
@@ -20,6 +21,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [0.2.0] - 2025-11-17
 
 ### Agregado
+
 - **Movistar Arena scraper**: Integración completa con web scraping de eventos
 - **Teatro Coliseo scraper**: Soporte para teatro, conciertos y festivales en Buenos Aires
 - Sistema de scraping genérico config-driven (GenericWebScraper)
@@ -30,17 +32,20 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Documentación completa de web scraping (WEB_SCRAPING.md, ADDING_SCRAPERS.md)
 
 ### Cambiado
+
 - LivePass scraper migrado a arquitectura config-driven
 - Mejorada extracción de descripción en sitios Blazor Server
 - Actualizados selectores CSS de LivePass/Café Berlín
 
 ### Arreglado
+
 - Corrección de extracción de descripción en Movistar Arena
 - Warnings de ESLint en PuppeteerWebScraper
 
 ## [0.1.0] - 2025-11-09
 
 ### Agregado
+
 - **Ticketmaster API**: Eliminada la Integración con API oficial de Ticketmaster porque no contiene espectaculos en argentina
 - **LivePass scraper**: Web scraping de Café Berlín con soporte para páginas de detalle
 - Clean Architecture con 3 capas (Domain, Data, UI)
@@ -58,6 +63,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Headers de seguridad (CSP, HSTS, X-Frame-Options)
 
 ### Documentación
+
 - ARCHITECTURE.md - Clean Architecture, SOLID, ADRs
 - PRODUCT.md - Features, user stories, roadmap
 - DEVELOPMENT.md - Setup, testing, debugging
@@ -70,6 +76,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [0.0.1] - 2025-11-01
 
 ### Agregado
+
 - Setup inicial del proyecto con Next.js 15 + TypeScript
 - Configuración de Tailwind CSS
 - Setup de Prisma ORM con SQLite
@@ -94,6 +101,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## Versionado
 
 Este proyecto usa [Semantic Versioning](https://semver.org/lang/es/):
+
 - **MAJOR** (X.0.0): Cambios incompatibles con versiones anteriores
 - **MINOR** (0.X.0): Nuevas features compatibles con versiones anteriores
 - **PATCH** (0.0.X): Bug fixes compatibles con versiones anteriores

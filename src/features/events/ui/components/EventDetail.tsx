@@ -77,12 +77,7 @@ export function EventDetail({ event }: EventDetailProps) {
             href="/"
             className="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium transition-colors"
           >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -100,12 +95,7 @@ export function EventDetail({ event }: EventDetailProps) {
         {/* Hero Image */}
         {event.imageUrl && (
           <div className="relative w-full aspect-video bg-gray-200 rounded-lg overflow-hidden shadow-lg mb-6">
-            <Image
-              src={event.imageUrl}
-              alt={event.title}
-              fill
-              className="object-cover"
-            />
+            <Image src={event.imageUrl} alt={event.title} fill className="object-cover" />
             {/* Category Badge */}
             <div className="absolute top-4 right-4">
               <span className="bg-purple-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg">
@@ -116,9 +106,7 @@ export function EventDetail({ event }: EventDetailProps) {
         )}
 
         {/* Title */}
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-          {event.title}
-        </h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">{event.title}</h1>
 
         {/* Info Cards */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
@@ -140,9 +128,7 @@ export function EventDetail({ event }: EventDetailProps) {
               </svg>
               <div>
                 <p className="text-sm text-gray-500 font-medium">Fecha y Hora</p>
-                <p className="text-base text-gray-900 capitalize">
-                  {formatDateTime(event.date)}
-                </p>
+                <p className="text-base text-gray-900 capitalize">{formatDateTime(event.date)}</p>
                 {event.endDate && (
                   <p className="text-sm text-gray-600 mt-1">
                     Hasta: {formatDateTime(event.endDate)}
@@ -290,9 +276,7 @@ export function EventDetail({ event }: EventDetailProps) {
         {/* Additional Info */}
         {event.venueCapacity && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Información Adicional
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Información Adicional</h2>
             <div className="flex items-center text-gray-700">
               <svg
                 className="w-5 h-5 text-purple-600 mr-2"
@@ -308,8 +292,8 @@ export function EventDetail({ event }: EventDetailProps) {
                 />
               </svg>
               <span>
-                Capacidad aproximada:{' '}
-                <strong>{event.venueCapacity.toLocaleString('es-AR')}</strong> personas
+                Capacidad aproximada: <strong>{event.venueCapacity.toLocaleString('es-AR')}</strong>{' '}
+                personas
               </span>
             </div>
           </div>
@@ -321,12 +305,7 @@ export function EventDetail({ event }: EventDetailProps) {
             href="/"
             className="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium transition-colors"
           >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

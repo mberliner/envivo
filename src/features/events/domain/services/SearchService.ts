@@ -111,7 +111,7 @@ export class SearchService {
    */
   async getAvailableCities(): Promise<string[]> {
     const events = await this.repository.findAll();
-    const cities = new Set(events.map(e => e.city));
+    const cities = new Set(events.map((e) => e.city));
     return Array.from(cities).sort();
   }
 
@@ -122,7 +122,7 @@ export class SearchService {
    */
   async getAvailableCategories(): Promise<string[]> {
     const events = await this.repository.findAll();
-    const categories = new Set(events.map(e => e.category));
+    const categories = new Set(events.map((e) => e.category));
     return Array.from(categories).sort();
   }
 
@@ -143,11 +143,11 @@ export class SearchService {
 
     // Buscar coincidencias en título
     const suggestions = events
-      .filter(e => {
+      .filter((e) => {
         const normalizedTitle = this.normalizeSearchQuery(e.title);
         return normalizedTitle.includes(normalizedQuery);
       })
-      .map(e => e.title)
+      .map((e) => e.title)
       .slice(0, limit);
 
     return suggestions;

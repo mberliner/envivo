@@ -106,16 +106,16 @@ export class PrismaEventRepository implements IEventRepository {
           : null;
 
         const venueName = event.venueName || null;
-        console.log(`[PrismaEventRepository] 💾 Saving event: "${event.title.substring(0, 40)}" | event.venueName="${event.venueName}" | venueName="${venueName}"`);
+        console.log(
+          `[PrismaEventRepository] 💾 Saving event: "${event.title.substring(0, 40)}" | event.venueName="${event.venueName}" | venueName="${venueName}"`
+        );
 
         const eventData = {
           title: event.title,
           description: event.description || null,
           date: typeof event.date === 'string' ? new Date(event.date) : event.date,
           endDate:
-            typeof event.endDate === 'string'
-              ? new Date(event.endDate)
-              : event.endDate || null,
+            typeof event.endDate === 'string' ? new Date(event.endDate) : event.endDate || null,
           venueName: venueName,
           city: event.city || 'Unknown',
           country: event.country || 'Unknown',

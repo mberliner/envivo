@@ -26,7 +26,10 @@ test.describe.serial('Event Detail - Fase 6', () => {
 
     // Esperar que el link esté visible y con href válido (re-query automático en cada check)
     await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toBeVisible();
-    await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toHaveAttribute('href', /\/eventos\/.+/);
+    await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toHaveAttribute(
+      'href',
+      /\/eventos\/.+/
+    );
 
     // 3. Click en "Ver Detalles" (re-query para obtener elemento fresco) y esperar navegación
     await Promise.all([
@@ -59,7 +62,10 @@ test.describe.serial('Event Detail - Fase 6', () => {
 
     // Esperar que el link esté visible y con href válido (re-query automático en cada check)
     await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toBeVisible();
-    await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toHaveAttribute('href', /\/eventos\/.+/);
+    await expect(firstEvent.getByRole('link', { name: 'Ver Detalles' })).toHaveAttribute(
+      'href',
+      /\/eventos\/.+/
+    );
 
     // Click en "Ver Detalles" (re-query para obtener elemento fresco) y esperar navegación
     await Promise.all([
@@ -113,14 +119,17 @@ test.describe.serial('Event Detail - Fase 6', () => {
 
     // 6. Esperar a que el request DELETE complete y el evento desaparezca
     // Usamos waitForResponse para asegurar que el API call terminó
-    await page.waitForResponse((response) => response.url().includes('/api/events/') && response.request().method() === 'DELETE');
+    await page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/events/') && response.request().method() === 'DELETE'
+    );
 
     // 7. Esperar a que el primer evento (el que eliminamos) desaparezca del DOM
     // Verificamos que el conteo de eventos DETAIL disminuyó
     await page.waitForFunction(
       ({ expectedCount, prefix }) => {
         const allCards = document.querySelectorAll('[data-testid="event-card"]');
-        const detailCards = Array.from(allCards).filter(card =>
+        const detailCards = Array.from(allCards).filter((card) =>
           card.textContent?.includes(`[${prefix}]`)
         );
         return detailCards.length === expectedCount - 1;
@@ -141,9 +150,6 @@ test.describe.serial('Event Detail - Fase 6', () => {
     await expect(page.getByText(/no encontrado/i)).toBeVisible();
 
     // Verificar puede volver a home (con espera de navegación)
-    await Promise.all([
-      page.waitForURL('/', { timeout: 5000 }),
-      page.click('text=Volver'),
-    ]);
+    await Promise.all([page.waitForURL('/', { timeout: 5000 }), page.click('text=Volver')]);
   });
 });

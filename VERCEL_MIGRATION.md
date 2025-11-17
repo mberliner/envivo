@@ -126,15 +126,15 @@ DATABASE_URL="file:./dev.db"  // ❌ No funciona en Vercel
 
 ### Ventajas vs SQLite Local
 
-| Aspecto | SQLite Local | Turso |
-|---------|--------------|-------|
-| **Storage** | Archivo local `.db` | Servidor remoto en cloud |
-| **I/O** | Filesystem API (fs.open, fs.write) | HTTP/WebSocket API |
-| **Vercel** | ❌ Read-only filesystem | ✅ Solo network requests |
-| **Persistencia** | ❌ Se pierde en redeploy | ✅ Persiste en servidor |
-| **Latencia** | ~1ms (local) | ~50-200ms (HTTP roundtrip) |
-| **Escalabilidad** | ❌ Single-process | ✅ Múltiples connections |
-| **Costo** | Gratis | Gratis (plan starter) |
+| Aspecto           | SQLite Local                       | Turso                      |
+| ----------------- | ---------------------------------- | -------------------------- |
+| **Storage**       | Archivo local `.db`                | Servidor remoto en cloud   |
+| **I/O**           | Filesystem API (fs.open, fs.write) | HTTP/WebSocket API         |
+| **Vercel**        | ❌ Read-only filesystem            | ✅ Solo network requests   |
+| **Persistencia**  | ❌ Se pierde en redeploy           | ✅ Persiste en servidor    |
+| **Latencia**      | ~1ms (local)                       | ~50-200ms (HTTP roundtrip) |
+| **Escalabilidad** | ❌ Single-process                  | ✅ Múltiples connections   |
+| **Costo**         | Gratis                             | Gratis (plan starter)      |
 
 ---
 
@@ -231,6 +231,7 @@ turso db list
 ```
 
 **Output esperado:**
+
 ```
 Name                 URL
 envivo-production    libsql://envivo-production-[tu-org].turso.io
@@ -262,6 +263,7 @@ nano turso-credentials.txt
 ```
 
 Contenido:
+
 ```
 TURSO_DATABASE_URL=libsql://envivo-production-[tu-org].turso.io
 TURSO_AUTH_TOKEN=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9...
@@ -278,6 +280,7 @@ TURSO_AUTH_TOKEN=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9...
 **Ubicación**: `prisma/schema.prisma`
 
 **Cambio**:
+
 ```diff
  datasource db {
    provider = "sqlite"
@@ -295,6 +298,7 @@ TURSO_AUTH_TOKEN=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9...
 **Ubicación**: `.env.example`
 
 **Cambio**:
+
 ```diff
  # Database
 -DATABASE_URL="file:./dev.db"
@@ -313,6 +317,7 @@ TURSO_AUTH_TOKEN=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9...
 **Ubicación**: `src/shared/infrastructure/config/env.ts`
 
 **Cambio**:
+
 ```diff
  export const env = createEnv({
    server: {
@@ -376,9 +381,7 @@ if (isTurso) {
   console.log('[Prisma] Connecting to local SQLite (dev.db)');
 
   prisma = new PrismaClient({
-    log: process.env.NODE_ENV === 'development'
-      ? ['query', 'error', 'warn']
-      : ['error'],
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   });
 }
 
@@ -391,6 +394,7 @@ export { prisma };
 ```
 
 **Cambios clave**:
+
 1. Import de `PrismaLibSQL` y `createClient`
 2. Detección de modo (Turso vs local)
 3. Creación condicional de cliente Prisma
@@ -422,6 +426,7 @@ npm run db:generate
 ```
 
 **Output esperado:**
+
 ```
 ✔ Generated Prisma Client (...)
 ```
@@ -433,6 +438,7 @@ npx prisma db push
 ```
 
 **Output esperado:**
+
 ```
 Your database is now in sync with your schema.
 ✔ Generated Prisma Client (...)
@@ -500,15 +506,16 @@ npm run lint
 
 Agregar las siguientes variables (para **Production**):
 
-| Variable | Valor | Environment |
-|----------|-------|-------------|
-| `TURSO_DATABASE_URL` | `libsql://envivo-production-xxx.turso.io` | Production |
-| `TURSO_AUTH_TOKEN` | `eyJhbGc...` (marcar como Secret) | Production |
-| `ADMIN_API_KEY` | Tu API key (32+ chars) | Production |
-| `NEXT_PUBLIC_APP_URL` | `https://envivo.vercel.app` | Production |
-| `NEXT_PUBLIC_APP_NAME` | `EnVivo` | Production |
+| Variable               | Valor                                     | Environment |
+| ---------------------- | ----------------------------------------- | ----------- |
+| `TURSO_DATABASE_URL`   | `libsql://envivo-production-xxx.turso.io` | Production  |
+| `TURSO_AUTH_TOKEN`     | `eyJhbGc...` (marcar como Secret)         | Production  |
+| `ADMIN_API_KEY`        | Tu API key (32+ chars)                    | Production  |
+| `NEXT_PUBLIC_APP_URL`  | `https://envivo.vercel.app`               | Production  |
+| `NEXT_PUBLIC_APP_NAME` | `EnVivo`                                  | Production  |
 
 **⚠️ CRÍTICO**:
+
 - `TURSO_AUTH_TOKEN` debe marcarse como **Secret** (oculto en logs)
 - `ADMIN_API_KEY` debe ser el mismo que usas localmente
 
@@ -564,6 +571,7 @@ Vercel detecta el push y **automáticamente**:
 En Vercel Dashboard → Deployments → Ver build logs
 
 Buscar mensajes clave:
+
 ```
 ✓ Compiled successfully
 ✓ Generated Prisma Client
@@ -595,6 +603,7 @@ curl -X POST https://envivo.vercel.app/api/admin/scrape \
 ```
 
 **Output esperado:**
+
 ```json
 {
   "success": true,
@@ -621,6 +630,7 @@ curl https://envivo.vercel.app/api/events
 ```
 
 **Deberías ver**:
+
 - Home page con eventos
 - Búsqueda funcional
 - Filtros funcionando
@@ -684,6 +694,7 @@ SELECT COUNT(*) FROM Event;
 **Causa**: Dependencia no instalada
 
 **Solución**:
+
 ```bash
 npm install @prisma/adapter-libsql @libsql/client
 ```
@@ -695,6 +706,7 @@ npm install @prisma/adapter-libsql @libsql/client
 **Causa**: Prisma client no regenerado después de cambiar schema
 
 **Solución**:
+
 ```bash
 npm run db:generate
 npx prisma db push
@@ -709,6 +721,7 @@ npx prisma db push
 **Solución**:
 
 **Local**:
+
 ```bash
 # Verificar .env.local
 cat .env.local | grep TURSO
@@ -718,6 +731,7 @@ echo 'TURSO_DATABASE_URL="libsql://..."' >> .env.local
 ```
 
 **Vercel**:
+
 - Ir a Settings → Environment Variables
 - Agregar `TURSO_DATABASE_URL`
 - Redeploy
@@ -729,6 +743,7 @@ echo 'TURSO_DATABASE_URL="libsql://..."' >> .env.local
 **Causa**: Token inválido o expirado
 
 **Solución**:
+
 ```bash
 # Regenerar token
 turso db tokens create envivo-production
@@ -743,6 +758,7 @@ turso db tokens create envivo-production
 **Causa**: Schema no pusheado a Turso
 
 **Solución**:
+
 ```bash
 # Push schema
 npx prisma db push
@@ -759,6 +775,7 @@ turso db shell envivo-production
 **Causa**: `prisma/schema.prisma` no commiteado
 
 **Solución**:
+
 ```bash
 git add prisma/schema.prisma
 git commit -m "fix: add prisma schema"
@@ -780,6 +797,7 @@ git push
    - Verificar que Prisma genera cliente correctamente
 
 3. **Verificar schema en Turso**
+
    ```bash
    turso db shell envivo-production
    .tables
@@ -795,6 +813,7 @@ git push
 **Causa**: Usando SQLite local en lugar de Turso
 
 **Diagnóstico**:
+
 ```bash
 # Ver logs de Vercel
 # Buscar: "[Prisma] Connecting to..."
@@ -804,6 +823,7 @@ git push
 ```
 
 **Solución**:
+
 - Verificar que `TURSO_DATABASE_URL` esté configurado en Vercel
 - Verificar que `prisma.ts` detecta correctamente Turso
 
@@ -886,15 +906,15 @@ turso db show envivo-restore --url
 
 ## Resumen de Tiempos
 
-| Fase | Actividad | Tiempo Estimado | Dificultad |
-|------|-----------|----------------|------------|
-| **FASE 1** | Setup Turso CLI + crear DB | 15 min | Fácil |
-| **FASE 2** | Cambios en código (4 archivos) | 30 min | Media |
-| **FASE 3** | Testing local con Turso | 15 min | Fácil |
-| **FASE 4** | Configurar Vercel | 10 min | Fácil |
-| **FASE 5** | Deploy (commit + push) | 5 min | Fácil |
-| **FASE 6** | Post-deploy (seed + verificación) | 10 min | Media |
-| **TOTAL** | | **1.5 horas** | Media |
+| Fase       | Actividad                         | Tiempo Estimado | Dificultad |
+| ---------- | --------------------------------- | --------------- | ---------- |
+| **FASE 1** | Setup Turso CLI + crear DB        | 15 min          | Fácil      |
+| **FASE 2** | Cambios en código (4 archivos)    | 30 min          | Media      |
+| **FASE 3** | Testing local con Turso           | 15 min          | Fácil      |
+| **FASE 4** | Configurar Vercel                 | 10 min          | Fácil      |
+| **FASE 5** | Deploy (commit + push)            | 5 min           | Fácil      |
+| **FASE 6** | Post-deploy (seed + verificación) | 10 min          | Media      |
+| **TOTAL**  |                                   | **1.5 horas**   | Media      |
 
 ---
 

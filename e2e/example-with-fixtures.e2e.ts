@@ -91,14 +91,15 @@ test.describe.serial('Example - Test con Fixtures', () => {
 
     // Esperar a que el API call termine
     await page.waitForResponse(
-      (response) => response.url().includes('/api/events/') && response.request().method() === 'DELETE'
+      (response) =>
+        response.url().includes('/api/events/') && response.request().method() === 'DELETE'
     );
 
     // Verificar que el evento EXAMPLE desapareció
     await page.waitForFunction(
       ({ expectedCount, prefix }) => {
         const allCards = document.querySelectorAll('[data-testid="event-card"]');
-        const exampleCards = Array.from(allCards).filter(card =>
+        const exampleCards = Array.from(allCards).filter((card) =>
           card.textContent?.includes(`[${prefix}]`)
         );
         return exampleCards.length === expectedCount - 1;

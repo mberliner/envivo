@@ -6,10 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  GlobalPreferences,
-  DEFAULT_PREFERENCES,
-} from '../../domain/entities/GlobalPreferences';
+import { GlobalPreferences, DEFAULT_PREFERENCES } from '../../domain/entities/GlobalPreferences';
 
 // Mock Prisma Client
 vi.mock('@/shared/infrastructure/database/prisma', () => ({
@@ -84,9 +81,7 @@ describe('PrismaPreferencesRepository', () => {
         blockedGenres: '[]',
         allowedCategories: '[]',
         allowedVenueSizes: '[]',
-        venueSizeThresholds: JSON.stringify(
-          DEFAULT_PREFERENCES.venueSizeThresholds
-        ),
+        venueSizeThresholds: JSON.stringify(DEFAULT_PREFERENCES.venueSizeThresholds),
         needsRescraping: false,
         updatedAt: new Date(),
         updatedBy: null,
@@ -120,9 +115,7 @@ describe('PrismaPreferencesRepository', () => {
       const result = await repository.get();
 
       // Debe devolver DEFAULT_PREFERENCES.venueSizeThresholds para JSON inválido
-      expect(result?.venueSizeThresholds).toEqual(
-        DEFAULT_PREFERENCES.venueSizeThresholds
-      );
+      expect(result?.venueSizeThresholds).toEqual(DEFAULT_PREFERENCES.venueSizeThresholds);
     });
   });
 
@@ -141,9 +134,7 @@ describe('PrismaPreferencesRepository', () => {
         blockedGenres: JSON.stringify([]),
         allowedCategories: JSON.stringify([]),
         allowedVenueSizes: JSON.stringify([]),
-        venueSizeThresholds: JSON.stringify(
-          DEFAULT_PREFERENCES.venueSizeThresholds
-        ),
+        venueSizeThresholds: JSON.stringify(DEFAULT_PREFERENCES.venueSizeThresholds),
         needsRescraping: false,
         updatedAt: new Date(),
         updatedBy: null,
@@ -170,9 +161,7 @@ describe('PrismaPreferencesRepository', () => {
         blockedGenres: JSON.stringify([]),
         allowedCategories: JSON.stringify([]),
         allowedVenueSizes: JSON.stringify([]),
-        venueSizeThresholds: JSON.stringify(
-          DEFAULT_PREFERENCES.venueSizeThresholds
-        ),
+        venueSizeThresholds: JSON.stringify(DEFAULT_PREFERENCES.venueSizeThresholds),
         needsRescraping: false,
         updatedAt: new Date(),
         updatedBy: null,
@@ -201,9 +190,7 @@ describe('PrismaPreferencesRepository', () => {
         blockedGenres: JSON.stringify([]),
         allowedCategories: JSON.stringify([]),
         allowedVenueSizes: JSON.stringify([]),
-        venueSizeThresholds: JSON.stringify(
-          DEFAULT_PREFERENCES.venueSizeThresholds
-        ),
+        venueSizeThresholds: JSON.stringify(DEFAULT_PREFERENCES.venueSizeThresholds),
         needsRescraping: true,
         updatedAt: new Date(),
         updatedBy: null,
@@ -273,9 +260,7 @@ describe('PrismaPreferencesRepository', () => {
         blockedGenres: JSON.stringify(DEFAULT_PREFERENCES.blockedGenres),
         allowedCategories: JSON.stringify(DEFAULT_PREFERENCES.allowedCategories),
         allowedVenueSizes: JSON.stringify(DEFAULT_PREFERENCES.allowedVenueSizes),
-        venueSizeThresholds: JSON.stringify(
-          DEFAULT_PREFERENCES.venueSizeThresholds
-        ),
+        venueSizeThresholds: JSON.stringify(DEFAULT_PREFERENCES.venueSizeThresholds),
         needsRescraping: DEFAULT_PREFERENCES.needsRescraping,
         updatedAt: new Date(),
         updatedBy: null,
@@ -285,21 +270,13 @@ describe('PrismaPreferencesRepository', () => {
 
       const result = await repository.initialize();
 
-      expect(result.allowedCountries).toEqual(
-        DEFAULT_PREFERENCES.allowedCountries
-      );
+      expect(result.allowedCountries).toEqual(DEFAULT_PREFERENCES.allowedCountries);
       expect(result.allowedCities).toEqual(DEFAULT_PREFERENCES.allowedCities);
       expect(result.allowedGenres).toEqual(DEFAULT_PREFERENCES.allowedGenres);
       expect(result.blockedGenres).toEqual(DEFAULT_PREFERENCES.blockedGenres);
-      expect(result.allowedCategories).toEqual(
-        DEFAULT_PREFERENCES.allowedCategories
-      );
-      expect(result.allowedVenueSizes).toEqual(
-        DEFAULT_PREFERENCES.allowedVenueSizes
-      );
-      expect(result.venueSizeThresholds).toEqual(
-        DEFAULT_PREFERENCES.venueSizeThresholds
-      );
+      expect(result.allowedCategories).toEqual(DEFAULT_PREFERENCES.allowedCategories);
+      expect(result.allowedVenueSizes).toEqual(DEFAULT_PREFERENCES.allowedVenueSizes);
+      expect(result.venueSizeThresholds).toEqual(DEFAULT_PREFERENCES.venueSizeThresholds);
       expect(result.needsRescraping).toBe(DEFAULT_PREFERENCES.needsRescraping);
     });
   });

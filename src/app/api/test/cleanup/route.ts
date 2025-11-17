@@ -36,10 +36,7 @@ export async function DELETE(request: NextRequest) {
   const apiKey = request.headers.get('x-api-key');
 
   if (!env.ADMIN_API_KEY) {
-    return NextResponse.json(
-      { error: 'Admin API key not configured in server' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Admin API key not configured in server' }, { status: 500 });
   }
 
   if (!apiKey || apiKey !== env.ADMIN_API_KEY) {
@@ -51,20 +48,14 @@ export async function DELETE(request: NextRequest) {
 
   // Solo permitir en desarrollo/testing
   if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV === 'production') {
-    return NextResponse.json(
-      { error: 'Endpoint not available in production' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Endpoint not available in production' }, { status: 403 });
   }
 
   try {
     // Encontrar todos los eventos de prueba con este prefix
     const testEvents = await prisma.event.findMany({
       where: {
-        OR: [
-          { title: { startsWith: `[${prefix}]` } },
-          { source: prefix },
-        ],
+        OR: [{ title: { startsWith: `[${prefix}]` } }, { source: prefix }],
       },
       select: { id: true, externalId: true },
     });
@@ -77,20 +68,14 @@ export async function DELETE(request: NextRequest) {
     // El modelo se llama EventBlacklist y usa source + externalId
     const deletedBlacklisted = await prisma.eventBlacklist.deleteMany({
       where: {
-        AND: [
-          { source: prefix },
-          { externalId: { in: testExternalIds } },
-        ],
+        AND: [{ source: prefix }, { externalId: { in: testExternalIds } }],
       },
     });
 
     // Eliminar eventos de prueba
     const deletedEvents = await prisma.event.deleteMany({
       where: {
-        OR: [
-          { title: { startsWith: `[${prefix}]` } },
-          { source: prefix },
-        ],
+        OR: [{ title: { startsWith: `[${prefix}]` } }, { source: prefix }],
       },
     });
 
@@ -105,7 +90,10 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error('Error cleaning up test data:', error);
     return NextResponse.json(
-      { error: 'Failed to cleanup test data', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Failed to cleanup test data',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

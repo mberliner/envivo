@@ -12,6 +12,7 @@
 
 **Duración**: ~4 horas
 **Commits**:
+
 - `3294a55` - Initialize Next.js 14 and install core dependencies
 - `9253668` - Attempt alternative Prisma configurations
 - `ebd732c` - Complete Phase 0 setup and Clean Architecture structure
@@ -23,10 +24,12 @@
 
 **Duración**: ~3.5 horas
 **Commits**:
+
 - `f2a78ce` - feat(data): add TicketmasterMapper, TicketmasterSource, and PrismaEventRepository with tests
 - `9929588` - feat(fase-1): complete Ticketmaster to UI vertical slice
 
 **Tests**: 35/35 passing ✅
+
 - 10 tests: TicketmasterMapper
 - 8 tests: TicketmasterSource
 - 10 tests: PrismaEventRepository
@@ -39,14 +42,17 @@
 
 **Duración**: ~2 horas
 **Commits**:
+
 - `719522a` - feat: implement business rules and deduplication (Fase 2)
 
 **Tests**: 98/98 passing ✅
+
 - 39 tests: EventBusinessRules (validación, normalización, deduplicación)
 - 24 tests: EventService (integración completa)
 - 35 tests: Fase 1 (mappers, sources, repositories, entities)
 
 **Nuevos Archivos**:
+
 - `config/business-rules.json` - Configuración externa de reglas
 - `src/features/events/domain/services/EventBusinessRules.ts` - Validación y deduplicación
 - `src/features/events/domain/services/EventBusinessRules.test.ts` - 39 tests
@@ -54,6 +60,7 @@
 - `src/features/events/domain/services/EventService.test.ts` - 24 tests
 
 **Funcionalidad Implementada**:
+
 - ✅ Validación de campos requeridos (título, fecha, ciudad, país)
 - ✅ Validación de rangos de fechas (pasado/futuro)
 - ✅ Normalización automática (ciudad → Title Case, país → ISO-2, categorías)
@@ -68,6 +75,7 @@
 
 **Duración total**: ~4.5 horas
 **Commits**:
+
 - `9338d81` - feat(fase-3): implement SearchService with realistic fixtures
 - `0026620` - feat(fase-3): implement GET /api/events with Zod validation
 - `5a49482` - feat(fase-3): add composite indexes for search optimization
@@ -75,11 +83,13 @@
 - `dd4a6ed` - feat(fase-3): implement frontend with search and filters
 
 **Tests**: 152/152 passing ✅ (backend)
+
 - 21 tests: API Route GET /api/events
 - 33 tests: SearchService (búsqueda, filtros, paginación)
 - 98 tests: Fases anteriores
 
 **Backend (100%):**
+
 - ✅ SearchService (domain layer)
   - Búsqueda por texto normalizada (case-insensitive, sin acentos)
   - Filtros combinables: ciudad, categoría, rango de fechas
@@ -99,6 +109,7 @@
   - Comando `npm run db:seed` configurado
 
 **Frontend (100%):**
+
 - ✅ SearchBar component
   - Input con debouncing (300ms)
   - Botón limpiar búsqueda
@@ -126,6 +137,7 @@
   - Navegación sin reload de página
 
 **Fixtures Creados**:
+
 - `/src/test/fixtures/events.fixtures.ts` - 15 eventos argentinos realistas
   - Artistas internacionales: Metallica, Coldplay, Taylor Swift, Iron Maiden, RHCP
   - Artistas nacionales: Fito Páez, Los Fabulosos Cadillacs, Divididos, Charly García
@@ -140,6 +152,7 @@
 ## 🎯 Fase 0 - Tareas Completadas
 
 ### ✅ 1. Infraestructura Base
+
 - [x] Next.js 14 inicializado con TypeScript
 - [x] Tailwind CSS configurado
 - [x] App Router habilitado
@@ -149,6 +162,7 @@
 ### ✅ 2. Dependencias Instaladas
 
 **Producción**:
+
 - [x] `prisma` + `@prisma/client` - ORM
 - [x] `zod` - Validación de tipos
 - [x] `axios` + `cheerio` - Scraping
@@ -157,6 +171,7 @@
 - [x] `@prisma/adapter-libsql` + `libsql` - SQLite adapter
 
 **Desarrollo**:
+
 - [x] `vitest` + `@vitest/ui` - Testing
 - [x] `@testing-library/react` + `@testing-library/jest-dom` - React testing
 - [x] `jsdom` - DOM environment para tests
@@ -166,6 +181,7 @@
 ### ✅ 3. Prisma Schema Configurado
 
 **Modelos creados**:
+
 - [x] `Event` - Eventos musicales
 - [x] `Venue` - Lugares de eventos
 - [x] `Artist` - Artistas
@@ -174,6 +190,7 @@
 - [x] `VenueMetadata` - Metadata adicional de venues
 
 **Índices configurados**:
+
 - [x] `Event`: date, city, category, country
 - [x] `Venue`: city, [name, city]
 
@@ -286,6 +303,7 @@ npx prisma db push   # ✅ Completado
 ### 📝 Configuración Adicional (Opcional para Fase 1)
 
 **Obtener API Key de Ticketmaster**:
+
 1. Ir a https://developer.ticketmaster.com/
 2. Crear cuenta gratuita
 3. Crear una aplicación
@@ -296,6 +314,7 @@ npx prisma db push   # ✅ Completado
    ```
 
 **Generar ADMIN_API_KEY**:
+
 ```bash
 # En terminal (Linux/Mac)
 openssl rand -base64 32
@@ -312,6 +331,7 @@ ADMIN_API_KEY="la-clave-generada-aqui"
 ## 🎯 Fase 1 - Tareas Completadas
 
 ### ✅ 1. Data Layer
+
 - [x] `TicketmasterMapper` - Convierte respuesta API de Ticketmaster a RawEvent
   - Manejo de fechas (dateTime, localDate + localTime, localDate solo)
   - Mapeo de categorías (Music → Concierto/Festival, Arts → Teatro/Stand-up/Ópera/Ballet)
@@ -329,6 +349,7 @@ ADMIN_API_KEY="la-clave-generada-aqui"
   - 10 tests con Prisma mockeado
 
 ### ✅ 2. API Layer
+
 - [x] `POST /api/admin/scraper/sync` - Endpoint de scraping manual
   - Autenticación con `x-api-key` header (valida contra `ADMIN_API_KEY`)
   - Body opcional: `{ country?, city? }`
@@ -337,6 +358,7 @@ ADMIN_API_KEY="la-clave-generada-aqui"
   - Retorna: `{ success, source, eventsScraped, eventsSaved, timestamp }`
 
 ### ✅ 3. UI Layer
+
 - [x] `EventCard` - Componente de tarjeta de evento
   - Diseño responsive con Tailwind CSS
   - Muestra: imagen, título, fecha, ubicación, género, precio, badge de categoría
@@ -349,12 +371,14 @@ ADMIN_API_KEY="la-clave-generada-aqui"
   - Header + Footer con branding
 
 ### ✅ 4. Testing & Quality
+
 - [x] 35 tests unitarios passing
 - [x] TypeScript sin errores de compilación
 - [x] Mocks configurados: axios, prisma, env
 - [x] Test setup actualizado para variables de entorno
 
 ### ✅ 5. Estructura de archivos creados
+
 ```
 src/
 ├── features/events/
@@ -377,9 +401,11 @@ src/
 ```
 
 ### 🎉 Entregable Fase 1
+
 **Primera feature funcionando end-to-end**: Ticketmaster → BD → UI
 
 **Flujo completo**:
+
 1. Usuario ejecuta curl a `/api/admin/scraper/sync`
 2. Sistema obtiene eventos de Ticketmaster
 3. Eventos se guardan en SQLite
@@ -394,10 +420,12 @@ src/
 ---
 
 ### ✅ Fase 2: Business Rules + Deduplicación - **COMPLETADA**
+
 **Duración real**: ~2 horas
 **Objetivo**: Validación centralizada y sin duplicados ✅
 
 **Tareas completadas**:
+
 1. [x] Implementar `EventBusinessRules` en capa Domain
    - [x] Validación de fechas (no pasadas, rango máximo)
    - [x] Validación de campos requeridos
@@ -413,6 +441,7 @@ src/
 7. [x] Tests de deduplicación con casos edge y cross-source
 
 **Entregable**:
+
 - ✅ Eventos inválidos rechazados con logs claros
 - ✅ No hay duplicados en BD
 - ✅ 98/98 tests pasando
@@ -423,10 +452,12 @@ src/
 ---
 
 ### Fase 3: Búsqueda + Filtros
+
 **Duración estimada**: 1-2 días  
 **Objetivo**: US1.1 (Búsqueda) y US1.2 (Filtros) completos
 
 **Tareas pendientes**:
+
 1. [ ] Agregar índices de búsqueda en Prisma schema
 2. [ ] Crear `SearchService` en capa Domain
 3. [ ] Implementar API Route `GET /api/eventos?q=...&city=...&date=...`
@@ -442,6 +473,7 @@ src/
 10. [ ] Tests de integración de API route
 
 **Entregable**:
+
 - ✅ Buscador funcional por texto
 - ✅ Filtros combinables
 - ✅ Resultados en <500ms
@@ -451,10 +483,12 @@ src/
 ---
 
 ### ✅ Fase 4: Orchestrator + Scraping Paralelo - **COMPLETADA**
+
 **Duración real**: ~3 horas
 **Objetivo**: Arquitectura lista para múltiples fuentes ✅
 
 **Tareas completadas**:
+
 1. [x] Crear `DataSourceOrchestrator` con `Promise.allSettled()`
 2. [x] Refactorizar endpoint de scraping para usar orchestrator
 3. [x] Tests unitarios con mocks de data sources (18 tests)
@@ -462,12 +496,14 @@ src/
 5. [x] Manejo graceful de errores (un source falla, los demás continúan)
 
 **Tareas descartadas para MVP** (se pueden agregar después si es necesario):
+
 - [ ] Límite de concurrencia (`p-limit`) - No necesario con 1-2 sources
 - [ ] Retry logic (`p-retry`) - Puede agregarse después si se necesita
 - [ ] Timeout handling por fuente - Puede agregarse después
 - [ ] `config/scrapers.json` - Sources configurados en código por ahora
 
 **Archivos creados/modificados**:
+
 ```
 src/features/events/data/orchestrator/
 ├── DataSourceOrchestrator.ts ✅ (nuevo)
@@ -478,6 +514,7 @@ src/app/api/admin/scraper/sync/
 ```
 
 **Entregable**:
+
 - ✅ Orchestrator funciona con Ticketmaster
 - ✅ EventService integrado automáticamente (validación + deduplicación)
 - ✅ Promise.allSettled para ejecución paralela
@@ -486,6 +523,7 @@ src/app/api/admin/scraper/sync/
 - ✅ TypeScript: 0 errores
 
 **Commits**:
+
 - `42e7a47` - feat: implement DataSourceOrchestrator with async scraping (Fase 4)
 - `034f737` - docs: update manual testing instructions for Fase 4
 - `d2d364e` - docs: clarify commands must run in local terminal (not Claude Code)
@@ -495,6 +533,7 @@ src/app/api/admin/scraper/sync/
 - `9da088e` - fix: TypeScript errors in PrismaEventRepository tests
 
 **Testing Manual** (Opcional - Requiere API Keys):
+
 - Requiere: `TICKETMASTER_API_KEY` y `ADMIN_API_KEY` en `.env.local` (ver [docs/DEVELOPMENT.md#setup-de-variables-de-entorno](docs/DEVELOPMENT.md#setup-de-variables-de-entorno))
 - Endpoint: `POST /api/admin/scraper/sync`
 - Respuesta incluye métricas del orchestrator: `sources[]`, `totalEvents`, `totalProcessed`, `totalDuplicates`, etc.
@@ -508,6 +547,7 @@ src/app/api/admin/scraper/sync/
 **Objetivo**: Usuarios pueden ocultar eventos no deseados y evitar que regresen ✅
 
 **Tareas completadas**:
+
 1. [x] Crear tabla `EventBlacklist` en Prisma schema
    - [x] Campos: id, source, externalId, reason, createdAt
    - [x] Unique constraint en (source, externalId)
@@ -538,21 +578,24 @@ src/app/api/admin/scraper/sync/
    - [x] `reset-database.js` - Limpiar BD para testing
 
 **Bugs Resueltos**:
+
 - 🐛 **Bug crítico en PrismaEventRepository.ts línea 125**:
   - **Problema**: Repository buscaba `_source` en Events (que tienen campo `source`)
   - **Root Cause**: EventService convierte RawEvent (con `_source`) → Event (con `source`). Repository recibía Events pero buscaba `_source`
   - **Resultado**: Todos los eventos se guardaban con `source='unknown'` y blacklist no matcheaba
   - **Fix**: Cambiar `(rawEvent as any)._source` a `rawEvent.source` en repository
-  - **Commit**: `e1eaefa` - fix: use source field instead of _source in repository upsert
+  - **Commit**: `e1eaefa` - fix: use source field instead of \_source in repository upsert
 
 **Commits**:
+
 - `d9f7ffa` - fix: convert BigInt to Number in reset-database endpoint
 - `0fcf6e8` - feat: add reset database endpoint and script
 - `9778a34` - debug: add temporary logging to track source field extraction
-- `e1eaefa` - fix: use source field instead of _source in repository upsert (CRÍTICO)
+- `e1eaefa` - fix: use source field instead of \_source in repository upsert (CRÍTICO)
 - `2e50415` - chore: cleanup US3.2 implementation - remove debug code and docs
 
 **Archivos Creados/Modificados**:
+
 ```
 prisma/
 └── schema.prisma ✅ (EventBlacklist model)
@@ -581,6 +624,7 @@ docs/
 ```
 
 **Tests**: Tests manuales pasando ✅
+
 - ✅ Eliminar evento desde UI (X roja)
 - ✅ Evento desaparece inmediatamente (optimistic UI)
 - ✅ Evento se guarda en EventBlacklist
@@ -591,6 +635,7 @@ docs/
 **TypeScript**: 0 errores ✅
 
 **Entregable**:
+
 - ✅ US3.2 completada y funcional
 - ✅ Eventos ocultos no regresan en scrapings
 - ✅ Optimistic UI para mejor UX
@@ -604,6 +649,7 @@ docs/
 **Objetivo**: Implementar scraping de páginas de detalle de LivePass para capturar venue, hora exacta, precio y descripción completa ✅
 
 **Tareas completadas**:
+
 1. [x] Extender `ScraperConfig` con soporte para detail pages
    - [x] Nueva interface `DetailPageConfig` con selectores, transforms, delays
    - [x] Campo opcional `detailPage` en ScraperConfig
@@ -639,6 +685,7 @@ docs/
    - [x] Crear reporte: `AUDIT_REPORT.md`
 
 **Bugs Resueltos**:
+
 - 🐛 **Date parsing failure**: `parseLivepassDateTime` no reconocía formato abreviado
   - **Problema**: Solo soportaba "9 de noviembre - 21:00", pero LivePass usa "11 NOV - 20:45"
   - **Fix**: Agregar regex pattern para formato abreviado sin "de"
@@ -651,6 +698,7 @@ docs/
   - **Commit**: `cbf1d32` - fix: handle decimal format prices from LivePass OpenGraph meta tags
 
 **Commits**:
+
 - `d9225c6` - feat: add detail page scraping for LivePass to capture venue and event time
 - `8c9713a` - fix: validate date/time ranges in parseLivepassDateTime
 - `653bd83` - debug: add detailed logging to GenericWebScraper for troubleshooting detail page scraping
@@ -661,6 +709,7 @@ docs/
 - `68a60cf` - docs: add comprehensive audit report for LivePass detail scraping implementation
 
 **Archivos Creados/Modificados**:
+
 ```
 src/
 ├── features/events/data/sources/web/
@@ -684,6 +733,7 @@ docs/
 ```
 
 **Tests**: 278/278 passing ✅ (11 tests agregados)
+
 - 113 tests: transforms.test.ts (+11 nuevos)
   - 8 tests: `extractLivepassVenue()`
   - 6 tests: `parseLivepassDateTime()` formato abreviado
@@ -691,12 +741,14 @@ docs/
 - 165 tests: Fases anteriores (sin cambios)
 
 **Cobertura de Tests**:
+
 - Data Layer (Transforms): ~95% (supera objetivo de >60%)
 - Data Layer (Scrapers): ~90% (supera objetivo de >60%)
 
 **TypeScript**: 0 errores ✅
 
 **Funcionalidad Implementada**:
+
 - ✅ Scraping de páginas de detalle de LivePass con delay configurable (500ms)
 - ✅ Extracción de venue limpio ("Café Berlín" en lugar de "Recinto: Café Berlín")
 - ✅ Extracción de fecha y hora exacta (20:45 en lugar de 00:00)
@@ -713,6 +765,7 @@ docs/
   - Gratis: "Gratis", "Free"
 
 **Calidad de Implementación** (según AUDIT_REPORT.md):
+
 ```
 Clean Architecture:     ████████████████████ 100%
 Seguridad:              ████████████████████ 100%
@@ -724,6 +777,7 @@ CALIDAD GENERAL:        ██████████████████�
 ```
 
 **Entregable**:
+
 - ✅ Scraping de detalles de LivePass funcional
 - ✅ Venue, hora exacta, precio y descripción extraídos correctamente
 - ✅ Datos se guardan correctamente en base de datos
@@ -761,6 +815,7 @@ FASE 6 TOTAL: ~67% completado (2 componentes al 100%)
 ```
 
 **Tareas Pendientes para Completar Fase 6**:
+
 - [x] ~~**Tests E2E** para LivePass scraping~~ ✅ **POSTPONED** (no estándar, coverage >95%)
 - [x] **Segunda fuente de datos** (Movistar Arena scraper) + tests ✅ **COMPLETADA**
 - [x] ~~**Vista de detalle UI** en `/eventos/[id]` + componente EventDetail (4-6h)~~ ✅ **COMPLETADA**
@@ -770,6 +825,7 @@ FASE 6 TOTAL: ~67% completado (2 componentes al 100%)
 
 **Decisión Arquitectónica - Tests E2E de Scraping**:
 Los tests E2E específicos para scraping de LivePass se postponen indefinidamente porque:
+
 - ✅ Tests unitarios cubren >95% del código de transforms
 - ✅ Scripts de validación confirman funcionamiento en sitios reales
 - ✅ Otras fuentes (Ticketmaster) NO tienen tests E2E de scraping
@@ -786,14 +842,17 @@ Los tests E2E específicos para scraping de LivePass se postponen indefinidament
 **Objetivo**: Implementar US2.1 (Vista de detalle completa de evento)
 
 **Commits**:
+
 - `c5235e4` - feat: implement event detail view with complete information
 - `16acda8` - fix: await params in dynamic route for Next.js 15 compatibility
 
 **Tests**: 63 nuevos tests pasando ✅
+
 - 36 tests: Utilities de sanitización (sanitizeHTML, isSafeURL, stripHTML, truncateText)
 - 27 tests: EventDetail component (rendering, optional fields, security, accessibility)
 
 **Tareas completadas**:
+
 1. [x] ~~Implementar segunda fuente~~ (PENDIENTE - separado a otra fase)
 2. [x] ~~Crear mapper~~ (PENDIENTE - separado a otra fase)
 3. [x] ~~Registrar en orchestrator~~ (PENDIENTE - separado a otra fase)
@@ -805,6 +864,7 @@ Los tests E2E específicos para scraping de LivePass se postponen indefinidament
 9. [x] Tests comprehensivos de vista de detalle ✅
 
 **Archivos creados**:
+
 - `src/app/eventos/[id]/page.tsx` - Server component con data fetching + SEO
 - `src/app/eventos/[id]/not-found.tsx` - Custom 404 page
 - `src/features/events/ui/components/EventDetail.tsx` - Main detail component
@@ -813,12 +873,14 @@ Los tests E2E específicos para scraping de LivePass se postponen indefinidament
 - `src/shared/utils/sanitize.test.ts` - 36 tests
 
 **Archivos modificados**:
+
 - `src/features/events/ui/components/EventCard.tsx` - Added links to detail page
 - `vitest.config.mts` - Support for .tsx tests + jsdom environment
 - `src/test/setup.ts` - Added jest-dom matchers
 - `package.json` - Added isomorphic-dompurify dependency
 
 **Funcionalidad implementada**:
+
 - ✅ Página de detalle en `/eventos/[id]` con información completa
 - ✅ Renderizado seguro de HTML con DOMPurify (prevención XSS)
 - ✅ Validación de URLs antes de renderizar
@@ -829,12 +891,14 @@ Los tests E2E específicos para scraping de LivePass se postponen indefinidament
 - ✅ Botones de acción: "Ver Detalles" (outline) + "Comprar" (filled)
 
 **Seguridad implementada**:
+
 - ✅ sanitizeHTML() con lista blanca de tags HTML permitidos
 - ✅ isSafeURL() rechaza javascript:, data:, file: protocols
 - ✅ Sanitización de description antes de renderizar con dangerouslySetInnerHTML
 - ✅ Validación de ticketUrl antes de mostrar botón CTA
 
 **Entregable**:
+
 - ✅ Página de detalle completa y funcional
 - ✅ 63 tests nuevos (100% passing)
 - ✅ TypeScript: 0 errores
@@ -851,9 +915,11 @@ Los tests E2E específicos para scraping de LivePass se postponen indefinidament
 **Objetivo**: Agregar segunda fuente de datos (Movistar Arena) para expandir cobertura de eventos musicales en Buenos Aires ✅
 
 **Commits**:
+
 - `[pendiente]` - feat: add Movistar Arena web scraper
 
 **Archivos Creados**:
+
 ```
 src/
 ├── config/scrapers/
@@ -863,6 +929,7 @@ scripts/
 ```
 
 **Archivos Modificados**:
+
 ```
 src/
 ├── features/events/data/sources/web/
@@ -873,11 +940,13 @@ src/
 ```
 
 **Nuevos Transforms Implementados**:
+
 1. `extractBackgroundImage(styleValue)` - Extrae URL de CSS inline style `background-image: url(...)`
 2. `cleanMovistarDate(dateString)` - Remueve " y X fechas más" de strings de fecha
 3. `parseMovistarDate(dateString)` - Wrapper que limpia y parsea fechas de Movistar Arena
 
 **Configuración del Scraper**:
+
 - **URL**: https://www.movistararena.com.ar/shows
 - **Selector de items**: `.evento`
 - **Campos extraídos**:
@@ -895,6 +964,7 @@ src/
 - **Detail Page Scraping**: Deshabilitado (precio no disponible en listado)
 
 **Características Especiales**:
+
 - ✅ Manejo de eventos con múltiples fechas ("y 2 fechas más")
 - ✅ Extracción de imagen desde inline style attribute
 - ✅ URL absoluta automática para imágenes alojadas en CDN del sitio
@@ -902,17 +972,20 @@ src/
 - ✅ Retry automático con backoff exponencial
 
 **Validación**:
+
 - ✅ Script de validación standalone (`scripts/test-movistararena.ts`)
 - ✅ Configuración validada contra HTML real del sitio
 - ✅ Transforms testeados con datos reales
 - ✅ Integración con orchestrator funcionando
 
 **Cobertura de Eventos**:
+
 - ~40+ eventos musicales en Movistar Arena
 - Rango de fechas: Diciembre 2025 - Octubre 2026
 - Géneros: Rock, Pop, Reggaeton, Folklore, etc.
 
 **Entregable**:
+
 - ✅ Scraper de Movistar Arena funcional y registrado
 - ✅ Transforms reutilizables para otros sitios similares
 - ✅ Script de validación para troubleshooting
@@ -924,6 +997,7 @@ src/
 Durante la investigación inicial, se descubrió que Movistar Arena usa **Blazor Server** (framework .NET) que renderiza TODO el contenido dinámicamente con JavaScript vía WebSocket. El scraper original con Cheerio encontraba 0 eventos porque el HTML inicial (~14KB) está vacío.
 
 **Solución arquitectónica implementada**:
+
 1. ✅ Creado `PuppeteerWebScraper` - Nueva implementación con navegador headless
 2. ✅ Extendido `ScraperConfig` con flags: `requiresJavaScript`, `waitForSelector`, `waitForTimeout`
 3. ✅ `WebScraperFactory` auto-detecta qué scraper usar basándose en `requiresJavaScript`
@@ -932,10 +1006,12 @@ Durante la investigación inicial, se descubrió que Movistar Arena usa **Blazor
 6. ✅ Mismo `IDataSource` interface - funciona transparentemente con orchestrator
 
 **Commits adicionales**:
+
 - `7a049d1` - debug: add diagnostic script for Movistar Arena scraper
 - `[pendiente]` - feat: add Puppeteer support for JavaScript-rendered sites
 
 **Archivos adicionales creados**:
+
 ```
 src/features/events/data/sources/web/
 └── PuppeteerWebScraper.ts           # ~400 líneas - Implementación con Puppeteer
@@ -945,6 +1021,7 @@ scripts/
 ```
 
 **Archivos modificados adicionales**:
+
 ```
 src/features/events/data/sources/web/types/
 └── ScraperConfig.ts                  # +3 campos opcionales
@@ -955,15 +1032,18 @@ src/config/scrapers/
 ```
 
 **Dependencia adicional**:
+
 ```bash
 npm install puppeteer  # ~170MB (incluye Chromium)
 ```
 
 **Performance comparativa**:
+
 - GenericWebScraper (Cheerio): ~500ms/página ← LivePass, Teatro Coliseo
 - PuppeteerWebScraper: ~5-10 seg/página ← Movistar Arena
 
 **Ventajas arquitectónicas**:
+
 - ✅ Sin código duplicado: Cheerio parsea el HTML en ambos casos
 - ✅ Extensible: Fácil agregar más sitios con JavaScript
 - ✅ Tipo de scraper transparente para el orchestrator
@@ -976,10 +1056,12 @@ npm install puppeteer  # ~170MB (incluye Chromium)
 ---
 
 ### Fase 6: Scraping Automático + Deploy
+
 **Duración estimada**: 1 día
 **Objetivo**: Automatización y producción
 
 **Tareas pendientes**:
+
 1. [ ] Crear GitHub Action con cron (diario 2 AM UTC)
 2. [ ] Implementar logging estructurado con Pino
 3. [ ] Configurar redacción de secretos en logs
@@ -991,6 +1073,7 @@ npm install puppeteer  # ~170MB (incluye Chromium)
 9. [ ] Tests de integración del cron job
 
 **Entregable**:
+
 - ✅ Scraping automático diario
 - ✅ App en producción (Vercel)
 - ✅ Logs estructurados
@@ -1000,10 +1083,12 @@ npm install puppeteer  # ~170MB (incluye Chromium)
 ---
 
 ### Fase 7: Pulido + Testing E2E
+
 **Duración estimada**: 1 día  
 **Objetivo**: MVP completo y listo para usuarios
 
 **Tareas pendientes**:
+
 1. [ ] Setup Playwright para E2E
 2. [ ] Tests E2E de flujos críticos:
    - [ ] Búsqueda por texto
@@ -1019,6 +1104,7 @@ npm install puppeteer  # ~170MB (incluye Chromium)
 9. [ ] Verificar coverage (>80% domain, >60% total)
 
 **Entregable**:
+
 - ✅ MVP completo y testeado
 - ✅ Lighthouse score >90
 - ✅ Tests E2E pasan
@@ -1029,6 +1115,7 @@ npm install puppeteer  # ~170MB (incluye Chromium)
 ## 📋 Comandos Útiles
 
 ### Desarrollo
+
 ```bash
 npm run dev              # Iniciar servidor de desarrollo
 npm run build            # Build de producción
@@ -1036,6 +1123,7 @@ npm run start            # Servidor de producción
 ```
 
 ### Calidad de Código
+
 ```bash
 npm run lint             # Ejecutar linter
 npm run lint:fix         # Arreglar issues automáticamente
@@ -1045,6 +1133,7 @@ npm run type-check       # Validar TypeScript
 ```
 
 ### Testing
+
 ```bash
 npm run test             # Tests en watch mode
 npm run test:ui          # UI de Vitest en navegador
@@ -1052,6 +1141,7 @@ npm run test:coverage    # Reporte de cobertura
 ```
 
 ### Base de Datos
+
 ```bash
 npm run db:generate      # Generar Prisma Client
 npm run db:push          # Aplicar cambios al schema
@@ -1059,6 +1149,7 @@ npm run db:studio        # Abrir Prisma Studio (UI)
 ```
 
 ### Scraping Manual (después de Fase 1)
+
 ```bash
 curl -X POST http://localhost:3000/api/admin/scraper/sync \
   -H "x-api-key: tu-admin-api-key"
@@ -1068,27 +1159,29 @@ curl -X POST http://localhost:3000/api/admin/scraper/sync \
 
 ## 🎯 Criterios de Éxito del MVP
 
-| Criterio | Objetivo | Cómo Verificar |
-|----------|----------|----------------|
-| **Type Check** | Sin errores | `npm run type-check` |
-| **Linter** | Sin errores | `npm run lint` |
+| Criterio            | Objetivo               | Cómo Verificar          |
+| ------------------- | ---------------------- | ----------------------- |
+| **Type Check**      | Sin errores            | `npm run type-check`    |
+| **Linter**          | Sin errores            | `npm run lint`          |
 | **Tests Unitarios** | >80% coverage (domain) | `npm run test:coverage` |
-| **Tests E2E** | 100% happy paths | Playwright report |
-| **Performance** | Búsqueda <500ms | Vercel Analytics |
-| **Lighthouse** | >90 Performance | Chrome DevTools |
-| **Build** | Exitoso | `npm run build` |
-| **Datos** | >500 eventos activos | `npx prisma studio` |
+| **Tests E2E**       | 100% happy paths       | Playwright report       |
+| **Performance**     | Búsqueda <500ms        | Vercel Analytics        |
+| **Lighthouse**      | >90 Performance        | Chrome DevTools         |
+| **Build**           | Exitoso                | `npm run build`         |
+| **Datos**           | >500 eventos activos   | `npx prisma studio`     |
 
 ---
 
 ## 🐛 Issues Conocidos
 
 ### 1. Prisma Binary Download - RESUELTO MANUALMENTE
+
 **Problema**: Claude Code web no puede descargar binarios de Prisma (403 en binaries.prisma.sh)  
 **Solución**: Usuario ejecuta `npx prisma generate` localmente  
 **Estado**: ✅ Documentado en este roadmap
 
 ### 2. Deprecation Warnings
+
 **Problema**: `string-similarity@4.0.4` está deprecated  
 **Impacto**: Bajo - funciona correctamente  
 **Solución futura**: Migrar a alternativa (ej: `fuzzball.js`) en Fase 2+
@@ -1108,11 +1201,13 @@ curl -X POST http://localhost:3000/api/admin/scraper/sync \
 ## 🤝 Git Workflow
 
 ### Durante MVP (Fases 0-7)
+
 - Commits directos al branch `claude/project-overview-011CUqdqHGiRRDdpktZ4Ef7M`
 - Commit después de cada fase completada
 - Push inmediato después de commit
 
 ### Convenciones de Commits
+
 ```
 feat: nueva funcionalidad (cada fase)
 fix: corrección de bugs
@@ -1123,6 +1218,7 @@ chore: cambios menores (deps, config)
 ```
 
 ### Al Finalizar MVP
+
 1. Crear Pull Request de `claude/project-overview-011CUqdqHGiRRDdpktZ4Ef7M` → `master`
 2. Code review
 3. Merge a `master`
@@ -1141,6 +1237,7 @@ chore: cambios menores (deps, config)
 **Fase 5**: ✅ **COMPLETADA**
 
 **Progreso actual**:
+
 - ✅ Setup completo (Prisma, TypeScript, Clean Architecture)
 - ✅ Primera fuente de datos (Ticketmaster → BD → UI)
 - ✅ Business Rules + Deduplicación con fuzzy matching
@@ -1156,6 +1253,7 @@ chore: cambios menores (deps, config)
 **Siguiente paso**: **Iniciar Fase 6 - Segunda Fuente + Detalle**
 
 **Fase 6 - Tareas pendientes**:
+
 1. Implementar segunda fuente (scraper local de venue adicional)
 2. Crear mapper correspondiente
 3. Registrar en orchestrator
@@ -1167,6 +1265,7 @@ chore: cambios menores (deps, config)
 9. Tests E2E básicos (home → detalle)
 
 **Opciones alternativas**:
+
 - **Opción A**: Iniciar Fase 6 (Segunda fuente + Detalle)
 - **Opción B**: Saltar a Fase 7 (Deploy + Scraping automático)
 - **Opción C**: Agregar más fuentes locales (sitios argentinos)

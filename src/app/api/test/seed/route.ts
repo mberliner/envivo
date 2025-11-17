@@ -29,10 +29,7 @@ export async function POST(request: NextRequest) {
   const apiKey = request.headers.get('x-api-key');
 
   if (!env.ADMIN_API_KEY) {
-    return NextResponse.json(
-      { error: 'Admin API key not configured in server' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Admin API key not configured in server' }, { status: 500 });
   }
 
   if (!apiKey || apiKey !== env.ADMIN_API_KEY) {
@@ -44,10 +41,7 @@ export async function POST(request: NextRequest) {
 
   // Solo permitir en desarrollo/testing
   if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV === 'production') {
-    return NextResponse.json(
-      { error: 'Endpoint not available in production' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Endpoint not available in production' }, { status: 403 });
   }
 
   try {
@@ -76,8 +70,8 @@ export async function POST(request: NextRequest) {
           genre: i % 3 === 0 ? 'Rock' : i % 3 === 1 ? 'Pop' : 'Jazz',
 
           // Precio
-          price: 1000 + (i * 500),
-          priceMax: 2000 + (i * 500),
+          price: 1000 + i * 500,
+          priceMax: 2000 + i * 500,
           currency: 'ARS',
 
           // URL de imagen (placeholder)
@@ -103,7 +97,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating test events:', error);
     return NextResponse.json(
-      { error: 'Failed to create test events', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Failed to create test events',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

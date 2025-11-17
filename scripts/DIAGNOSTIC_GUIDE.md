@@ -69,13 +69,13 @@ Tests específicos para investigar race conditions.
 
 #### Tests Disponibles
 
-| Test | Propósito |
-|------|-----------|
-| **Page Stability** | Verifica si href cambia después de carga inicial |
-| **Href Population Timing** | Mide tiempo hasta que href esté poblado |
-| **Re-render Detection** | Detecta si EventCard se renderiza múltiples veces |
-| **Network Timing** | Captura timing de `/api/events` |
-| **Scenario Simulation** | Simula test real con logging detallado |
+| Test                       | Propósito                                         |
+| -------------------------- | ------------------------------------------------- |
+| **Page Stability**         | Verifica si href cambia después de carga inicial  |
+| **Href Population Timing** | Mide tiempo hasta que href esté poblado           |
+| **Re-render Detection**    | Detecta si EventCard se renderiza múltiples veces |
+| **Network Timing**         | Captura timing de `/api/events`                   |
+| **Scenario Simulation**    | Simula test real con logging detallado            |
 
 #### Uso
 
@@ -108,6 +108,7 @@ Los tests diagnósticos generan logs detallados en consola:
 ```
 
 **Buscar estos patrones:**
+
 - ⚠️ `HREF CHANGED between checks!` → Confirma re-render
 - ⚠️ `Large gap between API response and cards visible` → Confirma timing issue
 - ⚠️ `EventCard was added X times` → Confirma re-renders
@@ -161,21 +162,25 @@ npx playwright show-trace diagnostic-output/[timestamp]/run-1-trace.zip
 ### Qué Buscar en el Trace
 
 #### 1. Timeline Tab
+
 - Ver cuándo ocurre el click exactamente
 - Ver cambios en el DOM antes/después del click
 - Identificar re-renders visuales
 
 #### 2. Network Tab
+
 - Ver cuándo completa `/api/events`
 - Verificar timing entre fetch y click
 - Buscar requests inesperados
 
 #### 3. Snapshots Tab
+
 - Ver estado exacto del DOM en cada paso
 - Inspeccionar el elemento en el momento del click
 - Ver valor de `href` atributo
 
 #### 4. Source Tab
+
 - Ver exactamente qué línea de código falló
 - Contexto del error con variables
 
@@ -192,6 +197,7 @@ npm run diagnose:e2e -- --runs=10
 **Objetivo**: Confirmar que el problema existe y es reproducible.
 
 **Buscar**:
+
 - Success rate < 100%
 - Patrón consistente de navegación a "/"
 
@@ -204,6 +210,7 @@ cat diagnostic-output/[timestamp]/REPORT.md
 **Objetivo**: Entender patrones y frecuencia.
 
 **Buscar**:
+
 - Timing delta entre pasados/fallados
 - Patrón de navegación
 - Consecutividad de fallos
@@ -217,6 +224,7 @@ npx playwright show-trace diagnostic-output/[timestamp]/run-X-trace.zip
 **Objetivo**: Ver exactamente qué pasó en el navegador.
 
 **Buscar**:
+
 - Timing entre API response y click
 - Valor de href antes del click
 - Cambios en DOM
@@ -230,6 +238,7 @@ npm run test:diagnostic
 **Objetivo**: Confirmar hipótesis específicas.
 
 **Buscar en logs**:
+
 - `HREF CHANGED between checks`
 - Gap entre API y cards visible
 - Render counts
@@ -239,6 +248,7 @@ npm run test:diagnostic
 Basado en evidencia recopilada, implementar una de estas soluciones:
 
 #### Solución A: Esperar Estabilidad del DOM
+
 ```typescript
 await page.waitForFunction(
   () => {
@@ -250,15 +260,18 @@ await page.waitForFunction(
 ```
 
 #### Solución B: Re-query Antes de Click
+
 ```typescript
 // No guardar referencia
-await page.locator('[data-testid="event-card"]')
+await page
+  .locator('[data-testid="event-card"]')
   .first()
   .getByRole('link', { name: 'Ver Detalles' })
   .click();
 ```
 
 #### Solución C: Data Attribute Más Robusto
+
 ```tsx
 <Link href={`/eventos/${event.id}`} data-testid="event-details-link">
   Ver Detalles

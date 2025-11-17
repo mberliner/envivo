@@ -109,9 +109,7 @@ export class GenericWebScraper implements IDataSource {
     const { containerSelector, itemSelector } = this.config.listing;
 
     // Seleccionar items (con o sin container)
-    const $items = containerSelector
-      ? $(containerSelector).find(itemSelector)
-      : $(itemSelector);
+    const $items = containerSelector ? $(containerSelector).find(itemSelector) : $(itemSelector);
 
     // Extraer datos de cada item (ahora async)
     const eventPromises: Promise<RawEvent | null>[] = [];
@@ -121,9 +119,7 @@ export class GenericWebScraper implements IDataSource {
       const promise = this.extractEventData($item).catch((error: unknown) => {
         if (this.config.errorHandling?.skipFailedEvents) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          console.warn(
-            `[${this.name}] Failed to extract event from item: ${errorMessage}`
-          );
+          console.warn(`[${this.name}] Failed to extract event from item: ${errorMessage}`);
           return null;
         } else {
           throw error;
@@ -136,7 +132,7 @@ export class GenericWebScraper implements IDataSource {
     const extractedEvents = await Promise.all(eventPromises);
 
     // Filtrar nulls
-    extractedEvents.forEach(event => {
+    extractedEvents.forEach((event) => {
       if (event) {
         events.push(event);
       }
@@ -207,9 +203,7 @@ export class GenericWebScraper implements IDataSource {
             );
           } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            console.warn(
-              `[${this.name}] Failed to transform field ${field}: ${errorMessage}`
-            );
+            console.warn(`[${this.name}] Failed to transform field ${field}: ${errorMessage}`);
           }
         }
       });
@@ -227,7 +221,9 @@ export class GenericWebScraper implements IDataSource {
           venue: detailData.venue,
           address: detailData.address,
           price: detailData.price,
-          description: detailData.description ? `${(detailData.description as string).substring(0, 50)}...` : undefined,
+          description: detailData.description
+            ? `${(detailData.description as string).substring(0, 50)}...`
+            : undefined,
         });
 
         // Mergear datos: detalles tienen prioridad sobre listado
@@ -263,7 +259,9 @@ export class GenericWebScraper implements IDataSource {
 
     // Construir RawEvent
     const venue = transformedData.venue || defaultValues?.venue;
-    console.log(`[${this.name}] 🏛️  Building RawEvent: venue="${venue}" (transformed="${transformedData.venue}", default="${defaultValues?.venue}")`);
+    console.log(
+      `[${this.name}] 🏛️  Building RawEvent: venue="${venue}" (transformed="${transformedData.venue}", default="${defaultValues?.venue}")`
+    );
 
     return {
       _source: this.name, // Using _source to match ExternalApiMapper pattern
@@ -363,7 +361,9 @@ export class GenericWebScraper implements IDataSource {
           if (!value && selectors.title) {
             const titleText = $(selectors.title).text().trim();
             if (titleText && transforms && transforms.date) {
-              console.log(`[${this.name}]   🔄 No date in paragraphs, trying title: "${titleText.substring(0, 100)}..."`);
+              console.log(
+                `[${this.name}]   🔄 No date in paragraphs, trying title: "${titleText.substring(0, 100)}..."`
+              );
               try {
                 const parsed = applyTransform(transforms.date, titleText, this.config.baseUrl);
                 if (parsed instanceof Date && !isNaN(parsed.getTime())) {
@@ -505,9 +505,16 @@ export class GenericWebScraper implements IDataSource {
       ...config,
       rateLimit: config.rateLimit || DEFAULT_SCRAPER_CONFIG.rateLimit,
       errorHandling: {
-        skipFailedEvents: config.errorHandling?.skipFailedEvents ?? DEFAULT_SCRAPER_CONFIG.errorHandling?.skipFailedEvents ?? true,
-        skipFailedPages: config.errorHandling?.skipFailedPages ?? DEFAULT_SCRAPER_CONFIG.errorHandling?.skipFailedPages ?? false,
-        timeout: config.errorHandling?.timeout ?? DEFAULT_SCRAPER_CONFIG.errorHandling?.timeout ?? 15000,
+        skipFailedEvents:
+          config.errorHandling?.skipFailedEvents ??
+          DEFAULT_SCRAPER_CONFIG.errorHandling?.skipFailedEvents ??
+          true,
+        skipFailedPages:
+          config.errorHandling?.skipFailedPages ??
+          DEFAULT_SCRAPER_CONFIG.errorHandling?.skipFailedPages ??
+          false,
+        timeout:
+          config.errorHandling?.timeout ?? DEFAULT_SCRAPER_CONFIG.errorHandling?.timeout ?? 15000,
         retry: config.errorHandling?.retry || DEFAULT_SCRAPER_CONFIG.errorHandling?.retry,
       },
     };

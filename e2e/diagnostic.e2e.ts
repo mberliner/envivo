@@ -91,7 +91,8 @@ test.describe.serial('Diagnostic - Race Condition Analysis', () => {
     console.log('[DIAG] Total time from load to valid href:', hrefEnd - loadStart, 'ms');
 
     // Verificar el href final
-    const finalHref = await page.locator('[data-testid="event-card"]')
+    const finalHref = await page
+      .locator('[data-testid="event-card"]')
       .first()
       .getByRole('link', { name: 'Ver Detalles' })
       .getAttribute('href');

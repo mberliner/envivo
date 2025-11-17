@@ -21,10 +21,7 @@ interface RouteContext {
  *
  * Elimina un evento y lo blacklistea
  */
-export async function DELETE(
-  request: NextRequest,
-  context: RouteContext
-): Promise<NextResponse> {
+export async function DELETE(request: NextRequest, context: RouteContext): Promise<NextResponse> {
   try {
     const { id } = await context.params;
 
@@ -40,10 +37,7 @@ export async function DELETE(
     });
 
     if (!event) {
-      return NextResponse.json(
-        { error: 'Event not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 
     // Si el evento no tiene externalId, no podemos blacklistearlo
@@ -112,9 +106,6 @@ export async function DELETE(
       });
     }
 
-    return NextResponse.json(
-      { success: false, error: errorMessage },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }

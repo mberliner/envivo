@@ -16,7 +16,10 @@ import type { IDataSource } from '@/features/events/domain/interfaces/IDataSourc
 import type { IEventRepository } from '@/features/events/domain/interfaces/IEventRepository';
 import type { RawEvent } from '@/features/events/domain/entities/Event';
 import { EventService } from '@/features/events/domain/services/EventService';
-import { EventBusinessRules, DEFAULT_BUSINESS_RULES } from '@/features/events/domain/services/EventBusinessRules';
+import {
+  EventBusinessRules,
+  DEFAULT_BUSINESS_RULES,
+} from '@/features/events/domain/services/EventBusinessRules';
 import { PreferencesService } from '@/features/events/domain/services/PreferencesService';
 import { PrismaPreferencesRepository } from '@/features/events/data/repositories/PrismaPreferencesRepository';
 import { prisma } from '@/shared/infrastructure/database/prisma';
