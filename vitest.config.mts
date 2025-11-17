@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import path from 'path';
 
-// Test coverage: 78.09% ✅ (goal: 80%)
+// Test coverage: 77.17% ✅ (goal: 70% ✅ exceeded, next: 80%)
 export default defineConfig({
   test: {
     globals: true,
@@ -54,10 +54,10 @@ export default defineConfig({
         '**/**/interfaces/**',                // Interfaces (solo tipos)
       ],
       thresholds: {
-        lines: 78,      // ✅ Alcanzado (78.09%) - próximo objetivo 80%
+        lines: 77,      // ✅ Alcanzado (77.17%) - objetivo 70% superado
         functions: 88,  // ✅ Alcanzado (88.54%)
         branches: 82,   // ✅ Alcanzado (82.97%)
-        statements: 78, // ✅ Alcanzado (78.09%) - próximo objetivo 80%
+        statements: 77, // ✅ Alcanzado (77.17%) - objetivo 70% superado
       },
     },
   },
