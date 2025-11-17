@@ -21,6 +21,10 @@ const SCRAPER_CONFIGS: Record<string, () => Promise<ScraperConfig>> = {
     const { teatroColiseoConfig } = await import('@/config/scrapers/teatrocoliseo.config');
     return teatroColiseoConfig;
   },
+  movistararena: async () => {
+    const { movistarArenaConfig } = await import('@/config/scrapers/movistararena.config');
+    return movistarArenaConfig;
+  },
   // Agregar más scrapers aquí:
   // alternativa: async () => {
   //   const { alternativaConfig } = await import('@/config/scrapers/alternativa.config');
@@ -47,8 +51,11 @@ export class WebScraperFactory {
   /**
    * Crea un scraper web por nombre
    *
+   * Auto-detecta si debe usar GenericWebScraper (Cheerio) o PuppeteerWebScraper
+   * basándose en el flag requiresJavaScript en la configuración.
+   *
    * @param scraperName - Nombre del scraper (debe existir en SCRAPER_CONFIGS)
-   * @returns Instancia de GenericWebScraper
+   * @returns Instancia de GenericWebScraper o PuppeteerWebScraper
    * @throws Error si el scraper no existe
    */
   static async create(scraperName: string): Promise<IDataSource> {
@@ -61,7 +68,16 @@ export class WebScraperFactory {
     }
 
     const config = await configLoader();
-    return new GenericWebScraper(config);
+
+    // Auto-detectar tipo de scraper basándose en requiresJavaScript
+    if (config.requiresJavaScript) {
+      console.log(`[WebScraperFactory] Creating PuppeteerWebScraper for ${scraperName} (requires JavaScript)`);
+      const { PuppeteerWebScraper } = await import('./PuppeteerWebScraper');
+      return new PuppeteerWebScraper(config);
+    } else {
+      console.log(`[WebScraperFactory] Creating GenericWebScraper for ${scraperName} (static HTML)`);
+      return new GenericWebScraper(config);
+    }
   }
 
   /**

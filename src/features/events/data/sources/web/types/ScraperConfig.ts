@@ -35,6 +35,8 @@ export interface EventSelectors {
   title?: string;
   /** Selector de la fecha/hora */
   date?: string;
+  /** Selector de la hora específica (HH:MM) */
+  time?: string;
   /** Selector del venue/lugar */
   venue?: string;
   /** Selector de la ciudad */
@@ -106,6 +108,26 @@ export interface DetailPageConfig {
   transforms?: TransformFunctions;
   /** Delay entre requests de detalles (ms) - default 500ms */
   delayBetweenRequests?: number;
+  /** Timeout para cada página de detalles (ms) - default 30000ms */
+  timeout?: number;
+  /**
+   * Selector CSS que debe aparecer después de que JS cargue el contenido de la página de detalles
+   * Solo se usa si requiresJavaScript = true
+   * El scraper esperará a que este selector esté visible antes de extraer datos
+   */
+  waitForSelector?: string;
+  /**
+   * Timeout máximo para esperar que JS cargue el contenido de la página de detalles (ms)
+   * Solo se usa si requiresJavaScript = true
+   * Default: 30000 (30 segundos)
+   */
+  waitForTimeout?: number;
+  /**
+   * Tiempo adicional de espera DESPUÉS de waitForSelector (ms)
+   * Útil para sitios Blazor que cargan contenido en etapas (primero título, luego descripción)
+   * Default: 0 (sin espera adicional)
+   */
+  additionalWaitTime?: number;
 }
 
 /**
@@ -180,6 +202,24 @@ export interface ScraperConfig {
   userAgent?: string;
   /** Headers HTTP adicionales */
   headers?: Record<string, string>;
+  /**
+   * Si requiere JavaScript para renderizar contenido (Blazor, React, Vue, etc.)
+   * Si true, se usará PuppeteerWebScraper en lugar de GenericWebScraper
+   * Default: false
+   */
+  requiresJavaScript?: boolean;
+  /**
+   * Selector CSS que debe aparecer después de que JS cargue el contenido
+   * Solo se usa si requiresJavaScript = true
+   * El scraper esperará a que este selector esté visible antes de extraer datos
+   */
+  waitForSelector?: string;
+  /**
+   * Timeout máximo para esperar que JS cargue el contenido (ms)
+   * Solo se usa si requiresJavaScript = true
+   * Default: 30000 (30 segundos)
+   */
+  waitForTimeout?: number;
 }
 
 /**

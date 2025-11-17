@@ -704,6 +704,166 @@ export function parseTeatroColiseoDate(dateString: string): Date | undefined {
 }
 
 /**
+ * Extrae URL de CSS background-image
+ *
+ * Movistar Arena usa inline styles: background-image: url('...')
+ * Esta función extrae la URL del estilo.
+ *
+ * @param styleValue - Valor del atributo style
+ * @returns URL de la imagen o undefined
+ *
+ * @example
+ * extractBackgroundImage("background-image: url('https://example.com/image.jpg')")
+ * // => "https://example.com/image.jpg"
+ */
+export function extractBackgroundImage(styleValue: string): string | undefined {
+  if (!styleValue || typeof styleValue !== 'string') {
+    return undefined;
+  }
+
+  // Buscar patrón: url('...') o url("...")
+  const match = styleValue.match(/url\(['"]?([^'"()]+)['"]?\)/);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+
+  return undefined;
+}
+
+/**
+ * Limpia fechas de Movistar Arena removiendo información de fechas múltiples
+ *
+ * Movistar Arena incluye texto extra: "20 noviembre 2025 y 2 fechas más"
+ * Esta función extrae solo la primera fecha para poder parsearla.
+ *
+ * @param dateString - String con la fecha
+ * @returns String limpio con solo la primera fecha
+ *
+ * @example
+ * cleanMovistarDate("20 noviembre 2025 y 2 fechas más")
+ * // => "20 noviembre 2025"
+ *
+ * cleanMovistarDate("15 noviembre 2025")
+ * // => "15 noviembre 2025"
+ */
+export function cleanMovistarDate(dateString: string): string {
+  if (!dateString || typeof dateString !== 'string') {
+    return '';
+  }
+
+  // Remover " y X fecha(s) más" o " y X fechas mas" (con/sin tilde)
+  const cleaned = dateString.replace(/\s+y\s+\d+\s+fechas?\s+m[áa]s\s*$/i, '').trim();
+
+  return cleaned || dateString; // Si el resultado está vacío, devolver original
+}
+
+/**
+ * Parsea fechas de Movistar Arena (wrapper sobre parseSpanishDate con limpieza)
+ *
+ * @param dateString - String con la fecha
+ * @returns Date object o undefined si no se puede parsear
+ */
+export function parseMovistarDate(dateString: string): Date | undefined {
+  const cleaned = cleanMovistarDate(dateString);
+  return parseSpanishDate(cleaned);
+}
+
+/**
+ * Extrae la hora del show de Movistar Arena
+ *
+ * Ejemplos:
+ * extractMovistarTime("21:00 hs Show") → "21:00"
+ * extractMovistarTime("19:00 hs\n                    Puertas") → "19:00"
+ *
+ * @param timeString - String con la hora del evento
+ * @returns String con la hora en formato HH:MM o undefined si no se encuentra
+ */
+export function extractMovistarTime(timeString: string): string | undefined {
+  if (!timeString) return undefined;
+
+  // Buscar patrón HH:MM en el texto
+  const match = timeString.match(/\b(\d{1,2}):(\d{2})\b/);
+  if (!match) return undefined;
+
+  return match[0]; // Retorna "21:00"
+}
+
+/**
+ * Extrae el precio de Movistar Arena del texto de la página
+ *
+ * Ejemplos:
+ * extractMovistarPrice("desde $ 60.000") → 60000
+ * extractMovistarPrice("$ 15.500") → 15500
+ * extractMovistarPrice("$ 45.000,50") → 45000.50
+ *
+ * IMPORTANTE: Evita capturar números de fecha que aparecen después del precio
+ * (ej: "$ 60.000 16 noviembre" no debe capturar "16" como parte del precio)
+ *
+ * @param bodyText - Texto completo de la página
+ * @returns Número con el precio o undefined si no se encuentra
+ */
+export function extractMovistarPrice(bodyText: string): number | undefined {
+  if (!bodyText) return undefined;
+
+  // Buscar patrón "desde $ XXXXX" o "$ XXXXX"
+  // Formato argentino: $ 60.000 o $ 60.000,50 (punto = separador miles, coma = decimal)
+  // Usa negative lookahead (?![.,\d]) para evitar backtracking y captura parcial
+  // Ejemplo: "$ 60.00010" captura "60.000" completo (no permite . , o dígitos después)
+  const match = bodyText.match(/\$\s*([\d]{1,3}(?:[.,]\d{3})*(?:,\d{1,2})?)(?![.,\d])/);
+  if (!match) return undefined;
+
+  let priceStr = match[1];
+
+  // Detectar si tiene coma decimal (formato argentino: $ 60.000,50)
+  if (priceStr.includes(',')) {
+    // Remover puntos (separadores de miles) y reemplazar coma por punto (decimal)
+    priceStr = priceStr.replace(/\./g, '').replace(',', '.');
+  } else {
+    // Solo tiene puntos, son separadores de miles → removerlos
+    priceStr = priceStr.replace(/\./g, '');
+  }
+
+  const price = parseFloat(priceStr);
+  return isNaN(price) ? undefined : price;
+}
+
+/**
+ * Extrae y limpia la descripción de eventos de Movistar Arena
+ *
+ * Filtra párrafos que contienen información de transporte/estacionamiento
+ * y sanitiza el HTML resultante.
+ *
+ * @param rawDescription - Texto completo de la descripción (puede contener múltiples párrafos)
+ * @returns Descripción limpia y sanitizada
+ */
+export function extractMovistarDescription(rawDescription: string): string {
+  if (!rawDescription) return '';
+
+  // Dividir por LÍNEAS (no por dobles saltos)
+  const lines = rawDescription
+    .split(/\n/)
+    .map(l => l.trim())
+    .filter(l => l.length > 0);
+
+  // Filtrar líneas no deseadas (countdown, transporte, etc.)
+  const excludePatterns = [
+    /^Faltan/i, // "Faltan" o "Faltan X días" (countdown)
+    /colectivos?\s+\d+/i, // "Colectivos 34, 42, 55..."
+    /estacionamiento/i, // Información de estacionamiento
+    /registres de nuevo/i, // Mensajes de registro
+    /reservá tu estacionamiento/i, // Call-to-action de estacionamiento
+    /encontrá estacionamiento/i, // Títulos de sección de estacionamiento
+  ];
+
+  const filteredLines = lines.filter(line => {
+    return !excludePatterns.some(pattern => pattern.test(line));
+  });
+
+  // Unir líneas con salto simple
+  return filteredLines.join('\n');
+}
+
+/**
  * Mapeo de nombres de transformaciones a funciones
  *
  * Usado por GenericWebScraper para aplicar transformaciones por nombre.
@@ -719,6 +879,12 @@ export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: strin
   cleanLivepassTitle: (value: string) => cleanLivepassTitle(value),
   extractLivepassVenue: (value: string) => extractLivepassVenue(value),
   parseTeatroColiseoDate: (value: string) => parseTeatroColiseoDate(value),
+  extractBackgroundImage: (value: string) => extractBackgroundImage(value),
+  cleanMovistarDate: (value: string) => cleanMovistarDate(value),
+  parseMovistarDate: (value: string) => parseMovistarDate(value),
+  extractMovistarTime: (value: string) => extractMovistarTime(value),
+  extractMovistarPrice: (value: string) => extractMovistarPrice(value),
+  extractMovistarDescription: (value: string) => extractMovistarDescription(value),
 };
 
 /**
