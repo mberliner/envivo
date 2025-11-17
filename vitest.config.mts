@@ -53,10 +53,10 @@ export default defineConfig({
         '**/**/interfaces/**',                // Interfaces (solo tipos)
       ],
       thresholds: {
-        lines: 70,      // ✅ Alcanzado - objetivo final 80%
-        functions: 70,  // ✅ Alcanzado - objetivo final 80%
-        branches: 80,   // ✅ Ya alcanzado
-        statements: 70, // ✅ Alcanzado - objetivo final 80%
+        lines: 78,      // ✅ Alcanzado (78.09%) - próximo objetivo 80%
+        functions: 88,  // ✅ Alcanzado (88.54%)
+        branches: 82,   // ✅ Alcanzado (82.97%)
+        statements: 78, // ✅ Alcanzado (78.09%) - próximo objetivo 80%
       },
     },
   },
