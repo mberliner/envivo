@@ -19,7 +19,7 @@
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
-    "db:e2e:init": "cross-env DATABASE_URL_E2E=file:./e2e.db tsx scripts/init-e2e-db.ts",
+    "db:e2e:init": "cross-env DATABASE_URL_E2E=file:./e2e.db tsx init-e2e-db.ts",
     "db:e2e:studio": "cross-env DATABASE_URL=file:./e2e.db prisma studio",
     "test:e2e": "playwright test",
     "test:e2e:local": "cross-env E2E_BASE_URL=http://localhost:3000 playwright test",
@@ -27,8 +27,8 @@
     "test:e2e:vercel": "cross-env E2E_BASE_URL=https://envivo.vercel.app playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
-    "diagnose:e2e": "node scripts/diagnose-e2e.js",
-    "diagnose:e2e:dev": "node scripts/diagnose-e2e.js --mode=dev",
+    "diagnose:e2e": "node diagnose-e2e.js",
+    "diagnose:e2e:dev": "node diagnose-e2e.js --mode=dev",
     "test:diagnostic": "playwright test diagnostic.e2e.ts"
   },
   "prisma": {
