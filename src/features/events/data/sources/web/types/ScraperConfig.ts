@@ -122,6 +122,12 @@ export interface DetailPageConfig {
    * Default: 30000 (30 segundos)
    */
   waitForTimeout?: number;
+  /**
+   * Tiempo adicional de espera DESPUÉS de waitForSelector (ms)
+   * Útil para sitios Blazor que cargan contenido en etapas (primero título, luego descripción)
+   * Default: 0 (sin espera adicional)
+   */
+  additionalWaitTime?: number;
 }
 
 /**

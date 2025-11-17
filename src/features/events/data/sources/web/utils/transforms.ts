@@ -839,8 +839,15 @@ export function extractMovistarPrice(bodyText: string): number | undefined {
 export function extractMovistarDescription(rawDescription: string): string {
   if (!rawDescription) return '';
 
-  // Filtros para eliminar párrafos no relacionados con la descripción del evento
+  // Dividir por LÍNEAS (no por dobles saltos)
+  const lines = rawDescription
+    .split(/\n/)
+    .map(l => l.trim())
+    .filter(l => l.length > 0);
+
+  // Filtrar líneas no deseadas (countdown, transporte, etc.)
   const excludePatterns = [
+    /^Faltan/i, // "Faltan" o "Faltan X días" (countdown)
     /colectivos?\s+\d+/i, // "Colectivos 34, 42, 55..."
     /estacionamiento/i, // Información de estacionamiento
     /registres de nuevo/i, // Mensajes de registro
@@ -848,22 +855,12 @@ export function extractMovistarDescription(rawDescription: string): string {
     /encontrá estacionamiento/i, // Títulos de sección de estacionamiento
   ];
 
-  // Dividir en párrafos (separados por múltiples espacios/saltos de línea)
-  const paragraphs = rawDescription
-    .split(/\n\n+/)
-    .map(p => p.trim())
-    .filter(p => p.length > 0);
-
-  // Filtrar párrafos no deseados
-  const filteredParagraphs = paragraphs.filter(paragraph => {
-    return !excludePatterns.some(pattern => pattern.test(paragraph));
+  const filteredLines = lines.filter(line => {
+    return !excludePatterns.some(pattern => pattern.test(line));
   });
 
-  // Unir párrafos con doble salto de línea
-  const cleanedDescription = filteredParagraphs.join('\n\n');
-
-  // Sanitizar HTML para seguridad
-  return sanitizeHtml(cleanedDescription);
+  // Unir líneas con salto simple
+  return filteredLines.join('\n');
 }
 
 /**
