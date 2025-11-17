@@ -101,12 +101,17 @@ jobs:
       - name: Generate Prisma Client
         run: npm run db:generate
 
+      - name: Create database schema
+        run: npm run db:push
+        env:
+          DATABASE_URL: file:./ci.db
+
       - name: Build Next.js application
         run: npm run build
         env:
           # Variables mínimas para build (no se conecta a DB real)
           DATABASE_URL: file:./ci.db
-          ADMIN_API_KEY: ci-test-key-32-characters-min
+          ADMIN_API_KEY: ci-test-key-with-32-chars-minimum!
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
