@@ -2,7 +2,7 @@
 
 > **⚠️ DOCUMENTO TEMPORAL - ELIMINAR DESPUÉS DE COMPLETAR IMPLEMENTACIÓN**
 >
-> **Fecha creación**: 12 Noviembre 2025
+> **Fecha creación**: 12 Diciembre 2025
 > **Propósito**: Guía de migración de SQLite local a Turso para deploy en Vercel
 > **Estado**: Documento de trabajo
 > **Acción post-implementación**: Eliminar este archivo + referencia en CLAUDE.md
@@ -954,6 +954,6 @@ git push
 
 ---
 
-**Última actualización**: 12 Noviembre 2025
+**Última actualización**: 12 Diciembre 2025
 **Versión**: 1.0
 **Estado**: Documento temporal - eliminar post-implementación

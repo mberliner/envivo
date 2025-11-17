@@ -329,7 +329,7 @@ Si encuentras una vulnerabilidad de seguridad, repórtala via:
 
 ---
 
-**Última actualización**: Noviembre 2025
+**Última actualización**: Diciembre 2025
 
 ---
 

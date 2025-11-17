@@ -1,211 +1,149 @@
-# EnVivo - Buscador de Espectáculos Musicales
+# EnVivo - Encontrá Eventos Musicales en Argentina
 
-Agregador de eventos musicales en vivo con scraping asíncrono, Clean Architecture y SOLID principles.
+**EnVivo** es un agregador de eventos musicales que reúne shows, conciertos y festivales de múltiples fuentes en Argentina. En lugar de visitar varios sitios web, encontrá todos los eventos en un solo lugar.
 
-## ⚡ Stack Tecnológico
+## ✨ Características
 
-- **Framework**: Next.js 14+ con App Router
-- **Lenguaje**: TypeScript
-- **Styling**: Tailwind CSS
-- **Base de Datos**: SQLite con Prisma ORM (MVP) / PostgreSQL (producción)
-- **Búsqueda**: SQLite FTS5 (Full-Text Search) - Planificado Fase 3
-- **Testing**: Vitest + React Testing Library + Playwright (E2E)
-  - BD separada para tests E2E (ver [docs/E2E_TESTING.md](docs/E2E_TESTING.md))
-- **Scraping**: Axios (API clients)
-  - Cheerio planificado para scrapers HTML (Fase 5)
-- **Deploy**: Vercel (gratis)
+- 🔍 **Búsqueda unificada** - Eventos de Ticketmaster, LivePass, Movistar Arena, Teatro Coliseo y más
+- 🎯 **Filtros inteligentes** - Por ciudad, fecha, género y categoría musical
+- 🎵 **Sin duplicados** - Deduplicación automática entre fuentes
+- 📱 **Responsive** - Funciona en desktop, tablet y móvil
+- 🆓 **Gratis y open source** - Sin costo, código abierto
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Desarrolladores)
 
 ```bash
-# 1. Clonar repositorio
+# 1. Clonar e instalar
 git clone <repo-url>
 cd envivo
-
-# 2. Instalar dependencias
 npm install
 
-# 3. Configurar variables de entorno
+# 2. Configurar variables de entorno
 cp .env.example .env.local
-# Editar .env.local con las siguientes variables REQUERIDAS:
-#   ADMIN_API_KEY=clave-minimo-32-caracteres-para-scraping
+# Editar .env.local:
+#   ADMIN_API_KEY=clave-minimo-32-caracteres
 #   DATABASE_URL="file:./dev.db"
-# Opcionales (para futuras fuentes de datos):
-#   ALLACCESS_API_KEY=tu-api-key
-#   EVENTBRITE_API_KEY=tu-api-key
 
-# 4. Setup base de datos
+# 3. Setup base de datos
 npm run db:generate
 npm run db:push
 
-# 5. Iniciar servidor de desarrollo
+# 4. Iniciar servidor
 npm run dev
 
-# 6. Poblar base de datos con scraping inicial
-# Ver docs/WEB_SCRAPING.md#scraping-manual para métodos disponibles
+# 5. Poblar base de datos (scraping inicial)
+# Ver docs/WEB_SCRAPING.md#scraping-manual
 ```
 
-**Nota**: La BD inicia vacía. El paso 6 es **obligatorio** para tener datos iniciales.
-**Ver [docs/WEB_SCRAPING.md#scraping-manual](docs/WEB_SCRAPING.md#scraping-manual) para ejecutar scraping (3 métodos disponibles).**
-
 Abrir [http://localhost:3000](http://localhost:3000)
+
+## 🎯 Fuentes de Datos Activas
+
+- **Ticketmaster** - Eventos de Ticketmaster Argentina (API oficial)
+- **LivePass** - Café Berlín y otros venues locales (web scraping)
+- **Movistar Arena** - Eventos de Movistar Arena Buenos Aires
+- **Teatro Coliseo** - Teatro, conciertos y festivales en Buenos Aires
+
+> **💡 Agregar nuevas fuentes**: Ver [docs/ADDING_SCRAPERS.md](docs/ADDING_SCRAPERS.md)
+
+## 🛠️ Stack Tecnológico
+
+- **Next.js 15** - Framework React con App Router
+- **TypeScript** - Tipado estático
+- **Tailwind CSS** - Estilos
+- **Prisma + SQLite** - Base de datos (MVP)
+- **Vitest + Playwright** - Testing
 
 ## 📁 Estructura del Proyecto
 
 ```
-envivo/
-├── src/
-│   ├── app/                          # Next.js App Router (UI)
-│   │   ├── (home)/page.tsx
-│   │   ├── eventos/[id]/page.tsx
-│   │   └── api/eventos/route.ts
-│   │
-│   ├── features/                     # Módulos por Feature
-│   │   └── events/
-│   │       ├── domain/               # Lógica de negocio
-│   │       │   ├── entities/
-│   │       │   ├── services/
-│   │       │   └── rules/            # Business rules
-│   │       ├── data/                 # Capa de datos
-│   │       │   ├── repositories/
-│   │       │   ├── orchestrator/     # Scraping asíncrono
-│   │       │   └── sources/          # Scrapers y API clients
-│   │       └── ui/                   # Componentes React
-│   │
-│   └── shared/                       # Código compartido
-│       ├── infrastructure/
-│       │   ├── database/
-│       │   ├── logging/
-│       │   └── config/
-│       └── ui/                       # Componentes genéricos
-│
-├── docs/
-│   ├── ARCHITECTURE.md               # Arquitectura técnica
-│   ├── PRODUCT.md                    # Épicas, user stories, roadmap
-│   └── examples/                     # Ejemplos de código
-│
-├── CLAUDE.md                         # Contexto para Claude Code
-└── prisma/
-    └── schema.prisma
+src/
+├── app/                    # Next.js App Router (páginas y APIs)
+├── features/events/        # Módulo de eventos
+│   ├── domain/            # Lógica de negocio
+│   ├── data/              # Scrapers, repositories
+│   └── ui/                # Componentes React
+└── shared/                 # Código compartido
 ```
 
-## 🎯 Features del MVP
+## 📚 Documentación para Desarrolladores
 
-- **Descubrir eventos** - Agregación de eventos de múltiples fuentes:
-  - LivePass (Café Berlín) - Scraping con soporte para páginas de detalle
-  - Teatro Coliseo - Buenos Aires (CABA) - Teatro, Conciertos, Festivales
-- **Búsqueda inteligente** - Buscar por artista, título, venue con filtros (ciudad, fecha, categoría)
-- **Información completa** - Detalles de eventos, precios, links a compra de entradas
-- **Datos actualizados** - Scraping automático diario con validación y deduplicación
-- **Clean Architecture** - Codebase mantenible siguiendo principios SOLID
+### Documentos Principales
 
-> **💡 Nota**: Scraping de Teatro Coliseo requiere validación manual de selectores CSS (sitio tiene protección 403).
-> Ver [docs/ADDING_SCRAPERS.md](docs/ADDING_SCRAPERS.md) para agregar nuevas fuentes de datos.
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Clean Architecture, SOLID principles, ADRs
+- **[DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Setup, testing, debugging, best practices
+- **[CONTRIBUTING.md](docs/CONTRIBUTING.md)** - Git workflow, code review, SSOT
+- **[PRODUCT.md](docs/PRODUCT.md)** - Features, user stories, roadmap
+- **[SECURITY.md](docs/SECURITY.md)** - Security best practices
 
-**Ver roadmap completo**: [docs/PRODUCT.md](docs/PRODUCT.md)
+### Guías Específicas
 
-## 📚 Documentación
+- **[WEB_SCRAPING.md](docs/WEB_SCRAPING.md)** - Sistema de scraping (arquitectura, config, troubleshooting)
+- **[ADDING_SCRAPERS.md](docs/ADDING_SCRAPERS.md)** - Cómo agregar nuevos sitios web
+- **[E2E_TESTING.md](docs/E2E_TESTING.md)** - Tests E2E con Playwright
+- **[CLAUDE.md](CLAUDE.md)** - Contexto completo para Claude Code
+- **[CHANGELOG.md](CHANGELOG.md)** - Historia de cambios del proyecto
 
-- **[Arquitectura](docs/ARCHITECTURE.md)** - Clean Architecture, SOLID, scraping asíncrono
-- **[Product & Roadmap](docs/PRODUCT.md)** - Épicas, user stories, plan de implementación
-- **[Para Claude Code](CLAUDE.md)** - Contexto completo del proyecto para AI
+### Principios de Documentación
+
+La documentación sigue **Single Source of Truth (SSOT)**:
+- Cada tema tiene UNA ubicación autoritativa
+- Otros docs referencian con links (no duplican)
+- Ver [CONTRIBUTING.md#ssot-registry](docs/CONTRIBUTING.md#ssot-registry-qué-va-dónde)
 
 ## 🧪 Testing
 
 ```bash
 # Tests unitarios
 npm run test
-
-# Tests con UI interactiva
-npm run test:ui
-
-# Coverage report
 npm run test:coverage
 
 # Type checking
 npm run type-check
 
-# Tests E2E (Playwright)
-npm run test:e2e              # Modo desarrollo
-npm run test:e2e:prod         # Modo producción (build)
-npm run test:e2e:ui           # UI de Playwright
+# Tests E2E
+npm run test:e2e
+npm run test:e2e:ui
 ```
 
-**Stack**:
-- **Unitarios**: Vitest + React Testing Library + jsdom
-- **E2E**: Playwright con BD separada (e2e.db)
+**Stack**: Vitest + React Testing Library + Playwright (E2E con BD separada)
 
-**Cobertura**: Data layer, security utilities, UI components, flujos E2E
-
-**Ver:**
-- [docs/DEVELOPMENT.md#testing](docs/DEVELOPMENT.md#testing) - Objetivos de cobertura por capa
-- [docs/E2E_TESTING.md](docs/E2E_TESTING.md) - Guía de tests E2E
+Ver [docs/DEVELOPMENT.md#testing](docs/DEVELOPMENT.md#testing) para objetivos de cobertura.
 
 ## 🔒 Seguridad
 
-- Validación de entrada con Zod
-- Sanitización de datos scrapeados (DOMPurify)
-- Rate limiting en endpoints públicos
-- Headers de seguridad (CSP, HSTS)
-- Secrets management (.env, nunca en código)
+- ✅ Validación de entrada con Zod
+- ✅ Sanitización de datos scrapeados (DOMPurify)
+- ✅ Rate limiting en endpoints
+- ✅ Headers de seguridad (CSP, HSTS)
+
+Ver [docs/SECURITY.md](docs/SECURITY.md) para guía completa.
 
 ## 🚢 Deploy
 
 ```bash
 # Build de producción
 npm run build
-
-# Preview
 npm run start
 ```
 
 Deploy automático a Vercel en push a `main`.
 
-## 📊 Comandos Útiles
-
-```bash
-# Linting
-npm run lint
-npm run lint:fix
-
-# Formateo
-npm run format
-
-# Prisma
-npm run db:studio          # UI para base de datos
-npx prisma migrate dev     # Crear migración
-
-# Scraping manual
-# Ver docs/WEB_SCRAPING.md#scraping-manual para métodos completos
-```
-
-## 🚀 Estado del Proyecto
-
-**Proyecto en desarrollo activo** siguiendo estrategia de **Vertical Slices** (features end-to-end).
-
-**Ver roadmap completo**: [docs/PRODUCT.md](docs/PRODUCT.md#roadmap-de-implementaci%C3%B3n)
-
-### Git Workflow
-
-Durante el MVP, seguimos **trunk-based development**:
-- Commits directos después de completar cada fase
-- Convención: `feat: [descripción de la fase]`
-
----
+Ver [VERCEL_MIGRATION.md](VERCEL_MIGRATION.md) para migración completa (documento temporal).
 
 ## 🤝 Contribuir
 
-Este es un proyecto personal, pero si quieres colaborar:
+1. Leer [CONTRIBUTING.md](docs/CONTRIBUTING.md) - Workflow y testing requirements
+2. Revisar [ARCHITECTURE.md](docs/ARCHITECTURE.md) - Diseño técnico
+3. Consultar [PRODUCT.md](docs/PRODUCT.md) - Roadmap y user stories
+4. Escribir tests para nuevas features
 
-1. Revisar [CONTRIBUTING.md](docs/CONTRIBUTING.md) para workflow y convenciones
-2. Leer [ARCHITECTURE.md](docs/ARCHITECTURE.md) para entender diseño
-3. Leer [PRODUCT.md](docs/PRODUCT.md) para ver roadmap
-4. Consultar [DEVELOPMENT.md](docs/DEVELOPMENT.md) para convenciones de código
-5. Escribir tests para nuevas features
+## 📊 Estado del Proyecto
 
-**Nota**: La documentación sigue "Single Source of Truth". Ver [CONTRIBUTING.md#documentation-as-code-single-source-of-truth-ssot](docs/CONTRIBUTING.md#documentation-as-code-single-source-of-truth-ssot) para entender cómo está organizada.
+**En desarrollo activo** siguiendo estrategia de **Vertical Slices** (features end-to-end).
 
+Ver [docs/PRODUCT.md#roadmap](docs/PRODUCT.md#roadmap-de-implementación) para roadmap completo.
 
 ---
 
-**Última actualización**: 8 de Noviembre de 2025
+**Última actualización**: Diciembre 2025

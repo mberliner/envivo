@@ -11,6 +11,7 @@
 ### Enlaces Rápidos a Documentación
 
 - **[README.md](README.md)** - Quick start, estructura del proyecto, comandos básicos
+- **[CHANGELOG.md](CHANGELOG.md)** - Historia de cambios del proyecto
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Clean Architecture, SOLID, scraping asíncrono, ADRs
 - **[docs/PRODUCT.md](docs/PRODUCT.md)** - Features del MVP, user stories, roadmap
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Setup, testing, debugging, best practices
@@ -110,33 +111,9 @@ import { env } from '@/shared/infrastructure/config/env';
 
 ## Testing Requirements
 
-### ⛔ REGLA CRÍTICA: ZERO TOLERANCE PARA TESTS FALLANDO
+⛔ **REGLA CRÍTICA**: TODOS los tests deben pasar antes de commit (0 errors TypeScript, 100% tests passing, 0 lint warnings).
 
-**TODOS los tests deben pasar SIEMPRE antes de commit.**
-
-```bash
-✅ TypeScript: 0 errors (OBLIGATORIO)
-✅ Tests: X/X passing (OBLIGATORIO - 100%)
-✅ Lint: 0 warnings (OBLIGATORIO)
-```
-
-**NO commitear si:**
-- Aunque sea 1 test falla
-- Hay errores de TypeScript
-- Tests están comentados/skipeados
-
-**Ver [docs/CONTRIBUTING.md#testing-requirements](docs/CONTRIBUTING.md#testing-requirements) para detalles completos.**
-
-### Objetivos de Cobertura
-
-**Ver tabla completa en [docs/DEVELOPMENT.md#objetivos-de-cobertura](docs/DEVELOPMENT.md#objetivos-de-cobertura)**
-
-- **Domain** (business rules): >80% cobertura 🔴 CRÍTICO
-- **Data** (repositories/scrapers): >70%/60% 🟡 IMPORTANTE
-- **UI** (componentes): >60% 🟢 DESEABLE
-- **E2E** (flujos críticos): 100% happy paths 🔴 CRÍTICO
-
-**Testing Stack**: Vitest + React Testing Library + jsdom | Playwright (E2E con BD separada)
+**Ver [docs/DEVELOPMENT.md#testing](docs/DEVELOPMENT.md#testing) para stack completo, comandos y objetivos de cobertura por capa.**
 
 ---
 
@@ -162,97 +139,35 @@ import { env } from '@/shared/infrastructure/config/env';
 
 ## Git Workflow
 
-### Trunk-Based Development (Durante MVP)
+**Ver [docs/CONTRIBUTING.md#workflow](docs/CONTRIBUTING.md#workflow) para workflow completo, commit conventions y criterios de decisión entre trunk-based y feature branches.**
 
-```bash
-# Después de completar cada fase del roadmap
-git add .
-git commit -m "feat: [descripción de la fase]"
-git push origin main
-```
-
-**Commit conventions**:
-- `feat:` nueva funcionalidad
-- `fix:` bug fix
-- `refactor:` refactoring sin cambio funcional
-- `test:` agregar/mejorar tests
-- `docs:` documentación
-- `chore:` cambios menores
-
-**Ver [docs/CONTRIBUTING.md#workflow](docs/CONTRIBUTING.md#workflow) para workflow completo y criterios de decisión.**
+**Convención de commits**: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`
 
 ---
 
 ## Variables de Entorno
 
-> **Archivo a usar**: `.env.local` (desarrollo local)
-> **❌ NO usar**: `.env` (para evitar confusión)
+**Ver [docs/DEVELOPMENT.md#variables-de-entorno](docs/DEVELOPMENT.md#setup-de-variables-de-entorno) para setup completo, validación Zod y lista completa de variables.**
 
-### Setup Rápido
-
-```bash
-# 1. Copiar template
-cp .env.example .env.local
-
-# 2. Generar ADMIN_API_KEY (32+ caracteres)
-openssl rand -base64 32
-
-# 3. Editar .env.local con valores reales
-```
-
-### Mínimas Requeridas
-
+**Mínimas requeridas** (`.env.local`):
 ```bash
 DATABASE_URL="file:./dev.db"
-ADMIN_API_KEY="..." # mínimo 32 caracteres
-
-# ⚠️ DATABASE_URL_E2E NO configurar en .env.local
-# Playwright la pasa automáticamente al ejecutar tests E2E
-# DATABASE_URL_E2E="file:./e2e.db"  # ← NO descomentar
-
-# Opcionales - para futuras APIs de eventos argentinas
-ALLACCESS_API_KEY="..."
-EVENTBRITE_API_KEY="..."
-
-# Públicas (expuestas al cliente)
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-NEXT_PUBLIC_APP_NAME="EnVivo"
+ADMIN_API_KEY="..."  # 32+ caracteres (generar con: openssl rand -base64 32)
 ```
-
-**Ver [docs/DEVELOPMENT.md#variables-de-entorno](docs/DEVELOPMENT.md#variables-de-entorno) para setup completo y validación Zod.**
 
 ---
 
 ## Estrategia de Implementación
 
-**Enfoque**: **Vertical Slices** (features end-to-end) en lugar de horizontal (capas completas)
+**Enfoque**: **Vertical Slices** - features end-to-end que entregan valor inmediato.
 
-**Ventajas**:
-- ✅ Valor inmediato: algo funcional en 1-2 días
-- ✅ Feedback rápido: UI con datos reales desde Fase 1
-- ✅ Deploy temprano y continuo
-- ✅ Commit y push después de cada fase completada
-
-**Roadmap**: 8 fases incrementales
-**Ver [docs/PRODUCT.md#roadmap-de-implementación](docs/PRODUCT.md#roadmap-de-implementación) para detalles.**
-
-### Fases Principales
-
-1. **Fase 0** (4-6h): Setup inicial
-2. **Fase 1** (1-2 días): Fuente de datos API → BD → UI → **PRIMER VALOR** 🎉
-3. **Fase 2** (1 día): Business Rules + Deduplicación
-4. **Fase 3** (1-2 días): Búsqueda + Filtros
-5. **Fase 4** (1 día): Orchestrator asíncrono + LivePass
-6. **Fase 5** (1 día): Segunda fuente local
-7. **Fase 6** (1 día): Detalle de evento completo
-8. **Fase 7** (1 día): Scraping automático + Deploy
-9. **Fase 8** (1 día): Tests E2E + Pulido final
+**Ver [docs/PRODUCT.md#roadmap-de-implementación](docs/PRODUCT.md#roadmap-de-implementación) para roadmap completo de 8 fases.**
 
 ---
 
 ## Workflows Comunes
 
-> **💡 Estado actual**: El proyecto tiene la arquitectura completa de scraping (orchestrator, business rules, deduplicación) pero **sin fuentes de datos activas**. La estructura está lista para integrar APIs argentinas (AllAccess, EventBrite Argentina, LivePass).
+> **💡 Estado actual**: Arquitectura completa con **4 fuentes activas**: Ticketmaster API, LivePass (Café Berlín), Movistar Arena y Teatro Coliseo. Sistema de scraping asíncrono, business rules y deduplicación funcionando.
 
 ### Agregar Nueva Fuente de Datos
 
@@ -333,7 +248,7 @@ export default async function Page({ params }: PageProps) {
 
 ---
 
-**Última actualización**: Noviembre 2025
+**Última actualización**: Diciembre 2025
 
 ---
 
