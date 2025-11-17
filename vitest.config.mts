@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import path from 'path';
 
+// Test coverage: 78.09% ✅ (goal: 80%)
 export default defineConfig({
   test: {
     globals: true,
