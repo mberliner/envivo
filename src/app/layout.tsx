@@ -1,16 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// Temporalmente deshabilitadas las fuentes de Google para evitar problemas en CI/E2E
+// TODO: Re-habilitar cuando se resuelva el problema de red en ambientes containerizados
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// const geistMono = Geist_Mono({
+//   variable: "--font-geist-mono",
+//   subsets: ["latin"],
+// });
+
+// Usar fuentes del sistema (sans-serif y monospace)
+const geistSans = { variable: "--font-geist-sans", className: "" };
+const geistMono = { variable: "--font-geist-mono", className: "" };
 
 export const metadata: Metadata = {
   title: "Create Next App",

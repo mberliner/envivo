@@ -1,0 +1,330 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - 'claude/**'
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - 'docs/**'
+      - '.gitignore'
+      - '.prettierrc'
+      - '.prettierignore'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - 'docs/**'
+      - '.gitignore'
+      - '.prettierrc'
+      - '.prettierignore'
+
+# Cancela workflows anteriores si hay un nuevo push
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================
+  # Job 1: Type Check
+  # ============================================
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Run TypeScript type check
+        run: npm run type-check
+
+  # ============================================
+  # Job 2: Lint
+  # ============================================
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check code formatting
+        run: npm run format:check
+
+  # ============================================
+  # Job 3: Build
+  # ============================================
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Build Next.js application
+        run: npm run build
+        env:
+          # Variables mínimas para build (no se conecta a DB real)
+          DATABASE_URL: file:./ci.db
+          ADMIN_API_KEY: ci-test-key-32-characters-min
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: .next
+          retention-days: 1
+
+  # ============================================
+  # Job 4: Unit Tests + Coverage
+  # ============================================
+  test:
+    name: Unit Tests (Coverage 80%)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
+        env:
+          DATABASE_URL: file:./test.db
+          ADMIN_API_KEY: test-key-32-characters-minimum
+
+      # Vitest falla automáticamente si coverage < 80% (configurado en vitest.config.mts)
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./coverage/coverage-final.json
+          flags: unittests
+          fail_ci_if_error: false
+
+  # ============================================
+  # Job 5: E2E Tests
+  # ============================================
+  test-e2e:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Initialize E2E database
+        run: npm run db:e2e:init
+        env:
+          DATABASE_URL_E2E: file:./e2e.db
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: .next
+
+      - name: Run E2E tests
+        run: npm run test:e2e:prod
+        env:
+          DATABASE_URL: file:./e2e.db
+          ADMIN_API_KEY: e2e-test-key-32-characters-min
+          CI: true
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  # ============================================
+  # Job 6: Security Audit
+  # ============================================
+  security-audit:
+    name: Security Audit (npm audit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Run npm audit (High/Critical only)
+        run: npm audit --audit-level=high
+        continue-on-error: false
+
+      - name: Check for outdated dependencies
+        run: npm outdated || true
+
+  # ============================================
+  # Job 7: Dependency Check (Supply Chain)
+  # ============================================
+  dependency-check:
+    name: Dependency Security Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Dependency Review
+        uses: actions/dependency-review-action@v4
+        if: github.event_name == 'pull_request'
+        with:
+          fail-on-severity: high
+          deny-licenses: GPL-3.0, AGPL-3.0
+
+  # ============================================
+  # Job 8: Best Practices Check
+  # ============================================
+  best-practices:
+    name: Security Best Practices
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for secrets in code
+        run: |
+          echo "Checking for hardcoded secrets..."
+          if grep -r "sk-" --include="*.ts" --include="*.tsx" --include="*.js" --exclude-dir=node_modules .; then
+            echo "❌ Found potential API keys in code!"
+            exit 1
+          fi
+          if grep -r "api_key.*=" --include="*.ts" --include="*.tsx" --include="*.js" --exclude-dir=node_modules . | grep -v "process.env"; then
+            echo "❌ Found hardcoded API keys!"
+            exit 1
+          fi
+          echo "✅ No hardcoded secrets found"
+
+      - name: Check security headers configuration
+        run: |
+          echo "Checking for security headers in Next.js config..."
+          if [ -f "next.config.js" ] || [ -f "next.config.mjs" ] || [ -f "next.config.ts" ]; then
+            if ! grep -q "X-Frame-Options\|Content-Security-Policy\|X-Content-Type-Options" next.config.*; then
+              echo "⚠️ Warning: Security headers not configured in next.config"
+              echo "Recommended: Add CSP, X-Frame-Options, HSTS headers"
+            else
+              echo "✅ Security headers configured"
+            fi
+          fi
+
+      - name: Check .env files not committed
+        run: |
+          if git ls-files | grep -q "^\.env$"; then
+            echo "❌ .env file is committed to repository!"
+            exit 1
+          fi
+          echo "✅ No .env files committed"
+
+  # ============================================
+  # Status Check (Required for PR merge)
+  # ============================================
+  ci-status:
+    name: CI Status Check
+    runs-on: ubuntu-latest
+    needs:
+      - typecheck
+      - lint
+      - build
+      - test
+      - test-e2e
+      - security-audit
+      - dependency-check
+      - best-practices
+    if: always()
+    steps:
+      - name: Check all jobs succeeded
+        run: |
+          if [[ "${{ needs.typecheck.result }}" != "success" ]] || \
+             [[ "${{ needs.lint.result }}" != "success" ]] || \
+             [[ "${{ needs.build.result }}" != "success" ]] || \
+             [[ "${{ needs.test.result }}" != "success" ]] || \
+             [[ "${{ needs.test-e2e.result }}" != "success" ]] || \
+             [[ "${{ needs.security-audit.result }}" != "success" ]] || \
+             [[ "${{ needs.dependency-check.result }}" != "success" ]] || \
+             [[ "${{ needs.best-practices.result }}" != "success" ]]; then
+            echo "❌ CI Pipeline Failed - One or more checks did not pass"
+            exit 1
+          fi
+          echo "✅ All CI checks passed successfully"
