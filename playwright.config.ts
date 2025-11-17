@@ -38,6 +38,7 @@ export default defineConfig({
           // Pasar variables al servidor dev
           ADMIN_API_KEY: process.env.ADMIN_API_KEY || '',
           DATABASE_URL_E2E: process.env.DATABASE_URL_E2E || 'file:./e2e.db',
+          NEXT_TURBOPACK_EXPERIMENTAL_USE_SYSTEM_TLS_CERTS: '1', // Fix Google Fonts TLS issue
         },
       },
 });
