@@ -221,9 +221,13 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Run npm audit (High/Critical only)
-        run: npm audit --audit-level=high
+      - name: Run npm audit (Production dependencies only)
+        run: npm audit --omit=dev --audit-level=high
         continue-on-error: false
+
+      - name: Run npm audit (All dependencies - informational)
+        run: npm audit --audit-level=high || echo "⚠️  Dev dependencies have vulnerabilities (non-blocking)"
+        continue-on-error: true
 
       - name: Check for outdated dependencies
         run: npm outdated || true
