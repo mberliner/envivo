@@ -145,7 +145,10 @@ export class AllAccessJsonScraper implements IDataSource {
       const cards = this.extractCards(bootstrapData);
 
       // 4. Mapear cards a RawEvents
-      const events = AllAccessMapper.cardsToRawEvents(cards, this.baseUrl);
+      // Suprimir warnings de fechas si vamos a enriquecer con detail scraping
+      const events = AllAccessMapper.cardsToRawEvents(cards, this.baseUrl, {
+        suppressDateWarnings: this.scrapeDetails,
+      });
 
       console.log(`[${this.name}] ✅ Extracted ${events.length} events from homepage`);
 

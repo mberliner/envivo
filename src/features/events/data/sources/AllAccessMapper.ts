@@ -21,7 +21,11 @@ export class AllAccessMapper {
   /**
    * Mapea una card de Crowder a RawEvent
    */
-  static cardToRawEvent(card: CrowderCard, baseUrl: string): RawEvent | null {
+  static cardToRawEvent(
+    card: CrowderCard,
+    baseUrl: string,
+    options?: { suppressDateWarnings?: boolean }
+  ): RawEvent | null {
     // Validar campos mínimos requeridos
     if (!card.link) {
       console.warn('[AllAccessMapper] Card without link, skipping');
@@ -41,9 +45,12 @@ export class AllAccessMapper {
 
     // Si no hay fecha válida, usar placeholder
     if (!date) {
-      console.warn(
-        `[AllAccessMapper] No valid date for event: ${card.title || card.link}, using placeholder`
-      );
+      // Solo advertir si no se van a enriquecer con detail scraping
+      if (!options?.suppressDateWarnings) {
+        console.warn(
+          `[AllAccessMapper] No valid date for event: ${card.title || card.link}, using placeholder`
+        );
+      }
       // Usar fecha futura genérica (será rechazado por business rules si hay validación estricta)
       date = new Date(new Date().getFullYear(), 11, 31); // 31 diciembre del año actual
     }
@@ -80,11 +87,15 @@ export class AllAccessMapper {
   /**
    * Mapea un array de cards a RawEvents
    */
-  static cardsToRawEvents(cards: CrowderCard[], baseUrl: string): RawEvent[] {
+  static cardsToRawEvents(
+    cards: CrowderCard[],
+    baseUrl: string,
+    options?: { suppressDateWarnings?: boolean }
+  ): RawEvent[] {
     const events: RawEvent[] = [];
 
     for (const card of cards) {
-      const event = this.cardToRawEvent(card, baseUrl);
+      const event = this.cardToRawEvent(card, baseUrl, options);
       if (event) {
         events.push(event);
       }
