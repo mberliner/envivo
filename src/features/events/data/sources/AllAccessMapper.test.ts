@@ -15,7 +15,8 @@ describe('AllAccessMapper', () => {
         title: 'BUENOS VAMPIROS EN VORTERIX',
         description: '21 de Noviembre',
         link: '../event/buenos-vampiros-en-vorterix',
-        imgUrl: 'https://cdn.getcrowder.com/images/a843d128-6b34-44a8-b0c8-3d5bc156293a-1920x720.jpg',
+        imgUrl:
+          'https://cdn.getcrowder.com/images/a843d128-6b34-44a8-b0c8-3d5bc156293a-1920x720.jpg',
       };
 
       const result = AllAccessMapper.cardToRawEvent(card, baseUrl);
@@ -24,7 +25,9 @@ describe('AllAccessMapper', () => {
       expect(result?.title).toBe('BUENOS VAMPIROS EN VORTERIX');
       expect(result?.date).toBeInstanceOf(Date);
       expect(result?._source).toBe('allaccess');
-      expect(result?.externalUrl).toBe('https://www.allaccess.com.ar/event/buenos-vampiros-en-vorterix');
+      expect(result?.externalUrl).toBe(
+        'https://www.allaccess.com.ar/event/buenos-vampiros-en-vorterix'
+      );
       expect(result?.venue).toBe('Teatro Vorterix'); // Inferred from link
       expect(result?.city).toBe('Buenos Aires');
       expect(result?.country).toBe('AR');

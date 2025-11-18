@@ -304,9 +304,7 @@ export class AllAccessJsonScraper implements IDataSource {
    */
   private extractJsonLd(html: string): SchemaOrgEvent | null {
     // Buscar script tag con type="application/ld+json"
-    const match = html.match(
-      /<script type="application\/ld\+json">([\s\S]*?)<\/script>/i
-    );
+    const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/i);
 
     if (!match || !match[1]) {
       return null;
@@ -406,9 +404,7 @@ export class AllAccessJsonScraper implements IDataSource {
     // Deduplicar por link (pueden haber eventos repetidos en diferentes widgets)
     const uniqueCards = Array.from(new Map(allCards.map((card) => [card.link, card])).values());
 
-    console.log(
-      `[${this.name}] Total cards: ${allCards.length}, unique: ${uniqueCards.length}`
-    );
+    console.log(`[${this.name}] Total cards: ${allCards.length}, unique: ${uniqueCards.length}`);
 
     return uniqueCards;
   }
