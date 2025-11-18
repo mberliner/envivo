@@ -16,6 +16,13 @@ import { Event, RawEvent } from '../entities/Event';
 // MOCKS
 // ========================================
 
+// Mock Prisma to avoid database dependency in unit tests
+vi.mock('@/shared/infrastructure/database/prisma', () => ({
+  prisma: {
+    $queryRawUnsafe: vi.fn().mockResolvedValue([]), // Default: no blacklisted events
+  },
+}));
+
 const mockPreferencesService = {
   shouldAcceptEvent: vi.fn().mockResolvedValue({ valid: true }),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

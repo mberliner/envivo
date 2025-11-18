@@ -423,7 +423,7 @@ describe('AllAccessJsonScraper', () => {
       expect(event.venue).toBe('Teatro Vorterix');
       expect(event.address).toBe('Av. Federico Lacroze 3455, CABA, 1414');
       expect(event.date).toBeInstanceOf(Date);
-      expect((event.date as Date).getHours()).toBe(22); // 22:00 UTC
+      expect((event.date as Date).getUTCHours()).toBe(22); // 22:00 UTC
     });
 
     it('should continue on detail page errors', async () => {
