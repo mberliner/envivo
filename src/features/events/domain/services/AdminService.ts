@@ -15,7 +15,6 @@
 
 import { IEventRepository } from '../interfaces/IEventRepository';
 import { IBlacklistRepository } from '../interfaces/IBlacklistRepository';
-import { Event } from '../entities/Event';
 
 export interface DeleteEventResult {
   success: boolean;
@@ -98,13 +97,10 @@ export class AdminService {
    * @returns Resultado con contadores de items eliminados
    */
   async resetDatabase(): Promise<ResetDatabaseResult> {
-    // 1. Contar antes de borrar (para reporte)
-    const eventCount = await this.eventRepository.count();
-
-    // 2. Eliminar eventos
+    // 1. Eliminar eventos
     const deletedEvents = await this.eventRepository.deleteAll();
 
-    // 3. Eliminar blacklist
+    // 2. Eliminar blacklist
     const deletedBlacklist = await this.blacklistRepository.clearAll();
 
     return {

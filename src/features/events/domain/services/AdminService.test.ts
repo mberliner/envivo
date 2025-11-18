@@ -128,7 +128,6 @@ describe('AdminService', () => {
 
   describe('resetDatabase', () => {
     test('should delete all events and blacklist entries', async () => {
-      mockEventRepository.count = vi.fn().mockResolvedValue(150);
       mockEventRepository.deleteAll = vi.fn().mockResolvedValue(150);
       mockBlacklistRepository.clearAll = vi.fn().mockResolvedValue(25);
 
@@ -142,13 +141,11 @@ describe('AdminService', () => {
         },
       });
 
-      expect(mockEventRepository.count).toHaveBeenCalled();
       expect(mockEventRepository.deleteAll).toHaveBeenCalled();
       expect(mockBlacklistRepository.clearAll).toHaveBeenCalled();
     });
 
     test('should handle empty database', async () => {
-      mockEventRepository.count = vi.fn().mockResolvedValue(0);
       mockEventRepository.deleteAll = vi.fn().mockResolvedValue(0);
       mockBlacklistRepository.clearAll = vi.fn().mockResolvedValue(0);
 
