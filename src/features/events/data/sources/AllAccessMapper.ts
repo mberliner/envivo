@@ -52,7 +52,9 @@ export class AllAccessMapper {
     // Ej: "/event/buenos-vampiros-en-vorterix" → inferir venue
     const venueName = this.inferVenueFromLink(card.link);
 
-    // Construir RawEvent
+    // Construir RawEvent (campos básicos de homepage)
+    // Nota: price, priceMax, address y hora exacta se agregan después
+    // si se scrape la página de detalle
     return {
       _source: 'allaccess',
       externalId: externalUrl,
@@ -66,6 +68,12 @@ export class AllAccessMapper {
       imageUrl: card.imgUrl ? this.toAbsoluteUrl(card.imgUrl, baseUrl) : undefined,
       externalUrl,
       ticketUrl: externalUrl,
+      // Estos campos se enriquecen con detail scraping:
+      // - date (startTime con hora exacta)
+      // - price (precio mínimo)
+      // - priceMax (precio máximo)
+      // - address (dirección completa)
+      // - venue (confirmado desde JSON-LD)
     };
   }
 

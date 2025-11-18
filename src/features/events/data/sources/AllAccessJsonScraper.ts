@@ -62,6 +62,47 @@ export interface CrowderBootstrapData {
 }
 
 /**
+ * Estructura del JSON-LD (schema.org) en páginas de detalle
+ */
+export interface SchemaOrgEvent {
+  '@type': 'Event';
+  name: string;
+  description?: string;
+  startDate?: string;
+  endDate?: string;
+  location?: {
+    '@type': 'Place';
+    name?: string;
+    address?: {
+      streetAddress?: string;
+      addressLocality?: string;
+      postalCode?: string;
+    };
+  };
+  offers?: Array<{
+    '@type': 'Offer';
+    price?: number;
+    priceCurrency?: string;
+    url?: string;
+  }>;
+  performer?: unknown[];
+  image?: string;
+  url?: string;
+}
+
+/**
+ * Datos adicionales extraídos de la página de detalle
+ */
+export interface EventDetailData {
+  startTime?: Date;
+  endTime?: Date;
+  price?: number;
+  priceMax?: number;
+  venue?: string;
+  address?: string;
+}
+
+/**
  * AllAccess JSON Scraper - Extrae eventos del JSON embebido en HTML
  */
 export class AllAccessJsonScraper implements IDataSource {
@@ -70,8 +111,13 @@ export class AllAccessJsonScraper implements IDataSource {
 
   private readonly baseUrl = 'https://www.allaccess.com.ar';
   private readonly httpClient: AxiosInstance;
+  private readonly scrapeDetails: boolean;
+  private readonly delayBetweenDetails: number;
 
-  constructor() {
+  constructor(options?: { scrapeDetails?: boolean; delayBetweenDetails?: number }) {
+    this.scrapeDetails = options?.scrapeDetails ?? true; // Enabled by default
+    this.delayBetweenDetails = options?.delayBetweenDetails ?? 500; // 500ms between detail requests
+
     this.httpClient = axios.create({
       baseURL: this.baseUrl,
       timeout: 15000,
@@ -102,6 +148,12 @@ export class AllAccessJsonScraper implements IDataSource {
       const events = AllAccessMapper.cardsToRawEvents(cards, this.baseUrl);
 
       console.log(`[${this.name}] ✅ Extracted ${events.length} events from homepage`);
+
+      // 5. Scrapear páginas de detalle si está habilitado
+      if (this.scrapeDetails && events.length > 0) {
+        console.log(`[${this.name}] 🔍 Scraping detail pages for ${events.length} events...`);
+        await this.enrichWithDetailData(events);
+      }
 
       return events;
     } catch (error: unknown) {
@@ -145,6 +197,153 @@ export class AllAccessJsonScraper implements IDataSource {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(`Failed to parse bootstrapData JSON: ${errorMessage}`);
     }
+  }
+
+  /**
+   * Enriquece eventos con datos de páginas de detalle
+   */
+  private async enrichWithDetailData(events: RawEvent[]): Promise<void> {
+    for (let i = 0; i < events.length; i++) {
+      const event = events[i];
+
+      if (!event.externalUrl) {
+        continue;
+      }
+
+      try {
+        console.log(
+          `[${this.name}]   [${i + 1}/${events.length}] Scraping details: ${event.title}`
+        );
+
+        const detailData = await this.scrapeDetailPage(event.externalUrl);
+
+        // Enriquecer evento con datos adicionales
+        if (detailData.startTime) {
+          event.date = detailData.startTime;
+        }
+        if (detailData.price !== undefined) {
+          event.price = detailData.price;
+        }
+        if (detailData.priceMax !== undefined) {
+          event.priceMax = detailData.priceMax;
+        }
+        if (detailData.venue) {
+          event.venue = detailData.venue;
+        }
+        if (detailData.address) {
+          event.address = detailData.address;
+        }
+
+        // Delay entre requests
+        if (i < events.length - 1) {
+          await this.sleep(this.delayBetweenDetails);
+        }
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.warn(
+          `[${this.name}]   ⚠️  Failed to scrape details for ${event.title}: ${errorMessage}`
+        );
+        // Continuar con el siguiente evento
+      }
+    }
+
+    console.log(`[${this.name}] ✅ Detail scraping completed`);
+  }
+
+  /**
+   * Scrapea la página de detalle de un evento para extraer JSON-LD
+   */
+  private async scrapeDetailPage(url: string): Promise<EventDetailData> {
+    const html = await this.fetchUrl(url);
+    const jsonLd = this.extractJsonLd(html);
+
+    const detailData: EventDetailData = {};
+
+    if (jsonLd) {
+      // Extraer hora del evento
+      if (jsonLd.startDate) {
+        detailData.startTime = new Date(jsonLd.startDate);
+      }
+      if (jsonLd.endDate) {
+        detailData.endTime = new Date(jsonLd.endDate);
+      }
+
+      // Extraer precio (mínimo y máximo)
+      if (jsonLd.offers && Array.isArray(jsonLd.offers)) {
+        const prices = jsonLd.offers
+          .map((offer) => offer.price)
+          .filter((price): price is number => typeof price === 'number');
+
+        if (prices.length > 0) {
+          detailData.price = Math.min(...prices);
+          detailData.priceMax = Math.max(...prices);
+        }
+      }
+
+      // Extraer venue y dirección
+      if (jsonLd.location?.name) {
+        detailData.venue = jsonLd.location.name;
+      }
+      if (jsonLd.location?.address) {
+        const addr = jsonLd.location.address;
+        const parts = [addr.streetAddress, addr.addressLocality, addr.postalCode].filter(Boolean);
+        if (parts.length > 0) {
+          detailData.address = parts.join(', ');
+        }
+      }
+    }
+
+    return detailData;
+  }
+
+  /**
+   * Extrae el JSON-LD (schema.org) de la página de detalle
+   */
+  private extractJsonLd(html: string): SchemaOrgEvent | null {
+    // Buscar script tag con type="application/ld+json"
+    const match = html.match(
+      /<script type="application\/ld\+json">([\s\S]*?)<\/script>/i
+    );
+
+    if (!match || !match[1]) {
+      return null;
+    }
+
+    try {
+      const jsonString = match[1].trim();
+      const data = JSON.parse(jsonString) as SchemaOrgEvent;
+
+      // Validar que sea un Event
+      if (data['@type'] !== 'Event') {
+        return null;
+      }
+
+      return data;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.warn(`[${this.name}] Failed to parse JSON-LD: ${errorMessage}`);
+      return null;
+    }
+  }
+
+  /**
+   * Fetch URL con retry (para páginas de detalle)
+   */
+  private async fetchUrl(url: string): Promise<string> {
+    try {
+      const response = await this.httpClient.get(url);
+      return response.data;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to fetch ${url}: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Sleep utility
+   */
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**

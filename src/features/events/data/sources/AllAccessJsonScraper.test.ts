@@ -23,7 +23,8 @@ describe('AllAccessJsonScraper', () => {
       get: mockGet,
     })) as unknown as ReturnType<typeof vi.fn>;
 
-    scraper = new AllAccessJsonScraper();
+    // Default: disable detail scraping for tests (faster)
+    scraper = new AllAccessJsonScraper({ scrapeDetails: false });
   });
 
   afterEach(() => {
@@ -339,6 +340,179 @@ describe('AllAccessJsonScraper', () => {
       mockGet.mockRejectedValue(new Error('Network error'));
 
       await expect(scraper.fetch()).rejects.toThrow('Failed to scrape allaccess');
+    });
+  });
+
+  describe('detail scraping', () => {
+    it('should enrich events with detail page data when enabled', async () => {
+      // Crear scraper con detail scraping habilitado
+      const scraperWithDetails = new AllAccessJsonScraper({
+        scrapeDetails: true,
+        delayBetweenDetails: 0, // No delay for tests
+      });
+
+      const mockHomepage = `
+        <script>
+          App.bootstrapData({
+            "model": {
+              "data": {
+                "widgetComponents": [
+                  {
+                    "id": "test-widget",
+                    "widgetType": "Grid",
+                    "state": {
+                      "enabled": true,
+                      "cards": [
+                        {
+                          "title": "Test Event",
+                          "description": "21 de Noviembre",
+                          "link": "../event/test-event",
+                          "imgUrl": "https://example.com/test.jpg"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          });
+        </script>
+      `;
+
+      const mockDetailPage = `
+        <html>
+        <head>
+          <script type="application/ld+json">
+            {
+              "@type": "Event",
+              "name": "Test Event",
+              "startDate": "2025-11-21T22:00:00Z",
+              "endDate": "2025-11-22T01:00:00Z",
+              "location": {
+                "@type": "Place",
+                "name": "Teatro Vorterix",
+                "address": {
+                  "streetAddress": "Av. Federico Lacroze 3455",
+                  "addressLocality": "CABA",
+                  "postalCode": "1414"
+                }
+              },
+              "offers": [
+                {"@type": "Offer", "price": 40000, "priceCurrency": "ARS"},
+                {"@type": "Offer", "price": 16000, "priceCurrency": "ARS"}
+              ]
+            }
+          </script>
+        </head>
+        </html>
+      `;
+
+      mockGet
+        .mockResolvedValueOnce({ data: mockHomepage }) // Homepage
+        .mockResolvedValueOnce({ data: mockDetailPage }); // Detail page
+
+      const events = await scraperWithDetails.fetch();
+
+      expect(events).toHaveLength(1);
+      const event = events[0];
+
+      // Verificar datos enriquecidos
+      expect(event.title).toBe('Test Event');
+      expect(event.price).toBe(16000); // Precio mínimo
+      expect(event.priceMax).toBe(40000); // Precio máximo
+      expect(event.venue).toBe('Teatro Vorterix');
+      expect(event.address).toBe('Av. Federico Lacroze 3455, CABA, 1414');
+      expect(event.date).toBeInstanceOf(Date);
+      expect((event.date as Date).getHours()).toBe(22); // 22:00 UTC
+    });
+
+    it('should continue on detail page errors', async () => {
+      const scraperWithDetails = new AllAccessJsonScraper({
+        scrapeDetails: true,
+        delayBetweenDetails: 0,
+      });
+
+      const mockHomepage = `
+        <script>
+          App.bootstrapData({
+            "model": {
+              "data": {
+                "widgetComponents": [
+                  {
+                    "id": "test",
+                    "widgetType": "Grid",
+                    "state": {
+                      "enabled": true,
+                      "cards": [
+                        {
+                          "title": "Event 1",
+                          "link": "../event/event-1",
+                          "imgUrl": "https://example.com/1.jpg"
+                        },
+                        {
+                          "title": "Event 2",
+                          "link": "../event/event-2",
+                          "imgUrl": "https://example.com/2.jpg"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          });
+        </script>
+      `;
+
+      mockGet
+        .mockResolvedValueOnce({ data: mockHomepage })
+        .mockRejectedValueOnce(new Error('Network error')) // Detail page 1 fails
+        .mockResolvedValueOnce({ data: '<html></html>' }); // Detail page 2 succeeds (but no JSON-LD)
+
+      const events = await scraperWithDetails.fetch();
+
+      // Debe extraer ambos eventos a pesar del error
+      expect(events).toHaveLength(2);
+    });
+
+    it('should not scrape details when disabled', async () => {
+      const scraperNoDetails = new AllAccessJsonScraper({ scrapeDetails: false });
+
+      const mockHomepage = `
+        <script>
+          App.bootstrapData({
+            "model": {
+              "data": {
+                "widgetComponents": [
+                  {
+                    "id": "test",
+                    "widgetType": "Grid",
+                    "state": {
+                      "enabled": true,
+                      "cards": [
+                        {
+                          "title": "Test Event",
+                          "link": "../event/test",
+                          "imgUrl": "https://example.com/test.jpg"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          });
+        </script>
+      `;
+
+      mockGet.mockResolvedValueOnce({ data: mockHomepage });
+
+      const events = await scraperNoDetails.fetch();
+
+      // Solo debe hacer 1 llamada HTTP (homepage)
+      expect(mockGet).toHaveBeenCalledTimes(1);
+      expect(events).toHaveLength(1);
+      expect(events[0].price).toBeUndefined(); // No detail data
     });
   });
 
