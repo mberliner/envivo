@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaEventRepository } from '@/features/events/data/repositories/PrismaEventRepository';
 import { DataSourceOrchestrator } from '@/features/events/data/orchestrator/DataSourceOrchestrator';
 import { WebScraperFactory } from '@/features/events/data/sources/web/WebScraperFactory';
+import { AllAccessJsonScraper } from '@/features/events/data/sources/AllAccessJsonScraper';
 import { env } from '@/shared/infrastructure/config/env';
 
 /**
@@ -67,11 +68,12 @@ export async function POST(req: NextRequest) {
     const movistarArenaScraper = await WebScraperFactory.create('movistararena');
     orchestrator.registerSource(movistarArenaScraper);
 
+    // AllAccess (JSON scraper)
+    const allAccessScraper = new AllAccessJsonScraper();
+    orchestrator.registerSource(allAccessScraper);
+
     // TODO: Registrar más data sources cuando estén disponibles
     // Ejemplo:
-    // const allAccessSource = new AllAccessSource();
-    // orchestrator.registerSource(allAccessSource);
-    //
     // const eventbriteSource = new EventBriteArgentinaSource();
     // orchestrator.registerSource(eventbriteSource);
 
