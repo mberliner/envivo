@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { PrismaEventRepository } from '@/features/events/data/repositories/PrismaEventRepository';
+import { createEventService } from '@/shared/infrastructure/factories/service-factory';
 import { EventDetail } from '@/features/events/ui/components/EventDetail';
 import { stripHTML, truncateText } from '@/shared/utils/sanitize';
 
@@ -16,10 +16,10 @@ interface PageProps {
  * Helper function to fetch event data with proper error handling
  */
 async function getEvent(id: string) {
-  const repository = new PrismaEventRepository();
+  const eventService = createEventService();
 
   try {
-    const event = await repository.findById(id);
+    const event = await eventService.findById(id);
     return event;
   } catch (error) {
     console.error(`Error fetching event ${id}:`, error);

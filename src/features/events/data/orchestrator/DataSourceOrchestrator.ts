@@ -22,6 +22,7 @@ import {
 } from '@/features/events/domain/services/EventBusinessRules';
 import { PreferencesService } from '@/features/events/domain/services/PreferencesService';
 import { PrismaPreferencesRepository } from '@/features/events/data/repositories/PrismaPreferencesRepository';
+import { PrismaBlacklistRepository } from '@/features/events/data/repositories/PrismaBlacklistRepository';
 import { prisma } from '@/shared/infrastructure/database/prisma';
 
 /**
@@ -70,10 +71,11 @@ export class DataSourceOrchestrator {
   private eventService: EventService;
 
   constructor(private readonly repository: IEventRepository) {
+    const blacklistRepository = new PrismaBlacklistRepository();
     const preferencesRepository = new PrismaPreferencesRepository(prisma);
     const preferencesService = new PreferencesService(preferencesRepository);
     const businessRules = new EventBusinessRules(DEFAULT_BUSINESS_RULES, preferencesService);
-    this.eventService = new EventService(repository, businessRules);
+    this.eventService = new EventService(repository, blacklistRepository, businessRules);
   }
 
   /**

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaEventRepository } from '@/features/events/data/repositories/PrismaEventRepository';
+import { createEventRepository } from '@/shared/infrastructure/factories/service-factory';
 import { DataSourceOrchestrator } from '@/features/events/data/orchestrator/DataSourceOrchestrator';
 import { WebScraperFactory } from '@/features/events/data/sources/web/WebScraperFactory';
 import { AllAccessJsonScraper } from '@/features/events/data/sources/AllAccessJsonScraper';
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Configurar orchestrator
-    const repository = new PrismaEventRepository();
+    const repository = createEventRepository();
     const orchestrator = new DataSourceOrchestrator(repository);
 
     // Registrar web scrapers

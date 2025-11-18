@@ -3,14 +3,14 @@ name: CodeQL Security Analysis
 on:
   push:
     branches:
-      - main
+      - master
     paths-ignore:
       - '**.md'
       - 'LICENSE'
       - 'docs/**'
   pull_request:
     branches:
-      - main
+      - master
     paths-ignore:
       - '**.md'
       - 'LICENSE'

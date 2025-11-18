@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/shared/infrastructure/database/prisma';
+import { createAdminService } from '@/shared/infrastructure/factories/service-factory';
 import { env } from '@/shared/infrastructure/config/env';
 
 export async function POST(request: NextRequest) {
@@ -20,50 +20,17 @@ export async function POST(request: NextRequest) {
 
     console.log('[ResetDatabase] ⚠️  Iniciando limpieza completa de la BD...');
 
-    // Contar antes de borrar (convertir BigInt a Number para JSON)
-    const blacklistCount = (
-      (await prisma.$queryRawUnsafe('SELECT COUNT(*) as count FROM event_blacklist')) as Array<{
-        count: bigint | number;
-      }>
-    )[0].count;
-
-    const countsBefore = {
-      events: await prisma.event.count(),
-      blacklist: Number(blacklistCount), // BigInt -> Number
-      venues: await prisma.venue.count(),
-      artists: await prisma.artist.count(),
-    };
-
-    console.log('[ResetDatabase] Estado antes:', countsBefore);
-
-    // Borrar en orden correcto (respetando foreign keys)
-
-    // 1. Borrar relaciones event_artists
-    await prisma.eventArtist.deleteMany({});
-
-    // 2. Borrar eventos
-    await prisma.event.deleteMany({});
-
-    // 3. Borrar blacklist (raw SQL)
-    await prisma.$executeRawUnsafe('DELETE FROM event_blacklist');
-
-    // 4. Borrar venues (opcional)
-    await prisma.venue.deleteMany({});
-
-    // 5. Borrar artists (opcional)
-    await prisma.artist.deleteMany({});
+    // Usar AdminService para manejar la operación
+    const adminService = createAdminService();
+    const result = await adminService.resetDatabase();
 
     console.log('[ResetDatabase] ✅ Base de datos limpiada exitosamente');
+    console.log('[ResetDatabase] Deleted:', result.deletedCounts);
 
     return NextResponse.json({
       success: true,
       message: 'Base de datos limpiada completamente',
-      deletedCounts: {
-        events: countsBefore.events,
-        blacklist: countsBefore.blacklist,
-        venues: countsBefore.venues,
-        artists: countsBefore.artists,
-      },
+      deletedCounts: result.deletedCounts,
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';

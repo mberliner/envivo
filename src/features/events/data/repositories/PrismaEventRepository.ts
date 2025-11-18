@@ -166,6 +166,23 @@ export class PrismaEventRepository implements IEventRepository {
   }
 
   /**
+   * Elimina todos los eventos
+   * @returns Número de eventos eliminados
+   */
+  async deleteAll(): Promise<number> {
+    const result = await prisma.event.deleteMany({});
+    return result.count;
+  }
+
+  /**
+   * Cuenta el total de eventos
+   * @returns Número total de eventos
+   */
+  async count(): Promise<number> {
+    return await prisma.event.count();
+  }
+
+  /**
    * Convierte modelo de Prisma a entidad de dominio
    */
   private toDomainEvent(prismaEvent: Prisma.EventGetPayload<Record<string, never>>): Event {

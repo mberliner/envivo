@@ -12,8 +12,8 @@
 
 import { Event, RawEvent } from '../entities/Event';
 import { IEventRepository, EventFilters } from '../interfaces/IEventRepository';
+import { IBlacklistRepository } from '../interfaces/IBlacklistRepository';
 import { EventBusinessRules } from './EventBusinessRules';
-import { prisma } from '@/shared/infrastructure/database/prisma';
 
 export interface ProcessEventsResult {
   accepted: number;
@@ -29,29 +29,9 @@ export interface ProcessEventsResult {
 export class EventService {
   constructor(
     private readonly repository: IEventRepository,
+    private readonly blacklistRepository: IBlacklistRepository,
     private readonly businessRules: EventBusinessRules
   ) {}
-
-  /**
-   * Verifica si un evento está en la blacklist
-   * @param source - Fuente del evento (e.g., "livepass", "allaccess")
-   * @param externalId - ID externo del evento
-   * @returns true si está blacklisted, false si no
-   */
-  private async isBlacklisted(source: string, externalId?: string): Promise<boolean> {
-    if (!externalId) {
-      return false; // Si no tiene externalId, no puede estar blacklisted
-    }
-
-    // Usar raw SQL hasta que se regenere el Prisma client
-    const result = (await prisma.$queryRawUnsafe(
-      `SELECT id FROM event_blacklist WHERE source = ? AND externalId = ? LIMIT 1`,
-      source,
-      externalId
-    )) as Array<{ id: string }>;
-
-    return Array.isArray(result) && result.length > 0;
-  }
 
   /**
    * Procesa eventos entrantes aplicando reglas de negocio:
@@ -90,17 +70,22 @@ export class EventService {
       try {
         // 0. Verificar blacklist (US3.2)
         // IMPORTANTE: GenericWebScraper usa _source (no source)
-
-        if (await this.isBlacklisted(source, rawEvent.externalId)) {
-          console.log(
-            `[EventService] ⛔ REJECTED (blacklist): "${rawEvent.title.substring(0, 40)}"`
+        if (rawEvent.externalId) {
+          const isBlacklisted = await this.blacklistRepository.isBlacklisted(
+            source,
+            rawEvent.externalId
           );
-          result.rejected++;
-          result.errors.push({
-            event: rawEvent,
-            reason: 'Evento en blacklist (oculto por usuario)',
-          });
-          continue;
+          if (isBlacklisted) {
+            console.log(
+              `[EventService] ⛔ REJECTED (blacklist): "${rawEvent.title.substring(0, 40)}"`
+            );
+            result.rejected++;
+            result.errors.push({
+              event: rawEvent,
+              reason: 'Evento en blacklist (oculto por usuario)',
+            });
+            continue;
+          }
         }
       } catch (error) {
         // Si falla la consulta de blacklist, continuar sin bloquear

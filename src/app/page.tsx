@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
-import { SearchService } from '@/features/events/domain/services/SearchService';
-import { PrismaEventRepository } from '@/features/events/data/repositories/PrismaEventRepository';
+import { createSearchService } from '@/shared/infrastructure/factories/service-factory';
 import { EventsPage } from '@/features/events/ui/components/EventsPage';
 
 /**
@@ -10,8 +9,7 @@ import { EventsPage } from '@/features/events/ui/components/EventsPage';
  * y renderiza el EventsPage client component
  */
 export default async function HomePage() {
-  const repository = new PrismaEventRepository();
-  const searchService = new SearchService(repository);
+  const searchService = createSearchService();
 
   // Obtener listas de ciudades y categorías disponibles
   const [cities, categories] = await Promise.all([
