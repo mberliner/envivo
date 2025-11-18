@@ -10,6 +10,7 @@ import { EventService } from './EventService';
 import { EventBusinessRules, DEFAULT_BUSINESS_RULES } from './EventBusinessRules';
 import { PreferencesService } from './PreferencesService';
 import { IEventRepository } from '../interfaces/IEventRepository';
+import { IBlacklistRepository } from '../interfaces/IBlacklistRepository';
 import { Event, RawEvent } from '../entities/Event';
 
 // ========================================
@@ -34,6 +35,14 @@ const mockRepository: IEventRepository = {
   findByFilters: vi.fn().mockResolvedValue([]),
   upsertMany: vi.fn().mockResolvedValue(0),
   deleteById: vi.fn().mockResolvedValue(undefined),
+  deleteAll: vi.fn().mockResolvedValue(0),
+  count: vi.fn().mockResolvedValue(0),
+};
+
+const mockBlacklistRepository: IBlacklistRepository = {
+  isBlacklisted: vi.fn().mockResolvedValue(false),
+  addToBlacklist: vi.fn().mockResolvedValue(undefined),
+  clearAll: vi.fn().mockResolvedValue(0),
 };
 
 // ========================================
@@ -90,7 +99,7 @@ describe('EventService', () => {
 
   beforeEach(() => {
     businessRules = new EventBusinessRules(DEFAULT_BUSINESS_RULES, mockPreferencesService);
-    service = new EventService(mockRepository, businessRules);
+    service = new EventService(mockRepository, mockBlacklistRepository, businessRules);
     vi.clearAllMocks();
   });
 

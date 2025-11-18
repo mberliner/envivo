@@ -3,7 +3,7 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - main
+      - master
       - 'claude/**'
     paths-ignore:
       - '**.md'
@@ -14,7 +14,7 @@ on:
       - '.prettierignore'
   pull_request:
     branches:
-      - main
+      - master
     paths-ignore:
       - '**.md'
       - 'LICENSE'

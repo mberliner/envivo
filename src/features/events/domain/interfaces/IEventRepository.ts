@@ -9,6 +9,8 @@ export interface IEventRepository {
   findByFilters(filters: EventFilters): Promise<Event[]>;
   upsertMany(events: Event[]): Promise<number>;
   deleteById(id: string): Promise<void>;
+  deleteAll(): Promise<number>;
+  count(): Promise<number>;
 }
 
 export interface EventFilters {

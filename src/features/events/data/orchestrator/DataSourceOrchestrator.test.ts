@@ -64,6 +64,8 @@ describe('DataSourceOrchestrator', () => {
       findByFilters: vi.fn().mockResolvedValue([]),
       upsertMany: vi.fn().mockResolvedValue(0),
       deleteById: vi.fn(),
+      deleteAll: vi.fn().mockResolvedValue(0),
+      count: vi.fn().mockResolvedValue(0),
     };
 
     orchestrator = new DataSourceOrchestrator(mockRepository);

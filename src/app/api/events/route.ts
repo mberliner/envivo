@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { SearchService } from '@/features/events/domain/services/SearchService';
-import { PrismaEventRepository } from '@/features/events/data/repositories/PrismaEventRepository';
+import { createSearchService } from '@/shared/infrastructure/factories/service-factory';
 
 /**
  * GET /api/events
@@ -75,8 +74,7 @@ export async function GET(req: NextRequest) {
     };
 
     // 5. Ejecutar búsqueda con SearchService
-    const repository = new PrismaEventRepository();
-    const searchService = new SearchService(repository);
+    const searchService = createSearchService();
     const result = await searchService.search(searchQuery);
 
     // 6. Retornar resultados
