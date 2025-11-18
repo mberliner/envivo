@@ -21,7 +21,11 @@ export async function POST(request: NextRequest) {
     console.log('[ResetDatabase] ⚠️  Iniciando limpieza completa de la BD...');
 
     // Contar antes de borrar (convertir BigInt a Number para JSON)
-    const blacklistCount = ((await prisma.$queryRawUnsafe('SELECT COUNT(*) as count FROM event_blacklist')) as Array<{ count: bigint | number }>)[0].count;
+    const blacklistCount = (
+      (await prisma.$queryRawUnsafe('SELECT COUNT(*) as count FROM event_blacklist')) as Array<{
+        count: bigint | number;
+      }>
+    )[0].count;
 
     const countsBefore = {
       events: await prisma.event.count(),
@@ -65,9 +69,6 @@ export async function POST(request: NextRequest) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('[ResetDatabase] Error:', errorMessage);
 
-    return NextResponse.json(
-      { success: false, error: errorMessage },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }

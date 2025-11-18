@@ -36,11 +36,7 @@ describe('DataSourceOrchestrator', () => {
   let mockRepository: IEventRepository;
 
   // Helper para crear un data source mock
-  const createMockSource = (
-    name: string,
-    events: RawEvent[],
-    shouldFail = false
-  ): IDataSource => ({
+  const createMockSource = (name: string, events: RawEvent[], shouldFail = false): IDataSource => ({
     name,
     type: 'api',
     fetch: vi.fn().mockImplementation(async () => {
@@ -331,9 +327,7 @@ describe('DataSourceOrchestrator', () => {
         createRawEvent({ title: 'Metallica', externalId: 'aa-001' }),
         createRawEvent({ title: 'Coldplay', externalId: 'aa-002' }),
       ];
-      const ebEvents = [
-        createRawEvent({ title: 'Fito Páez', externalId: 'eb-001' }),
-      ];
+      const ebEvents = [createRawEvent({ title: 'Fito Páez', externalId: 'eb-001' })];
 
       const allaccess = createMockSource('allaccess', aaEvents);
       const eventbrite = createMockSource('eventbrite', ebEvents);

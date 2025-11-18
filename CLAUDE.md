@@ -31,6 +31,7 @@
 **Stack**: Next.js 15 + TypeScript + Prisma + SQLite + Tailwind CSS
 
 ### Objetivos del MVP
+
 1. Scrapear eventos de APIs (AllAccess, EventBrite Argentina, LivePass) y sitios locales
 2. Búsqueda y filtrado de eventos musicales
 3. Validación y deduplicación automática
@@ -120,6 +121,7 @@ import { env } from '@/shared/infrastructure/config/env';
 ## Security Considerations
 
 ### ❌ NUNCA
+
 - Commit de `.env` con secretos
 - Hardcodear API keys
 - Exponer secretos en `NEXT_PUBLIC_*`
@@ -127,6 +129,7 @@ import { env } from '@/shared/infrastructure/config/env';
 - SQL raw sin prepared statements
 
 ### ✅ SIEMPRE
+
 - Validar TODOS los inputs con Zod
 - Sanitizar datos scrapeados con DOMPurify
 - Usar Prisma ORM (previene SQL injection)
@@ -150,6 +153,7 @@ import { env } from '@/shared/infrastructure/config/env';
 **Ver [docs/DEVELOPMENT.md#variables-de-entorno](docs/DEVELOPMENT.md#setup-de-variables-de-entorno) para setup completo, validación Zod y lista completa de variables.**
 
 **Mínimas requeridas** (`.env.local`):
+
 ```bash
 DATABASE_URL="file:./dev.db"
 ADMIN_API_KEY="..."  # 32+ caracteres (generar con: openssl rand -base64 32)
@@ -239,7 +243,7 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 export default async function Page({ params }: PageProps) {
-  const { id } = await params;  // Await primero
+  const { id } = await params; // Await primero
   const event = await getEvent(id);
 }
 ```

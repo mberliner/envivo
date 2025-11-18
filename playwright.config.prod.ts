@@ -37,17 +37,16 @@ export default defineConfig({
     // { name: 'mobile', use: { ...devices['iPhone 13'] } },
   ],
   // ✅ Inicia servidor de producción en puerto 3001 (para no conflictuar con dev)
-  webServer: process.env.CI
-    ? undefined
-    : {
-        command: 'npm run start:test',
-        url: 'http://localhost:3001',
-        reuseExistingServer: !process.env.CI,
-        timeout: 120000,
-        env: {
-          // Pasar variables al servidor de producción
-          ADMIN_API_KEY: process.env.ADMIN_API_KEY || '',
-          DATABASE_URL_E2E: process.env.DATABASE_URL_E2E || 'file:./e2e.db',
-        },
-      },
+  webServer: {
+    command: 'npm run start:test',
+    url: 'http://localhost:3001',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000,
+    env: {
+      // Pasar variables al servidor de producción
+      DATABASE_URL: process.env.DATABASE_URL || 'file:./e2e.db',
+      DATABASE_URL_E2E: process.env.DATABASE_URL_E2E || 'file:./e2e.db',
+      ADMIN_API_KEY: process.env.ADMIN_API_KEY || '',
+    },
+  },
 });

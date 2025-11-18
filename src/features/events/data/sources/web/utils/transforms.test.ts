@@ -16,6 +16,8 @@ import {
   extractMovistarPrice,
   extractMovistarTime,
   extractMovistarDescription,
+  cleanMovistarDate,
+  parseMovistarDate,
   applyTransform,
 } from './transforms';
 
@@ -297,12 +299,8 @@ describe('toAbsoluteUrl', () => {
   const baseUrl = 'https://example.com';
 
   it('should keep absolute URLs unchanged', () => {
-    expect(toAbsoluteUrl('https://other.com/path', baseUrl)).toBe(
-      'https://other.com/path'
-    );
-    expect(toAbsoluteUrl('http://other.com/path', baseUrl)).toBe(
-      'http://other.com/path'
-    );
+    expect(toAbsoluteUrl('https://other.com/path', baseUrl)).toBe('https://other.com/path');
+    expect(toAbsoluteUrl('http://other.com/path', baseUrl)).toBe('http://other.com/path');
   });
 
   it('should convert relative URLs to absolute', () => {
@@ -312,15 +310,11 @@ describe('toAbsoluteUrl', () => {
   });
 
   it('should add leading slash if missing', () => {
-    expect(toAbsoluteUrl('images/photo.jpg', baseUrl)).toBe(
-      'https://example.com/images/photo.jpg'
-    );
+    expect(toAbsoluteUrl('images/photo.jpg', baseUrl)).toBe('https://example.com/images/photo.jpg');
   });
 
   it('should handle baseUrl with trailing slash', () => {
-    expect(toAbsoluteUrl('/path', 'https://example.com/')).toBe(
-      'https://example.com/path'
-    );
+    expect(toAbsoluteUrl('/path', 'https://example.com/')).toBe('https://example.com/path');
   });
 
   it('should return empty string for empty input', () => {
@@ -381,10 +375,25 @@ describe('parseLivepassDate', () => {
 
       // Pick a month in the future
       const futureMonth = (now.getMonth() + 2) % 12;
-      const monthNames = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+      const monthNames = [
+        'ENE',
+        'FEB',
+        'MAR',
+        'ABR',
+        'MAY',
+        'JUN',
+        'JUL',
+        'AGO',
+        'SEP',
+        'OCT',
+        'NOV',
+        'DIC',
+      ];
 
       const result = parseLivepassDate(`15 ${monthNames[futureMonth]}`);
-      expect(result?.getFullYear()).toBe(futureMonth < now.getMonth() ? currentYear + 1 : currentYear);
+      expect(result?.getFullYear()).toBe(
+        futureMonth < now.getMonth() ? currentYear + 1 : currentYear
+      );
     });
   });
 
@@ -881,7 +890,8 @@ describe('extractMovistarTime', () => {
 
 describe('extractMovistarDescription', () => {
   it('should preserve event description paragraphs', () => {
-    const input = '¡Melendi celebra 20 años de carrera!\n\nEl reconocido cantautor español regresa.';
+    const input =
+      '¡Melendi celebra 20 años de carrera!\n\nEl reconocido cantautor español regresa.';
     const result = extractMovistarDescription(input);
     expect(result).toContain('Melendi');
     expect(result).toContain('cantautor español');
@@ -929,5 +939,98 @@ describe('extractMovistarDescription', () => {
     expect(result).toContain('Más descripción');
     expect(result).not.toContain('Colectivos');
     expect(result).not.toContain('estacionamiento');
+  });
+});
+
+describe('cleanMovistarDate', () => {
+  it('should clean date with "y X fechas más" suffix (plural)', () => {
+    const input = '20 noviembre 2025 y 2 fechas más';
+    const result = cleanMovistarDate(input);
+    expect(result).toBe('20 noviembre 2025');
+  });
+
+  it('should clean date with "y X fecha más" suffix (singular)', () => {
+    const input = '15 diciembre 2025 y 1 fecha más';
+    const result = cleanMovistarDate(input);
+    expect(result).toBe('15 diciembre 2025');
+  });
+
+  it('should clean date with "y X fechas mas" (sin tilde)', () => {
+    const input = '10 enero 2026 y 3 fechas mas';
+    const result = cleanMovistarDate(input);
+    expect(result).toBe('10 enero 2026');
+  });
+
+  it('should handle dates without suffix', () => {
+    const input = '15 noviembre 2025';
+    const result = cleanMovistarDate(input);
+    expect(result).toBe('15 noviembre 2025');
+  });
+
+  it('should handle empty string', () => {
+    const result = cleanMovistarDate('');
+    expect(result).toBe('');
+  });
+
+  it('should handle null/undefined input', () => {
+    const result1 = cleanMovistarDate(null as never);
+    const result2 = cleanMovistarDate(undefined as never);
+    expect(result1).toBe('');
+    expect(result2).toBe('');
+  });
+
+  it('should handle date with extra whitespace', () => {
+    const input = '  20 noviembre 2025 y 2 fechas más  ';
+    const result = cleanMovistarDate(input);
+    expect(result).toBe('20 noviembre 2025');
+  });
+
+  it('should preserve date if cleaning results in empty string', () => {
+    // Edge case: si el input solo contiene el sufijo
+    const input = 'y 2 fechas más';
+    const result = cleanMovistarDate(input);
+    expect(result).toBe('y 2 fechas más'); // Devuelve original si limpieza falla
+  });
+});
+
+describe('parseMovistarDate', () => {
+  it('should parse clean Movistar date correctly', () => {
+    const input = '20 noviembre 2025';
+    const result = parseMovistarDate(input);
+    expect(result).toBeInstanceOf(Date);
+    expect(result?.getFullYear()).toBe(2025);
+    expect(result?.getMonth()).toBe(10); // Noviembre = 10 (0-indexed)
+    expect(result?.getDate()).toBe(20);
+  });
+
+  it('should parse and clean date with "y X fechas más"', () => {
+    const input = '15 diciembre 2025 y 3 fechas más';
+    const result = parseMovistarDate(input);
+    expect(result).toBeInstanceOf(Date);
+    expect(result?.getFullYear()).toBe(2025);
+    expect(result?.getMonth()).toBe(11); // Diciembre = 11
+    expect(result?.getDate()).toBe(15);
+  });
+
+  it('should handle invalid dates gracefully', () => {
+    const input = 'fecha inválida y 2 fechas más';
+    const result = parseMovistarDate(input);
+    expect(result).toBeUndefined();
+  });
+
+  it('should handle empty string', () => {
+    const result = parseMovistarDate('');
+    expect(result).toBeUndefined();
+  });
+
+  it('should parse dates in different formats after cleaning', () => {
+    const input1 = '1 de enero de 2025 y 1 fecha más';
+    const input2 = '31 dic 2025 y 2 fechas más';
+
+    const result1 = parseMovistarDate(input1);
+    const result2 = parseMovistarDate(input2);
+
+    expect(result1?.getMonth()).toBe(0); // Enero
+    expect(result2?.getMonth()).toBe(11); // Diciembre
   });
 });

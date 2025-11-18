@@ -59,7 +59,6 @@ export function EventFilters({
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
     });
-     
   }, [city, category, dateFrom, dateTo]);
 
   // Limpiar todos los filtros
@@ -78,10 +77,7 @@ export function EventFilters({
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-3">
         {/* Filtro por Ciudad */}
         <div className="flex-1">
-          <label
-            htmlFor="city-filter"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+          <label htmlFor="city-filter" className="block text-sm font-medium text-gray-700 mb-1">
             Ciudad
           </label>
           <select
@@ -101,10 +97,7 @@ export function EventFilters({
 
         {/* Filtro por Categoría */}
         <div className="flex-1">
-          <label
-            htmlFor="category-filter"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+          <label htmlFor="category-filter" className="block text-sm font-medium text-gray-700 mb-1">
             Categoría
           </label>
           <select
@@ -141,10 +134,7 @@ export function EventFilters({
 
         {/* Filtro por Fecha Hasta */}
         <div className="flex-1">
-          <label
-            htmlFor="date-to-filter"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+          <label htmlFor="date-to-filter" className="block text-sm font-medium text-gray-700 mb-1">
             Hasta
           </label>
           <input

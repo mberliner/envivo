@@ -20,18 +20,14 @@ import { IPreferenceFilter } from '../interfaces/IPreferenceFilter';
 /**
  * Verifica si un data source implementa IHealthCheckable
  */
-export function isHealthCheckable(
-  source: IDataSource
-): source is IDataSource & IHealthCheckable {
+export function isHealthCheckable(source: IDataSource): source is IDataSource & IHealthCheckable {
   return 'healthCheck' in source && typeof source.healthCheck === 'function';
 }
 
 /**
  * Verifica si un data source implementa IRateLimited
  */
-export function isRateLimited(
-  source: IDataSource
-): source is IDataSource & IRateLimited {
+export function isRateLimited(source: IDataSource): source is IDataSource & IRateLimited {
   return (
     'canFetch' in source &&
     typeof source.canFetch === 'function' &&
@@ -42,18 +38,14 @@ export function isRateLimited(
 /**
  * Verifica si un data source implementa IValidatable
  */
-export function isValidatable(
-  source: IDataSource
-): source is IDataSource & IValidatable {
+export function isValidatable(source: IDataSource): source is IDataSource & IValidatable {
   return 'validate' in source && typeof source.validate === 'function';
 }
 
 /**
  * Verifica si un data source implementa IToggleable
  */
-export function isToggleable(
-  source: IDataSource
-): source is IDataSource & IToggleable {
+export function isToggleable(source: IDataSource): source is IDataSource & IToggleable {
   return (
     'enabled' in source &&
     typeof source.enabled === 'boolean' &&
@@ -65,9 +57,7 @@ export function isToggleable(
 /**
  * Verifica si un data source implementa IConfigurable
  */
-export function isConfigurable(
-  source: IDataSource
-): source is IDataSource & IConfigurable {
+export function isConfigurable(source: IDataSource): source is IDataSource & IConfigurable {
   return (
     'configure' in source &&
     typeof source.configure === 'function' &&

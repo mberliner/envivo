@@ -125,7 +125,7 @@ describe('PrismaEventRepository', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ] as any[]);
 
       const events = await repository.findByFilters({ city: 'Buenos Aires' });
@@ -203,7 +203,7 @@ describe('PrismaEventRepository', () => {
       mockPrismaEvent.create.mockResolvedValueOnce({
         ...events[0],
         id: 'new-id', // Override temp-id with actual DB id
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
       const count = await repository.upsertMany(events);
@@ -246,7 +246,7 @@ describe('PrismaEventRepository', () => {
       mockPrismaEvent.update.mockResolvedValueOnce({
         ...existingEvent,
         title: 'Updated Event',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
       const count = await repository.upsertMany(events);

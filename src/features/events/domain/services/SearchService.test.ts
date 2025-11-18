@@ -34,9 +34,7 @@ describe('SearchService', () => {
     test('busca eventos por título (case-insensitive)', async () => {
       mockRepository.findByFilters = vi.fn().mockImplementation(({ search }) => {
         if (!search) return mockEvents;
-        return mockEvents.filter(e =>
-          e.title.toLowerCase().includes(search.toLowerCase())
-        );
+        return mockEvents.filter((e) => e.title.toLowerCase().includes(search.toLowerCase()));
       });
 
       const result = await service.search({ q: 'metallica' });
@@ -48,7 +46,7 @@ describe('SearchService', () => {
     test('busca eventos por descripción', async () => {
       mockRepository.findByFilters = vi.fn().mockImplementation(({ search }) => {
         if (!search) return mockEvents;
-        return mockEvents.filter(e =>
+        return mockEvents.filter((e) =>
           e.description?.toLowerCase().includes(search.toLowerCase())
         );
       });
@@ -63,7 +61,7 @@ describe('SearchService', () => {
         if (!search) return mockEvents;
         // Normalizar tanto search como contenido
         const normalizedSearch = search.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        return mockEvents.filter(e => {
+        return mockEvents.filter((e) => {
           const normalized = e.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
           return normalized.toLowerCase().includes(normalizedSearch.toLowerCase());
         });
@@ -104,51 +102,51 @@ describe('SearchService', () => {
     test('filtra por ciudad', async () => {
       mockRepository.findByFilters = vi.fn().mockImplementation(({ city }) => {
         if (!city) return mockEvents;
-        return mockEvents.filter(e => e.city === city);
+        return mockEvents.filter((e) => e.city === city);
       });
 
       const result = await service.search({ city: 'Buenos Aires' });
 
       expect(result.events.length).toBeGreaterThan(0);
-      expect(result.events.every(e => e.city === 'Buenos Aires')).toBe(true);
+      expect(result.events.every((e) => e.city === 'Buenos Aires')).toBe(true);
     });
 
     test('filtra por categoría', async () => {
       mockRepository.findByFilters = vi.fn().mockImplementation(({ category }) => {
         if (!category) return mockEvents;
-        return mockEvents.filter(e => e.category === category);
+        return mockEvents.filter((e) => e.category === category);
       });
 
       const result = await service.search({ category: 'Concierto' });
 
       expect(result.events.length).toBeGreaterThan(0);
-      expect(result.events.every(e => e.category === 'Concierto')).toBe(true);
+      expect(result.events.every((e) => e.category === 'Concierto')).toBe(true);
     });
 
     test('filtra por fecha desde', async () => {
       const dateFrom = new Date('2025-03-01');
       mockRepository.findByFilters = vi.fn().mockImplementation(({ dateFrom: df }) => {
         if (!df) return mockEvents;
-        return mockEvents.filter(e => e.date >= df);
+        return mockEvents.filter((e) => e.date >= df);
       });
 
       const result = await service.search({ dateFrom });
 
       expect(result.events.length).toBeGreaterThan(0);
-      expect(result.events.every(e => e.date >= dateFrom)).toBe(true);
+      expect(result.events.every((e) => e.date >= dateFrom)).toBe(true);
     });
 
     test('filtra por fecha hasta', async () => {
       const dateTo = new Date('2025-04-01');
       mockRepository.findByFilters = vi.fn().mockImplementation(({ dateTo: dt }) => {
         if (!dt) return mockEvents;
-        return mockEvents.filter(e => e.date <= dt);
+        return mockEvents.filter((e) => e.date <= dt);
       });
 
       const result = await service.search({ dateTo });
 
       expect(result.events.length).toBeGreaterThan(0);
-      expect(result.events.every(e => e.date <= dateTo)).toBe(true);
+      expect(result.events.every((e) => e.date <= dateTo)).toBe(true);
     });
 
     test('filtra por rango de fechas', async () => {
@@ -156,7 +154,7 @@ describe('SearchService', () => {
       const dateTo = new Date('2025-03-31');
 
       mockRepository.findByFilters = vi.fn().mockImplementation(({ dateFrom: df, dateTo: dt }) => {
-        return mockEvents.filter(e => {
+        return mockEvents.filter((e) => {
           if (df && e.date < df) return false;
           if (dt && e.date > dt) return false;
           return true;
@@ -166,7 +164,7 @@ describe('SearchService', () => {
       const result = await service.search({ dateFrom, dateTo });
 
       expect(result.events.length).toBeGreaterThan(0);
-      expect(result.events.every(e => e.date >= dateFrom && e.date <= dateTo)).toBe(true);
+      expect(result.events.every((e) => e.date >= dateFrom && e.date <= dateTo)).toBe(true);
     });
   });
 
@@ -177,7 +175,7 @@ describe('SearchService', () => {
   describe('search - Combined Filters', () => {
     test('combina texto + ciudad', async () => {
       mockRepository.findByFilters = vi.fn().mockImplementation(({ search, city }) => {
-        return mockEvents.filter(e => {
+        return mockEvents.filter((e) => {
           if (search && !e.title.toLowerCase().includes(search.toLowerCase())) return false;
           if (city && e.city !== city) return false;
           return true;
@@ -186,16 +184,16 @@ describe('SearchService', () => {
 
       const result = await service.search({
         q: 'tour',
-        city: 'Buenos Aires'
+        city: 'Buenos Aires',
       });
 
       expect(result.events.length).toBeGreaterThan(0);
-      expect(result.events.every(e => e.city === 'Buenos Aires')).toBe(true);
+      expect(result.events.every((e) => e.city === 'Buenos Aires')).toBe(true);
     });
 
     test('combina texto + categoría + ciudad', async () => {
       mockRepository.findByFilters = vi.fn().mockImplementation(({ search, category, city }) => {
-        return mockEvents.filter(e => {
+        return mockEvents.filter((e) => {
           if (search && !e.title.toLowerCase().includes(search.toLowerCase())) return false;
           if (category && e.category !== category) return false;
           if (city && e.city !== city) return false;
@@ -206,7 +204,7 @@ describe('SearchService', () => {
       const result = await service.search({
         q: 'metallica',
         category: 'Concierto',
-        city: 'Buenos Aires'
+        city: 'Buenos Aires',
       });
 
       expect(result.events.length).toBeGreaterThan(0);
@@ -219,32 +217,37 @@ describe('SearchService', () => {
       const dateFrom = new Date('2025-03-01');
       const dateTo = new Date('2025-03-31');
 
-      mockRepository.findByFilters = vi.fn().mockImplementation(({ search, category, city, dateFrom: df, dateTo: dt }) => {
-        return mockEvents.filter(e => {
-          if (search && !e.title.toLowerCase().includes(search.toLowerCase())) return false;
-          if (category && e.category !== category) return false;
-          if (city && e.city !== city) return false;
-          if (df && e.date < df) return false;
-          if (dt && e.date > dt) return false;
-          return true;
+      mockRepository.findByFilters = vi
+        .fn()
+        .mockImplementation(({ search, category, city, dateFrom: df, dateTo: dt }) => {
+          return mockEvents.filter((e) => {
+            if (search && !e.title.toLowerCase().includes(search.toLowerCase())) return false;
+            if (category && e.category !== category) return false;
+            if (city && e.city !== city) return false;
+            if (df && e.date < df) return false;
+            if (dt && e.date > dt) return false;
+            return true;
+          });
         });
-      });
 
       const result = await service.search({
         q: 'rock',
         category: 'Concierto',
         city: 'Buenos Aires',
         dateFrom,
-        dateTo
+        dateTo,
       });
 
       // Debe retornar solo eventos que cumplan TODOS los filtros
-      expect(result.events.every(e =>
-        e.category === 'Concierto' &&
-        e.city === 'Buenos Aires' &&
-        e.date >= dateFrom &&
-        e.date <= dateTo
-      )).toBe(true);
+      expect(
+        result.events.every(
+          (e) =>
+            e.category === 'Concierto' &&
+            e.city === 'Buenos Aires' &&
+            e.date >= dateFrom &&
+            e.date <= dateTo
+        )
+      ).toBe(true);
     });
   });
 
@@ -307,7 +310,7 @@ describe('SearchService', () => {
       const suggestions = await service.suggest('Metal');
 
       expect(suggestions.length).toBeGreaterThan(0);
-      expect(suggestions.some(s => s.toLowerCase().includes('metal'))).toBe(true);
+      expect(suggestions.some((s) => s.toLowerCase().includes('metal'))).toBe(true);
     });
 
     test('limita sugerencias a 5 por defecto', async () => {
@@ -420,7 +423,7 @@ describe('SearchService', () => {
   describe('Real-World Scenarios', () => {
     test('Scenario: Usuario busca "metallica buenos aires"', async () => {
       mockRepository.findByFilters = vi.fn().mockImplementation(({ search, city }) => {
-        return mockEvents.filter(e => {
+        return mockEvents.filter((e) => {
           if (search && !e.title.toLowerCase().includes(search.toLowerCase())) return false;
           if (city && e.city !== city) return false;
           return true;
@@ -429,7 +432,7 @@ describe('SearchService', () => {
 
       const result = await service.search({
         q: 'metallica',
-        city: 'Buenos Aires'
+        city: 'Buenos Aires',
       });
 
       expect(result.events.length).toBeGreaterThan(0);
@@ -440,13 +443,13 @@ describe('SearchService', () => {
     test('Scenario: Usuario filtra solo festivales', async () => {
       mockRepository.findByFilters = vi.fn().mockImplementation(({ category }) => {
         if (!category) return mockEvents;
-        return mockEvents.filter(e => e.category === category);
+        return mockEvents.filter((e) => e.category === category);
       });
 
       const result = await service.search({ category: 'Festival' });
 
       expect(result.events.length).toBeGreaterThan(0);
-      expect(result.events.every(e => e.category === 'Festival')).toBe(true);
+      expect(result.events.every((e) => e.category === 'Festival')).toBe(true);
     });
 
     test('Scenario: Usuario busca eventos del próximo mes', async () => {
@@ -455,7 +458,7 @@ describe('SearchService', () => {
       nextMonth.setMonth(nextMonth.getMonth() + 1);
 
       mockRepository.findByFilters = vi.fn().mockImplementation(({ dateFrom, dateTo }) => {
-        return mockEvents.filter(e => {
+        return mockEvents.filter((e) => {
           if (dateFrom && e.date < dateFrom) return false;
           if (dateTo && e.date > dateTo) return false;
           return true;
@@ -464,10 +467,10 @@ describe('SearchService', () => {
 
       const result = await service.search({
         dateFrom: now,
-        dateTo: nextMonth
+        dateTo: nextMonth,
       });
 
-      expect(result.events.every(e => e.date >= now && e.date <= nextMonth)).toBe(true);
+      expect(result.events.every((e) => e.date >= now && e.date <= nextMonth)).toBe(true);
     });
   });
 });

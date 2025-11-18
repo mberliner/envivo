@@ -71,11 +71,15 @@ export class WebScraperFactory {
 
     // Auto-detectar tipo de scraper basándose en requiresJavaScript
     if (config.requiresJavaScript) {
-      console.log(`[WebScraperFactory] Creating PuppeteerWebScraper for ${scraperName} (requires JavaScript)`);
+      console.log(
+        `[WebScraperFactory] Creating PuppeteerWebScraper for ${scraperName} (requires JavaScript)`
+      );
       const { PuppeteerWebScraper } = await import('./PuppeteerWebScraper');
       return new PuppeteerWebScraper(config);
     } else {
-      console.log(`[WebScraperFactory] Creating GenericWebScraper for ${scraperName} (static HTML)`);
+      console.log(
+        `[WebScraperFactory] Creating GenericWebScraper for ${scraperName} (static HTML)`
+      );
       return new GenericWebScraper(config);
     }
   }

@@ -56,7 +56,10 @@ interface CleanupResponse {
  * @param prefix - Prefijo único para este suite de tests (default: 'E2E-TEST')
  * @returns Lista de eventos creados
  */
-export async function seedTestData(count = 3, prefix = 'E2E-TEST'): Promise<SeedResponse['events']> {
+export async function seedTestData(
+  count = 3,
+  prefix = 'E2E-TEST'
+): Promise<SeedResponse['events']> {
   const BASE_URL = getBaseUrl();
   const ADMIN_API_KEY = getAdminApiKey();
 
@@ -98,12 +101,15 @@ export async function cleanupTestData(prefix = 'E2E-TEST'): Promise<CleanupRespo
   const BASE_URL = getBaseUrl();
   const ADMIN_API_KEY = getAdminApiKey();
 
-  const response = await fetch(`${BASE_URL}/api/test/cleanup?prefix=${encodeURIComponent(prefix)}`, {
-    method: 'DELETE',
-    headers: {
-      'x-api-key': ADMIN_API_KEY,
-    },
-  });
+  const response = await fetch(
+    `${BASE_URL}/api/test/cleanup?prefix=${encodeURIComponent(prefix)}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'x-api-key': ADMIN_API_KEY,
+      },
+    }
+  );
 
   if (!response.ok) {
     const error = await response.text();

@@ -324,11 +324,13 @@ describe('EventService', () => {
 
       expect(result.accepted).toBe(3);
       expect(mockRepository.upsertMany).toHaveBeenCalledTimes(1);
-      expect(mockRepository.upsertMany).toHaveBeenCalledWith(expect.arrayContaining([
-        expect.objectContaining({ title: 'Evento 1' }),
-        expect.objectContaining({ title: 'Evento 2' }),
-        expect.objectContaining({ title: 'Evento 3' }),
-      ]));
+      expect(mockRepository.upsertMany).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ title: 'Evento 1' }),
+          expect.objectContaining({ title: 'Evento 2' }),
+          expect.objectContaining({ title: 'Evento 3' }),
+        ])
+      );
     });
 
     test('procesa mix de eventos válidos e inválidos', async () => {
@@ -383,8 +385,16 @@ describe('EventService', () => {
       futureDate3.setDate(futureDate3.getDate() + 90);
 
       const rawEvents = [
-        createRawEvent({ externalId: 'tm-001', title: 'Metallica en Buenos Aires', date: futureDate1 }),
-        createRawEvent({ externalId: 'tm-002', title: 'Iron Maiden en Córdoba', date: futureDate2 }),
+        createRawEvent({
+          externalId: 'tm-001',
+          title: 'Metallica en Buenos Aires',
+          date: futureDate1,
+        }),
+        createRawEvent({
+          externalId: 'tm-002',
+          title: 'Iron Maiden en Córdoba',
+          date: futureDate2,
+        }),
         createRawEvent({ externalId: 'tm-003', title: 'AC/DC en Rosario', date: futureDate3 }),
       ];
 
@@ -478,6 +488,127 @@ describe('EventService', () => {
       const filters = { city: 'Buenos Aires' };
       await service.findByFilters(filters);
       expect(mockRepository.findByFilters).toHaveBeenCalledWith(filters);
+    });
+  });
+
+  // ========================================
+  // TESTS: Event Conversion (rawEventToEvent)
+  // ========================================
+
+  describe('Event Conversion - endDate Handling', () => {
+    test('should handle events with endDate as Date object', async () => {
+      const endDate = new Date('2025-12-25');
+      const rawEvent = createRawEvent({
+        title: 'Festival Múltiples Días',
+        endDate: endDate,
+      });
+
+      const result = await service.processEvents([rawEvent]);
+
+      expect(result.accepted).toBe(1);
+      expect(mockRepository.upsertMany).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            title: 'Festival Múltiples Días',
+            endDate: endDate,
+          }),
+        ])
+      );
+    });
+
+    test('should handle events with endDate as string', async () => {
+      const rawEvent = createRawEvent({
+        title: 'Festival con String EndDate',
+        endDate: '2025-12-25' as unknown as Date,
+      });
+
+      const result = await service.processEvents([rawEvent]);
+
+      expect(result.accepted).toBe(1);
+      expect(mockRepository.upsertMany).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            title: 'Festival con String EndDate',
+            endDate: expect.any(Date),
+          }),
+        ])
+      );
+    });
+
+    test('should handle events without endDate', async () => {
+      const rawEvent = createRawEvent({
+        title: 'Evento de Un Solo Día',
+        endDate: undefined,
+      });
+
+      const result = await service.processEvents([rawEvent]);
+
+      expect(result.accepted).toBe(1);
+      expect(mockRepository.upsertMany).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            title: 'Evento de Un Solo Día',
+            endDate: undefined,
+          }),
+        ])
+      );
+    });
+
+    test('should convert date as string to Date object', async () => {
+      const rawEvent = createRawEvent({
+        title: 'Evento con Date String',
+        date: '2025-12-20' as unknown as Date,
+      });
+
+      const result = await service.processEvents([rawEvent]);
+
+      expect(result.accepted).toBe(1);
+      expect(mockRepository.upsertMany).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            title: 'Evento con Date String',
+            date: expect.any(Date),
+          }),
+        ])
+      );
+    });
+
+    test('should handle processing errors gracefully', async () => {
+      // Simular un error en business rules
+      vi.spyOn(businessRules, 'isAcceptable').mockImplementationOnce(() => {
+        throw new Error('Business rules validation failed');
+      });
+
+      const rawEvent = createRawEvent({
+        title: 'Evento que Causa Error',
+      });
+
+      const result = await service.processEvents([rawEvent]);
+
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].reason).toContain('Business rules validation failed');
+      expect(result.accepted).toBe(0);
+    });
+
+    test('should log errors when processing fails', async () => {
+      // Simular un error en business rules
+      vi.spyOn(businessRules, 'isAcceptable').mockImplementationOnce(() => {
+        throw new Error('Custom validation error');
+      });
+
+      const rawEvent = createRawEvent({
+        title: 'Evento que Genera Error Personalizado',
+      });
+
+      const result = await service.processEvents([rawEvent]);
+
+      // Verificar que el error fue capturado
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.accepted).toBe(0);
+
+      // Buscar el error específico
+      const customError = result.errors.find((e) => e.reason.includes('Custom validation error'));
+      expect(customError).toBeDefined();
     });
   });
 });

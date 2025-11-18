@@ -99,7 +99,7 @@ main()
     await prisma.$disconnect();
     console.log('\n🎉 Seed finalizado exitosamente\n');
   })
-  .catch(async e => {
+  .catch(async (e) => {
     console.error('❌ Error durante seed:', e);
     await prisma.$disconnect();
     process.exit(1);

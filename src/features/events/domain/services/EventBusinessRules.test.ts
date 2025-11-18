@@ -183,15 +183,25 @@ describe('EventBusinessRules', () => {
 
     test('normaliza categoría a formato estándar', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(rules.normalize(createValidEvent({ category: 'concert' as any })).category).toBe('Concierto');
+      expect(rules.normalize(createValidEvent({ category: 'concert' as any })).category).toBe(
+        'Concierto'
+      );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(rules.normalize(createValidEvent({ category: 'festival' as any })).category).toBe('Festival');
+      expect(rules.normalize(createValidEvent({ category: 'festival' as any })).category).toBe(
+        'Festival'
+      );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(rules.normalize(createValidEvent({ category: 'teatro' as any })).category).toBe('Teatro');
+      expect(rules.normalize(createValidEvent({ category: 'teatro' as any })).category).toBe(
+        'Teatro'
+      );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(rules.normalize(createValidEvent({ category: 'stand-up' as any })).category).toBe('Stand-up');
+      expect(rules.normalize(createValidEvent({ category: 'stand-up' as any })).category).toBe(
+        'Stand-up'
+      );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(rules.normalize(createValidEvent({ category: 'opera' as any })).category).toBe('Ópera');
+      expect(rules.normalize(createValidEvent({ category: 'opera' as any })).category).toBe(
+        'Ópera'
+      );
     });
 
     test('normaliza categoría desconocida a "Otro"', () => {
@@ -272,7 +282,8 @@ describe('EventBusinessRules', () => {
   describe('shouldUpdate', () => {
     test('actualiza si evento entrante tiene descripción más larga', () => {
       const incoming = createValidEvent({
-        description: 'Descripción muy muy muy muy larga con muchos detalles del evento y más información útil',
+        description:
+          'Descripción muy muy muy muy larga con muchos detalles del evento y más información útil',
       });
       const existing = createValidEvent({
         description: 'Descripción corta',

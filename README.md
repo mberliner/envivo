@@ -86,6 +86,7 @@ src/
 ### Principios de Documentación
 
 La documentación sigue **Single Source of Truth (SSOT)**:
+
 - Cada tema tiene UNA ubicación autoritativa
 - Otros docs referencian con links (no duplican)
 - Ver [CONTRIBUTING.md#ssot-registry](docs/CONTRIBUTING.md#ssot-registry-qué-va-dónde)

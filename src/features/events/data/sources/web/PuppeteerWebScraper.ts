@@ -138,10 +138,7 @@ export class PuppeteerWebScraper implements IDataSource {
   /**
    * Scrapea una página individual usando Puppeteer
    */
-  private async scrapePage(
-    browser: import('puppeteer').Browser,
-    url: string
-  ): Promise<RawEvent[]> {
+  private async scrapePage(browser: import('puppeteer').Browser, url: string): Promise<RawEvent[]> {
     const fullUrl = url.startsWith('http') ? url : `${this.config.baseUrl}${url}`;
     console.log(`[${this.name}] Scraping with Puppeteer: ${fullUrl}`);
 
@@ -174,7 +171,9 @@ export class PuppeteerWebScraper implements IDataSource {
         await page.waitForSelector(waitForSelector, { timeout: waitForTimeout });
         console.log(`[${this.name}] ✅ Selector found: ${waitForSelector}`);
       } catch {
-        console.warn(`[${this.name}] ⚠️  Timeout waiting for ${waitForSelector}, continuing anyway...`);
+        console.warn(
+          `[${this.name}] ⚠️  Timeout waiting for ${waitForSelector}, continuing anyway...`
+        );
         // Continuar de todos modos - puede que el selector sea incorrecto pero el contenido esté ahí
       }
 
@@ -191,9 +190,7 @@ export class PuppeteerWebScraper implements IDataSource {
       const { containerSelector, itemSelector } = this.config.listing;
 
       // Seleccionar items (con o sin container)
-      const $items = containerSelector
-        ? $(containerSelector).find(itemSelector)
-        : $(itemSelector);
+      const $items = containerSelector ? $(containerSelector).find(itemSelector) : $(itemSelector);
 
       console.log(`[${this.name}] Found ${$items.length} items with selector: ${itemSelector}`);
 
@@ -205,9 +202,7 @@ export class PuppeteerWebScraper implements IDataSource {
         const promise = this.extractEventData($item, browser).catch((error: unknown) => {
           if (this.config.errorHandling?.skipFailedEvents) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            console.warn(
-              `[${this.name}] Failed to extract event from item: ${errorMessage}`
-            );
+            console.warn(`[${this.name}] Failed to extract event from item: ${errorMessage}`);
             return null;
           } else {
             throw error;
@@ -220,7 +215,7 @@ export class PuppeteerWebScraper implements IDataSource {
       const extractedEvents = await Promise.all(eventPromises);
 
       // Filtrar nulls
-      extractedEvents.forEach(event => {
+      extractedEvents.forEach((event) => {
         if (event) {
           events.push(event);
         }
@@ -294,9 +289,7 @@ export class PuppeteerWebScraper implements IDataSource {
             );
           } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            console.warn(
-              `[${this.name}] Failed to transform field ${field}: ${errorMessage}`
-            );
+            console.warn(`[${this.name}] Failed to transform field ${field}: ${errorMessage}`);
           }
         }
       });
@@ -312,7 +305,9 @@ export class PuppeteerWebScraper implements IDataSource {
         console.log(`[${this.name}] ✅ Detail data scraped:`, {
           time: detailData.time,
           price: detailData.price,
-          description: detailData.description ? `${(detailData.description as string).substring(0, 50)}...` : undefined,
+          description: detailData.description
+            ? `${(detailData.description as string).substring(0, 50)}...`
+            : undefined,
         });
 
         // Mergear datos: detalles tienen prioridad sobre listado
@@ -341,13 +336,15 @@ export class PuppeteerWebScraper implements IDataSource {
             dateWithTime.setUTCHours(utcHours, minutes, 0, 0);
 
             transformedData.date = dateWithTime;
-            console.log(`[${this.name}] ⏰ Combined date + time: ${hours}:${String(minutes).padStart(2, '0')} Argentina → ${dateWithTime.toISOString()}`);
+            console.log(
+              `[${this.name}] ⏰ Combined date + time: ${hours}:${String(minutes).padStart(2, '0')} Argentina → ${dateWithTime.toISOString()}`
+            );
           }
         }
 
         // Delay entre requests de detalles
         const delay = this.config.detailPage.delayBetweenRequests || 1000;
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.warn(
@@ -405,9 +402,7 @@ export class PuppeteerWebScraper implements IDataSource {
     const date = data.date;
     const dateStr = date instanceof Date ? date.toISOString() : String(date);
 
-    const parts = [data.title, dateStr, data.venue]
-      .filter(Boolean)
-      .join('_');
+    const parts = [data.title, dateStr, data.venue].filter(Boolean).join('_');
 
     return parts
       .toLowerCase()
@@ -439,7 +434,7 @@ export class PuppeteerWebScraper implements IDataSource {
       // CRÍTICO para Blazor: Delay fijo para que Blazor Server inicialice SignalR/WebSocket
       const blazorInitDelay = 5000; // 5 segundos para inicialización de Blazor
       console.log(`[${this.name}]   Waiting ${blazorInitDelay}ms for Blazor initialization...`);
-      await new Promise(resolve => setTimeout(resolve, blazorInitDelay));
+      await new Promise((resolve) => setTimeout(resolve, blazorInitDelay));
 
       // Esperar a que el selector específico aparezca (detailPage)
       const detailWaitSelector = this.config.detailPage.waitForSelector || '.evento-titulo';
@@ -452,15 +447,19 @@ export class PuppeteerWebScraper implements IDataSource {
         console.log(`[${this.name}]   ✅ Detail selector found: ${detailWaitSelector}`);
       } catch {
         // Si falla, intentar un delay adicional por si Blazor es muy lento
-        console.warn(`[${this.name}]   ⚠️  Timeout waiting for ${detailWaitSelector}, retrying with additional delay...`);
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        console.warn(
+          `[${this.name}]   ⚠️  Timeout waiting for ${detailWaitSelector}, retrying with additional delay...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, 5000));
 
         // Verificar si ahora el selector está presente
         const html = await page.content();
         console.log(`[${this.name}]   HTML length after retry: ${html.length} bytes`);
 
         if (html.length < 20000) {
-          console.warn(`[${this.name}]   ❌ Blazor did not load (HTML too small: ${html.length} bytes)`);
+          console.warn(
+            `[${this.name}]   ❌ Blazor did not load (HTML too small: ${html.length} bytes)`
+          );
         }
       }
 
@@ -468,8 +467,10 @@ export class PuppeteerWebScraper implements IDataSource {
       // Esto es necesario porque Blazor puede cargar el título primero y la descripción después
       const additionalWaitTime = this.config.detailPage.additionalWaitTime;
       if (additionalWaitTime) {
-        console.log(`[${this.name}]   ⏳ Waiting additional ${additionalWaitTime}ms for Blazor content...`);
-        await new Promise(resolve => setTimeout(resolve, additionalWaitTime));
+        console.log(
+          `[${this.name}]   ⏳ Waiting additional ${additionalWaitTime}ms for Blazor content...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, additionalWaitTime));
         console.log(`[${this.name}]   ✅ Additional wait completed`);
       }
 
@@ -509,7 +510,9 @@ export class PuppeteerWebScraper implements IDataSource {
           if (field === 'price') {
             // Debug: verificar si el selector existe
             const elementCount = $(selector).length;
-            console.log(`[${this.name}]   🔍 DEBUG price - selector: "${selector}", elements found: ${elementCount}`);
+            console.log(
+              `[${this.name}]   🔍 DEBUG price - selector: "${selector}", elements found: ${elementCount}`
+            );
 
             if (elementCount > 0) {
               // Clonar el selector para no modificar el DOM original
@@ -524,16 +527,23 @@ export class PuppeteerWebScraper implements IDataSource {
               value = $clone.text().trim();
 
               // Debug: texto después de cleanup
-              console.log(`[${this.name}]   🔍 DEBUG price - text after cleanup: "${value.substring(0, 100)}"`);
+              console.log(
+                `[${this.name}]   🔍 DEBUG price - text after cleanup: "${value.substring(0, 100)}"`
+              );
             } else {
-              console.log(`[${this.name}]   ❌ DEBUG price - selector "${selector}" not found in HTML`);
+              console.log(
+                `[${this.name}]   ❌ DEBUG price - selector "${selector}" not found in HTML`
+              );
             }
           } else {
             // Manejar selectores que devuelven múltiples elementos (ej: descripción con múltiples <p>)
             const elements = $(selector);
             if (elements.length > 1) {
               // Multi-elemento: extraer cada uno y unir con \n\n
-              value = elements.map((i, el) => $(el).text().trim()).get().join('\n\n');
+              value = elements
+                .map((i, el) => $(el).text().trim())
+                .get()
+                .join('\n\n');
             } else {
               // Single-elemento: comportamiento actual
               value = $(selector).text().trim();
@@ -543,7 +553,9 @@ export class PuppeteerWebScraper implements IDataSource {
 
         if (value) {
           rawData[field] = cleanWhitespace(value);
-          console.log(`[${this.name}]   ✅ ${field}: "${value.substring(0, 60)}${value.length > 60 ? '...' : ''}"`);
+          console.log(
+            `[${this.name}]   ✅ ${field}: "${value.substring(0, 60)}${value.length > 60 ? '...' : ''}"`
+          );
         } else {
           console.log(`[${this.name}]   ❌ ${field}: NOT found with selector "${selector}"`);
 
@@ -566,7 +578,9 @@ export class PuppeteerWebScraper implements IDataSource {
             try {
               // Debug especial para precio
               if (field === 'price') {
-                console.log(`[${this.name}]   🔍 DEBUG transform - applying "${transformName}" to price text (full):`);
+                console.log(
+                  `[${this.name}]   🔍 DEBUG transform - applying "${transformName}" to price text (full):`
+                );
                 console.log(`[${this.name}]      Input text: "${rawData[field]}"`);
               }
 
@@ -628,9 +642,16 @@ export class PuppeteerWebScraper implements IDataSource {
       ...config,
       rateLimit: config.rateLimit || DEFAULT_SCRAPER_CONFIG.rateLimit,
       errorHandling: {
-        skipFailedEvents: config.errorHandling?.skipFailedEvents ?? DEFAULT_SCRAPER_CONFIG.errorHandling?.skipFailedEvents ?? true,
-        skipFailedPages: config.errorHandling?.skipFailedPages ?? DEFAULT_SCRAPER_CONFIG.errorHandling?.skipFailedPages ?? false,
-        timeout: config.errorHandling?.timeout ?? DEFAULT_SCRAPER_CONFIG.errorHandling?.timeout ?? 30000,
+        skipFailedEvents:
+          config.errorHandling?.skipFailedEvents ??
+          DEFAULT_SCRAPER_CONFIG.errorHandling?.skipFailedEvents ??
+          true,
+        skipFailedPages:
+          config.errorHandling?.skipFailedPages ??
+          DEFAULT_SCRAPER_CONFIG.errorHandling?.skipFailedPages ??
+          false,
+        timeout:
+          config.errorHandling?.timeout ?? DEFAULT_SCRAPER_CONFIG.errorHandling?.timeout ?? 30000,
         retry: config.errorHandling?.retry || DEFAULT_SCRAPER_CONFIG.errorHandling?.retry,
       },
     };

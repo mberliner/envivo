@@ -79,15 +79,22 @@ export class EventService {
 
     for (const rawEvent of rawEvents) {
       // GenericWebScraper adds _source property (allowed by RawEvent's index signature)
-      const source = '_source' in rawEvent ? (rawEvent as unknown as { _source: string })._source : rawEvent.source || 'unknown';
-      console.log(`[EventService] 🔄 Processing: "${rawEvent.title.substring(0, 40)}" from ${source}`);
+      const source =
+        '_source' in rawEvent
+          ? (rawEvent as unknown as { _source: string })._source
+          : rawEvent.source || 'unknown';
+      console.log(
+        `[EventService] 🔄 Processing: "${rawEvent.title.substring(0, 40)}" from ${source}`
+      );
 
       try {
         // 0. Verificar blacklist (US3.2)
         // IMPORTANTE: GenericWebScraper usa _source (no source)
 
         if (await this.isBlacklisted(source, rawEvent.externalId)) {
-          console.log(`[EventService] ⛔ REJECTED (blacklist): "${rawEvent.title.substring(0, 40)}"`);
+          console.log(
+            `[EventService] ⛔ REJECTED (blacklist): "${rawEvent.title.substring(0, 40)}"`
+          );
           result.rejected++;
           result.errors.push({
             event: rawEvent,
@@ -109,7 +116,9 @@ export class EventService {
         // 1. Validar con business rules
         const validation = await this.businessRules.isAcceptable(event);
         if (!validation.valid) {
-          console.log(`[EventService] ⛔ REJECTED (business rules): "${rawEvent.title.substring(0, 40)}" - ${validation.reason}`);
+          console.log(
+            `[EventService] ⛔ REJECTED (business rules): "${rawEvent.title.substring(0, 40)}" - ${validation.reason}`
+          );
           result.rejected++;
           result.errors.push({
             event: rawEvent,
@@ -141,7 +150,9 @@ export class EventService {
           result.accepted++;
         }
       } catch (error) {
-        console.log(`[EventService] ❌ ERROR: "${rawEvent.title.substring(0, 40)}" - ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.log(
+          `[EventService] ❌ ERROR: "${rawEvent.title.substring(0, 40)}" - ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
         result.errors.push({
           event: rawEvent,
           reason: error instanceof Error ? error.message : 'Error desconocido',

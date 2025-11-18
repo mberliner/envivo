@@ -38,9 +38,7 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
    * Actualiza las preferencias globales
    * Si no existen, las crea
    */
-  async update(
-    preferences: Partial<GlobalPreferences>
-  ): Promise<GlobalPreferences> {
+  async update(preferences: Partial<GlobalPreferences>): Promise<GlobalPreferences> {
     const data = this.toPrisma(preferences);
 
     const updated = await this.prisma.globalPreferences.upsert({
@@ -90,9 +88,7 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
         blockedGenres: JSON.stringify(DEFAULT_PREFERENCES.blockedGenres),
         allowedCategories: JSON.stringify(DEFAULT_PREFERENCES.allowedCategories),
         allowedVenueSizes: JSON.stringify(DEFAULT_PREFERENCES.allowedVenueSizes),
-        venueSizeThresholds: JSON.stringify(
-          DEFAULT_PREFERENCES.venueSizeThresholds
-        ),
+        venueSizeThresholds: JSON.stringify(DEFAULT_PREFERENCES.venueSizeThresholds),
         needsRescraping: DEFAULT_PREFERENCES.needsRescraping,
       },
     });
@@ -103,7 +99,9 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
   /**
    * Convierte de modelo Prisma a entidad de dominio
    */
-  private toDomain(prismaPrefs: Prisma.GlobalPreferencesGetPayload<Record<string, never>>): GlobalPreferences {
+  private toDomain(
+    prismaPrefs: Prisma.GlobalPreferencesGetPayload<Record<string, never>>
+  ): GlobalPreferences {
     // Helper para parsear JSON arrays con fallback
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const parseArray = (value: string | any[], fallback: any[] = []): any[] => {
@@ -144,7 +142,9 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
   /**
    * Convierte de entidad de dominio a modelo Prisma
    */
-  private toPrisma(preferences: Partial<GlobalPreferences>): Partial<Prisma.GlobalPreferencesCreateInput> {
+  private toPrisma(
+    preferences: Partial<GlobalPreferences>
+  ): Partial<Prisma.GlobalPreferencesCreateInput> {
     const data: Partial<Prisma.GlobalPreferencesCreateInput> = {};
 
     if (preferences.allowedCountries !== undefined) {
@@ -166,9 +166,7 @@ export class PrismaPreferencesRepository implements IPreferencesRepository {
       data.allowedVenueSizes = JSON.stringify(preferences.allowedVenueSizes);
     }
     if (preferences.venueSizeThresholds !== undefined) {
-      data.venueSizeThresholds = JSON.stringify(
-        preferences.venueSizeThresholds
-      );
+      data.venueSizeThresholds = JSON.stringify(preferences.venueSizeThresholds);
     }
     if (preferences.needsRescraping !== undefined) {
       data.needsRescraping = preferences.needsRescraping;

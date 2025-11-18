@@ -30,14 +30,16 @@ const options = {
   path: '/api/admin/reset-database',
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${ADMIN_API_KEY}`,
+    Authorization: `Bearer ${ADMIN_API_KEY}`,
     'Content-Type': 'application/json',
   },
 };
 
 const req = http.request(options, (res) => {
   let data = '';
-  res.on('data', (chunk) => { data += chunk; });
+  res.on('data', (chunk) => {
+    data += chunk;
+  });
   res.on('end', () => {
     try {
       const result = JSON.parse(data);

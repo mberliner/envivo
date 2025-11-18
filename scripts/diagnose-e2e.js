@@ -18,8 +18,8 @@ const path = require('path');
 
 // Configuración
 const config = {
-  runs: parseInt(process.argv.find(arg => arg.startsWith('--runs='))?.split('=')[1] || '5'),
-  mode: process.argv.find(arg => arg.startsWith('--mode='))?.split('=')[1] || 'prod',
+  runs: parseInt(process.argv.find((arg) => arg.startsWith('--runs='))?.split('=')[1] || '5'),
+  mode: process.argv.find((arg) => arg.startsWith('--mode='))?.split('=')[1] || 'prod',
   outputDir: path.join(process.cwd(), 'diagnostic-output'),
   timestamp: new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5),
 };
@@ -119,7 +119,7 @@ function copyArtifacts(runNumber, runDir) {
 
   const artifacts = fs.readdirSync(testResultsDir);
 
-  artifacts.forEach(artifact => {
+  artifacts.forEach((artifact) => {
     const artifactPath = path.join(testResultsDir, artifact);
     const stat = fs.statSync(artifactPath);
 
@@ -146,22 +146,28 @@ function copyArtifacts(runNumber, runDir) {
 // Generar estadísticas
 function generateStats(results) {
   const total = results.length;
-  const passed = results.filter(r => r.success).length;
-  const failed = results.filter(r => !r.success).length;
+  const passed = results.filter((r) => r.success).length;
+  const failed = results.filter((r) => !r.success).length;
   const successRate = ((passed / total) * 100).toFixed(1);
 
   const avgDuration = (results.reduce((sum, r) => sum + r.duration, 0) / total).toFixed(0);
-  const avgPassedDuration = passed > 0
-    ? (results.filter(r => r.success).reduce((sum, r) => sum + r.duration, 0) / passed).toFixed(0)
-    : 0;
-  const avgFailedDuration = failed > 0
-    ? (results.filter(r => !r.success).reduce((sum, r) => sum + r.duration, 0) / failed).toFixed(0)
-    : 0;
+  const avgPassedDuration =
+    passed > 0
+      ? (results.filter((r) => r.success).reduce((sum, r) => sum + r.duration, 0) / passed).toFixed(
+          0
+        )
+      : 0;
+  const avgFailedDuration =
+    failed > 0
+      ? (
+          results.filter((r) => !r.success).reduce((sum, r) => sum + r.duration, 0) / failed
+        ).toFixed(0)
+      : 0;
 
   // Patrones de fallos
-  const failedTests = results.filter(r => !r.success);
+  const failedTests = results.filter((r) => !r.success);
   const navigatedToPattern = failedTests
-    .map(r => r.navigatedTo)
+    .map((r) => r.navigatedTo)
     .filter(Boolean)
     .reduce((acc, url) => {
       acc[url] = (acc[url] || 0) + 1;
@@ -186,7 +192,7 @@ function calculateConsecutiveFails(results) {
   let maxConsecutive = 0;
   let current = 0;
 
-  results.forEach(r => {
+  results.forEach((r) => {
     if (!r.success) {
       current++;
       maxConsecutive = Math.max(maxConsecutive, current);
@@ -223,67 +229,105 @@ function generateReport(results, stats, runDir) {
 | **Fallados** | ${stats.avgFailedDuration}ms |
 | **Δ (Failed - Passed)** | ${stats.avgFailedDuration - stats.avgPassedDuration}ms |
 
-${stats.avgFailedDuration > stats.avgPassedDuration * 2 ? `
+${
+  stats.avgFailedDuration > stats.avgPassedDuration * 2
+    ? `
 ⚠️ **ALERTA**: Los tests fallados tardan significativamente más (${((stats.avgFailedDuration / stats.avgPassedDuration) * 100).toFixed(0)}% más).
 Esto sugiere **timeout esperando condición que nunca se cumple**.
-` : ''}
+`
+    : ''
+}
 
 ## 🎯 Patrón de Fallos
 
-${stats.failed > 0 ? `
+${
+  stats.failed > 0
+    ? `
 ### Navegación Observada en Fallos
 
 | URL Destino | Frecuencia |
 |-------------|------------|
-${Object.entries(stats.navigatedToPattern).map(([url, count]) => `| \`${url}\` | ${count}/${stats.failed} (${((count/stats.failed)*100).toFixed(0)}%) |`).join('\n')}
+${Object.entries(stats.navigatedToPattern)
+  .map(
+    ([url, count]) =>
+      `| \`${url}\` | ${count}/${stats.failed} (${((count / stats.failed) * 100).toFixed(0)}%) |`
+  )
+  .join('\n')}
 
-${stats.navigatedToPattern['http://localhost:3001/'] || stats.navigatedToPattern['http://localhost:3000/'] ? `
+${
+  stats.navigatedToPattern['http://localhost:3001/'] ||
+  stats.navigatedToPattern['http://localhost:3000/']
+    ? `
 ⚠️ **CONFIRMADO**: Tests navegan a homepage ("/") en lugar de detalle de evento.
 Esto confirma la hipótesis de **race condition en hidratación/re-render**.
-` : ''}
+`
+    : ''
+}
 
 ### Consecutividad
 
 - **Máximo fallos consecutivos**: ${stats.consecutiveFails}
 - **Falló en primera corrida**: ${stats.failedOnFirstRun ? 'SÍ ⚠️' : 'NO ✅'}
 
-${stats.consecutiveFails > 1 ? `
+${
+  stats.consecutiveFails > 1
+    ? `
 ⚠️ **ALERTA**: Múltiples fallos consecutivos sugieren problema sistemático, no solo race condition aleatoria.
-` : ''}
-` : `
+`
+    : ''
+}
+`
+    : `
 ✅ **Todos los tests pasaron** en ${stats.total} corridas.
 El problema puede haberse resuelto o no se reprodujo en estas condiciones.
-`}
+`
+}
 
 ## 📝 Detalle de Corridas
 
 | Run | Estado | Duración | Test Fallado | Navegó a |
 |-----|--------|----------|--------------|----------|
-${results.map(r => `| #${r.run} | ${r.success ? '✅' : '❌'} | ${r.duration}ms | ${r.failedTest || '-'} | ${r.navigatedTo ? `\`${r.navigatedTo}\`` : '-'} |`).join('\n')}
+${results.map((r) => `| #${r.run} | ${r.success ? '✅' : '❌'} | ${r.duration}ms | ${r.failedTest || '-'} | ${r.navigatedTo ? `\`${r.navigatedTo}\`` : '-'} |`).join('\n')}
 
 ## 🔍 Análisis de Hipótesis
 
 ### ✅ Hipótesis Confirmadas
 
-${stats.navigatedToPattern['http://localhost:3001/'] || stats.navigatedToPattern['http://localhost:3000/'] ? `
+${
+  stats.navigatedToPattern['http://localhost:3001/'] ||
+  stats.navigatedToPattern['http://localhost:3000/']
+    ? `
 - ✅ **Re-render Post-Fetch**: Navegación a "/" confirma que el \`href\` cambia después del check
 - ✅ **Race Condition**: Timing inconsistente entre corridas
 - ✅ **Problema de Hidratación**: Click ocurre antes de que React complete el re-render con datos del fetch
-` : ''}
+`
+    : ''
+}
 
-${stats.failed === 0 ? `
+${
+  stats.failed === 0
+    ? `
 - ✅ **Tests Estables**: ${stats.total} corridas exitosas sugieren que el fix actual es efectivo
-` : ''}
+`
+    : ''
+}
 
 ### ❌ Hipótesis Descartadas
 
-${stats.avgFailedDuration < 10000 ? `
+${
+  stats.avgFailedDuration < 10000
+    ? `
 - ❌ **Timeout por red lenta**: Fallos ocurren rápido (<10s), no por timeout de red
-` : ''}
+`
+    : ''
+}
 
 ## 🎬 Artifacts Capturados
 
-${results.filter(r => !r.success).map(r => `
+${results
+  .filter((r) => !r.success)
+  .map(
+    (r) => `
 ### Run #${r.run}
 
 - **Trace**: \`run-${r.run}-trace.zip\`
@@ -292,13 +336,17 @@ ${results.filter(r => !r.success).map(r => `
   \`\`\`
 
 - **Screenshot**: \`run-${r.run}-screenshot.png\`
-`).join('\n')}
+`
+  )
+  .join('\n')}
 
-${results.filter(r => !r.success).length === 0 ? '_No hay artifacts (todos los tests pasaron)_' : ''}
+${results.filter((r) => !r.success).length === 0 ? '_No hay artifacts (todos los tests pasaron)_' : ''}
 
 ## 💡 Recomendaciones
 
-${stats.failed > 0 && stats.navigatedToPattern['http://localhost:3001/'] ? `
+${
+  stats.failed > 0 && stats.navigatedToPattern['http://localhost:3001/']
+    ? `
 ### Inmediatas
 
 1. **Esperar estabilidad del DOM** antes de interactuar:
@@ -327,9 +375,13 @@ ${stats.failed > 0 && stats.navigatedToPattern['http://localhost:3001/'] ? `
    \`\`\`typescript
    <Link href={\`/eventos/\${event.id}\`} data-testid="event-details-link">
    \`\`\`
-` : ''}
+`
+    : ''
+}
 
-${stats.failed === 0 ? `
+${
+  stats.failed === 0
+    ? `
 ### Validación Adicional
 
 Aunque todos los tests pasaron:
@@ -337,7 +389,9 @@ Aunque todos los tests pasaron:
 1. Ejecutar más corridas para confirmar estabilidad (--runs=20)
 2. Probar en CI/CD con diferentes condiciones de red
 3. Agregar tests de carga (múltiples tabs simultáneos)
-` : ''}
+`
+    : ''
+}
 
 ## 🔗 Referencias
 
@@ -378,7 +432,7 @@ async function main() {
 
     // Pequeña pausa entre runs
     if (i < config.runs) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 
@@ -406,11 +460,13 @@ async function main() {
   log(`\nView report:`, 'cyan');
   log(`  cat ${reportPath}`, 'blue');
 
-  if (results.some(r => !r.success)) {
+  if (results.some((r) => !r.success)) {
     log(`\nView traces:`, 'cyan');
-    results.filter(r => !r.success).forEach(r => {
-      log(`  npx playwright show-trace ${runDir}/run-${r.run}-trace.zip`, 'blue');
-    });
+    results
+      .filter((r) => !r.success)
+      .forEach((r) => {
+        log(`  npx playwright show-trace ${runDir}/run-${r.run}-trace.zip`, 'blue');
+      });
   }
 
   logSection('🎉 Diagnosis Complete');
@@ -419,7 +475,7 @@ async function main() {
   process.exit(stats.failed > 0 ? 1 : 0);
 }
 
-main().catch(error => {
+main().catch((error) => {
   log(`\n❌ Fatal error: ${error.message}`, 'red');
   console.error(error);
   process.exit(1);
