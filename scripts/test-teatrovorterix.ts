@@ -13,6 +13,9 @@
  *   - Variables de entorno configuradas en .env.local
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+declare const process: any;
+
 import { WebScraperFactory } from '../src/features/events/data/sources/web/WebScraperFactory';
 
 async function main() {
@@ -49,7 +52,15 @@ async function main() {
     console.log('📋 Sample events (first 5):\n');
     events.slice(0, 5).forEach((event, index) => {
       console.log(`${index + 1}. ${event.title}`);
-      console.log(`   Date: ${event.date ? event.date.toISOString() : 'N/A'}`);
+
+      // Format date (handle both string and Date types)
+      const dateStr = event.date
+        ? event.date instanceof Date
+          ? event.date.toISOString()
+          : event.date
+        : 'N/A';
+      console.log(`   Date: ${dateStr}`);
+
       console.log(`   Venue: ${event.venue}`);
       console.log(`   City: ${event.city}, ${event.country}`);
       console.log(`   Category: ${event.category || 'N/A'}`);
