@@ -118,6 +118,37 @@ import { env } from '@/shared/infrastructure/config/env';
 
 ---
 
+## Architecture Validation
+
+🏗️ **Validación Automática de Clean Architecture** implementada en 3 capas:
+
+1. **IDE Feedback (ESLint Boundaries)**: Errores instantáneos al violar reglas de arquitectura
+2. **Pre-commit Hook (Husky)**: Bloquea commits con violaciones
+3. **CI Validation (Dependency Cruiser)**: Validación exhaustiva + gráfico de dependencias
+
+**Comandos de validación:**
+
+```bash
+# Validar arquitectura (ESLint boundaries)
+npm run lint:arch
+
+# Validar dependencias (más exhaustivo)
+npm run validate:deps
+
+# Generar gráfico de arquitectura (requiere Graphviz)
+npm run validate:deps:graph
+```
+
+**Reglas aplicadas automáticamente:**
+
+- ✅ **Domain Isolation**: Domain NO puede importar de Data ni UI
+- ✅ **No Circular Dependencies**: Dependencias circulares están prohibidas
+- ✅ **Dependency Inversion**: Data implementa interfaces de Domain
+
+**Ver [docs/DEVELOPMENT.md#architecture-validation](docs/DEVELOPMENT.md#architecture-validation) para guía completa, interpretación de errores y troubleshooting.**
+
+---
+
 ## Security Considerations
 
 ### ❌ NUNCA

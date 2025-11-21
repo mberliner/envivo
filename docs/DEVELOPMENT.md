@@ -311,6 +311,204 @@ npm install
 
 ---
 
+## Architecture Validation
+
+EnVivo implementa **validación automatizada de Clean Architecture** en 3 capas para prevenir violaciones de las reglas de arquitectura:
+
+### 📐 Reglas de Clean Architecture
+
+El proyecto sigue **Clean Architecture de 3 capas**:
+
+```
+┌─────────────────────────────────┐
+│      UI LAYER (App Router)      │  ← Depende de Domain
+│   Server/Client Components      │
+└───────────────┬─────────────────┘
+                ↓
+┌───────────────▼─────────────────┐
+│   DOMAIN LAYER (Business Logic) │  ← NO depende de nadie
+│   Entities, Services, Rules     │     (capa pura)
+└───────────────┬─────────────────┘
+                ↑
+┌───────────────┴─────────────────┐
+│      DATA LAYER (I/O)           │  ← Implementa interfaces
+│   Repositories, Sources, DB     │     de Domain
+└─────────────────────────────────┘
+```
+
+**Reglas validadas automáticamente:**
+
+1. ✅ **Domain Isolation**: Domain NO puede importar de Data ni UI
+2. ✅ **Data → UI Forbidden**: Data NO puede importar de UI
+3. ✅ **No Circular Dependencies**: Eliminar dependencias circulares
+4. ✅ **Dependency Inversion**: Data implementa interfaces de Domain
+
+### 🛠️ Capa 1: IDE Feedback (ESLint Boundaries)
+
+**Feedback instantáneo en el editor** mientras escribes código.
+
+```bash
+# Validar arquitectura manualmente
+npm run lint:arch
+```
+
+**Configuración**: `eslint.config.mjs` usa `eslint-plugin-boundaries` para detectar violaciones.
+
+**Ejemplo de error**:
+```
+error  Domain layer CANNOT import from Data or UI layers (Clean Architecture violation)
+  src/features/events/domain/services/EventService.ts
+    import { PrismaEventRepository } from '../../data/repositories/PrismaEventRepository'
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+
+**Cómo corregir**:
+- Domain debe depender solo de **interfaces** (`IEventRepository`)
+- Las implementaciones (`PrismaEventRepository`) deben inyectarse desde afuera
+
+### 🔒 Capa 2: Pre-commit Hook (Husky + lint-staged)
+
+**Bloquea commits** que violen las reglas de arquitectura.
+
+El pre-commit hook ejecuta automáticamente:
+- `eslint --fix` en archivos `.ts`/`.tsx` staged
+- `prettier --write` en todos los archivos staged
+
+**Configuración**: `.husky/pre-commit` + `lint-staged` en `package.json`
+
+**Si falla el commit**:
+```bash
+# Ver errores específicos
+npm run lint:arch
+
+# Corregir y volver a stagear
+git add .
+git commit -m "fix: ..."
+```
+
+**Bypass (solo en emergencias)**:
+```bash
+git commit --no-verify -m "..."
+```
+
+⚠️ **IMPORTANTE**: NO uses `--no-verify` para evitar corregir violaciones. Los hooks existen para proteger la arquitectura.
+
+### 🚀 Capa 3: CI Validation (Dependency Cruiser)
+
+**Validación exhaustiva en CI** con visualización de dependencias.
+
+El job `verify-architecture` en CI ejecuta:
+1. `npm run lint:arch` - ESLint boundaries
+2. `npm run validate:deps` - Dependency Cruiser (reglas avanzadas)
+3. `npm run validate:deps:graph` - Genera gráfico SVG
+
+**Comandos locales**:
+```bash
+# Validar dependencias (más exhaustivo que ESLint)
+npm run validate:deps
+
+# Generar gráfico de dependencias (requiere Graphviz)
+brew install graphviz  # macOS
+sudo apt-get install graphviz  # Linux
+npm run validate:deps:graph
+```
+
+**Gráfico generado**: `docs/architecture-graph.svg`
+- Verde: Domain layer
+- Azul: Data layer
+- Rosa: UI layer
+- Amarillo: Shared utilities
+
+**Descarga del gráfico en CI**:
+1. Ve a Actions → Workflow run
+2. Artifacts → `architecture-dependency-graph`
+3. Descarga y abre `architecture-graph.svg`
+
+### 🔍 Interpretación de Errores
+
+#### Error: Circular Dependency
+
+```
+error no-circular: src/features/events/data/sources/AllAccessJsonScraper.ts →
+    src/features/events/data/sources/AllAccessMapper.ts →
+    src/features/events/data/sources/AllAccessJsonScraper.ts
+```
+
+**Cómo corregir**:
+1. Extraer tipos compartidos a un archivo separado (ej: `AllAccessTypes.ts`)
+2. Ambos archivos importan de `AllAccessTypes.ts` (sin ciclo)
+
+#### Error: Domain importing from Data
+
+```
+error domain-isolation: src/features/events/domain/services/EventService.ts →
+    src/features/events/data/repositories/PrismaEventRepository.ts
+```
+
+**Cómo corregir**:
+1. EventService debe depender de `IEventRepository` (interface)
+2. `PrismaEventRepository` se inyecta vía constructor o DI
+
+```typescript
+// ❌ Malo: Domain importa implementación
+import { PrismaEventRepository } from '../../data/repositories/PrismaEventRepository';
+
+export class EventService {
+  private repo = new PrismaEventRepository();
+}
+
+// ✅ Bueno: Domain depende de interface
+import { IEventRepository } from '../interfaces/IEventRepository';
+
+export class EventService {
+  constructor(private repo: IEventRepository) {}
+}
+```
+
+### 📊 Estado Actual
+
+**Estado del proyecto (última validación)**:
+- ✅ **0 violaciones de arquitectura**
+- ✅ **0 dependencias circulares**
+- ✅ **Domain layer completamente aislado**
+- ✅ **Data layer implementa correctamente interfaces de Domain**
+
+### 🔧 Troubleshooting
+
+**"Error: Cannot find module 'dependency-cruiser'"**
+```bash
+npm install
+```
+
+**Gráfico SVG no se genera**
+```bash
+# Instalar Graphviz
+brew install graphviz  # macOS
+sudo apt-get install graphviz  # Linux
+
+# Verificar instalación
+dot -V
+
+# Regenerar gráfico
+npm run validate:deps:graph
+```
+
+**Pre-commit hook no ejecuta**
+```bash
+# Reinstalar hooks
+rm -rf .husky
+npx husky init
+```
+
+### 📚 Referencias
+
+- [Clean Architecture (Uncle Bob)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- [ESLint Plugin Boundaries](https://github.com/javierbrea/eslint-plugin-boundaries)
+- [Dependency Cruiser](https://github.com/sverweij/dependency-cruiser)
+- [Architectural Decision Records](ARCHITECTURE.md#architectural-decision-records-adrs)
+
+---
+
 ## Testing
 
 ### Stack de Testing
