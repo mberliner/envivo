@@ -7,6 +7,43 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Agregado
+
+- **Architecture Validation**: Sistema automático de validación de Clean Architecture en 3 capas
+  - ESLint boundaries para feedback instantáneo en IDE
+  - Pre-commit hook (Husky) que bloquea commits con violaciones
+  - CI validation con Dependency Cruiser (exhaustivo + gráfico de dependencias)
+  - Reglas aplicadas: Domain Isolation, No Circular Dependencies, Dependency Inversion
+  - Documentación completa en ARCHITECTURE_VALIDATION_FLOW.md
+- **AllAccess Scraper Improvements**:
+  - Scraping de páginas de detalle para obtener información completa de eventos
+  - Extracción de datos JSON embebidos en páginas AllAccess
+  - Supresión de warnings de fecha cuando detail scraping está habilitado
+
+### Cambiado
+
+- **CI Pipeline Optimization**: Implementado fail-fast strategy con dependencias lógicas entre jobs
+  - 87% más rápido en fallos comunes (typecheck/lint)
+  - Feedback inmediato en 45s vs 7 min
+  - Ahorro de ~10-13 min de CI por cada fallo temprano
+  - E2E tests solo se ejecutan si todos los checks previos pasan
+  - Eliminada redundancia en `ci-status`: solo depende de leaf jobs (test-e2e cubre dependencias transitivas)
+  - Trade-off: +2 min cuando todos los jobs pasan (aceptable)
+- Ajuste de coverage thresholds a 77% después de formateo con Prettier
+- Refactorización de arquitectura de capas (Domain/Data/UI)
+
+### Arreglado
+
+- Exclusión de archivos de configuración y definiciones de tipos de coverage
+- Múltiples correcciones de CI para E2E tests:
+  - Playwright webServer habilitado en CI
+  - Tests E2E ahora independientes
+  - Longitud correcta de ADMIN_API_KEY
+  - Schema de base de datos E2E creado antes de inicialización
+  - Resueltos fallos de build en entorno CI
+- Corrección de warnings de lint y errores de TypeScript
+- Triggers de CI corregidos
+
 ### Documentación
 
 - Revisión exhaustiva y simplificación de documentación completa
@@ -17,6 +54,12 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Mejoradas cross-references entre documentos
 - Eliminadas referencias a documentos internos (roadmap_imple.md) de docs públicos
 - Reducción total: ~2,300 líneas (-27%)
+
+### Mantenimiento
+
+- Formateo completo de código con Prettier
+- Exclusión de docs/ de format checks
+- Eliminación de docs/examples con errores de sintaxis
 
 ## [0.2.0] - 2025-11-17
 
