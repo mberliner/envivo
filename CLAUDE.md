@@ -13,6 +13,7 @@
 - **[README.md](README.md)** - Quick start, estructura del proyecto, comandos básicos
 - **[CHANGELOG.md](CHANGELOG.md)** - Historia de cambios del proyecto
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Clean Architecture, SOLID, scraping asíncrono, ADRs
+- **[docs/ARCHITECTURE_VALIDATION_FLOW.md](docs/ARCHITECTURE_VALIDATION_FLOW.md)** - Flujo de validación: IDE → Pre-commit → CI
 - **[docs/PRODUCT.md](docs/PRODUCT.md)** - Features del MVP, user stories, roadmap
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Setup, testing, debugging, best practices
 - **[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)** - Git workflow, SSOT registry, code review
@@ -145,7 +146,10 @@ npm run validate:deps:graph
 - ✅ **No Circular Dependencies**: Dependencias circulares están prohibidas
 - ✅ **Dependency Inversion**: Data implementa interfaces de Domain
 
-**Ver [docs/DEVELOPMENT.md#architecture-validation](docs/DEVELOPMENT.md#architecture-validation) para guía completa, interpretación de errores y troubleshooting.**
+**Referencias:**
+
+- **[docs/ARCHITECTURE_VALIDATION_FLOW.md](docs/ARCHITECTURE_VALIDATION_FLOW.md)** - Flujo completo: cuándo se ejecuta cada validación (IDE → Pre-commit → CI)
+- **[docs/DEVELOPMENT.md#architecture-validation](docs/DEVELOPMENT.md#architecture-validation)** - Guía completa, interpretación de errores y troubleshooting
 
 ---
 
