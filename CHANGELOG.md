@@ -15,6 +15,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - CI validation con Dependency Cruiser (exhaustivo + gráfico de dependencias)
   - Reglas aplicadas: Domain Isolation, No Circular Dependencies, Dependency Inversion
   - Documentación completa en ARCHITECTURE_VALIDATION_FLOW.md
+  - Gráfico visual de arquitectura generado automáticamente: `docs/architecture-graph.svg`
 - **AllAccess Scraper Improvements**:
   - Scraping de páginas de detalle para obtener información completa de eventos
   - Extracción de datos JSON embebidos en páginas AllAccess
@@ -29,6 +30,12 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - E2E tests solo se ejecutan si todos los checks previos pasan
   - Eliminada redundancia en `ci-status`: solo depende de leaf jobs (test-e2e cubre dependencias transitivas)
   - Trade-off: +2 min cuando todos los jobs pasan (aceptable)
+- **CodeQL Pipeline Optimization**: Eliminadas ejecuciones duplicadas en PRs
+  - Removido trigger `pull_request` - CodeQL solo corre en push a master + schedule semanal
+  - Agregado `.github/**` a `paths-ignore` - no corre al modificar workflows
+  - Reducción de 40% en runs de CI por PR (de 5 a 3 runs)
+  - Ahorro de 10-15 min por PR
+  - Seguridad mantenida: npm audit + best-practices en PRs, CodeQL en código merged
 - Ajuste de coverage thresholds a 77% después de formateo con Prettier
 - Refactorización de arquitectura de capas (Domain/Data/UI)
 

@@ -8,13 +8,7 @@ on:
       - '**.md'
       - 'LICENSE'
       - 'docs/**'
-  pull_request:
-    branches:
-      - master
-    paths-ignore:
-      - '**.md'
-      - 'LICENSE'
-      - 'docs/**'
+      - '.github/**'
   schedule:
     # Ejecutar análisis semanal los lunes a las 6 AM UTC
     - cron: '0 6 * * 1'

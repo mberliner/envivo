@@ -26,3 +26,7 @@
 
     Generar una app simple para busquedas refinadas y personalizadas
     Una seteo inicial para preferencias y origenes de datos (Musica, libros, deportes)
+
+## Revisar Flujo de Aplicación de Filtros en arquitectura
+
+    Verificar si podemos usar este concepto activmente en scraping
