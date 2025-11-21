@@ -9,6 +9,9 @@
     "start:test": "next start -p 3001",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "lint:arch": "eslint . --ext .ts,.tsx --rule 'boundaries/element-types: error'",
+    "validate:deps": "depcruise src --config .dependency-cruiser.cjs",
+    "validate:deps:graph": "depcruise src --config .dependency-cruiser.cjs --output-type dot | dot -T svg > docs/architecture-graph.svg",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "test": "vitest run",
@@ -30,10 +33,20 @@
     "test:e2e:debug": "playwright test --debug",
     "diagnose:e2e": "node scripts/diagnose-e2e.js",
     "diagnose:e2e:dev": "node scripts/diagnose-e2e.js --mode=dev",
-    "test:diagnostic": "playwright test diagnostic.e2e.ts"
+    "test:diagnostic": "playwright test diagnostic.e2e.ts",
+    "prepare": "husky"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx,mjs,json,md}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@prisma/adapter-libsql": "^6.19.0",
@@ -65,10 +78,15 @@
     "@vitest/coverage-v8": "^2.1.9",
     "@vitest/ui": "2.1.9",
     "cross-env": "^10.1.0",
+    "dependency-cruiser": "^17.3.1",
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-boundaries": "^5.2.0",
+    "eslint-plugin-import": "^2.32.0",
+    "husky": "^9.1.7",
     "jsdom": "^27.1.0",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.6.2",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",

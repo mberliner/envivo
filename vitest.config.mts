@@ -27,6 +27,7 @@ export default defineConfig({
         '**/next.config.*',
         '**/tailwind.config.*',
         '**/postcss.config.*',
+        '**/.dependency-cruiser.*',
         '**/prisma/**',
         '**/scripts/**',
         // Exclusiones adicionales
@@ -42,6 +43,7 @@ export default defineConfig({
         'src/shared/hooks/**',     // Custom hooks (testear con React Testing Library)
         '**/index.ts',             // Archivos barrel/re-export
         '**/*.d.ts',               // Type definitions
+        '**/*Types.ts',            // Type definition files (e.g., AllAccessTypes.ts)
         // Archivos específicos sin tests (TODO: agregar tests)
         '**/GlobalPreferencesRepository.ts',  // TODO: Agregar tests
         '**/TicketmasterWebScraper.ts',       // TODO: Agregar tests

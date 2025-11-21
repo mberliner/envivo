@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { AllAccessMapper } from './AllAccessMapper';
-import type { CrowderCard } from './AllAccessJsonScraper';
+import type { CrowderCard } from './AllAccessTypes';
 
 describe('AllAccessMapper', () => {
   const baseUrl = 'https://www.allaccess.com.ar';

@@ -55,7 +55,48 @@ jobs:
         run: npm run type-check
 
   # ============================================
-  # Job 2: Lint
+  # Job 2: Architecture Validation
+  # ============================================
+  verify-architecture:
+    name: Verify Architecture (Clean Architecture)
+    runs-on: ubuntu-latest
+    needs: typecheck # Run after type-check for fail-fast
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate ESLint boundaries
+        run: npm run lint:arch
+
+      - name: Validate dependency rules
+        run: npm run validate:deps
+
+      - name: Install Graphviz (for dependency graph)
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
+      - name: Generate architecture dependency graph
+        run: npm run validate:deps:graph
+        continue-on-error: true # Don't fail if graph generation has issues
+
+      - name: Upload dependency graph
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: architecture-dependency-graph
+          path: docs/architecture-graph.svg
+          retention-days: 30
+
+  # ============================================
+  # Job 3: Lint
   # ============================================
   lint:
     name: Lint Code
@@ -80,7 +121,7 @@ jobs:
         run: npm run format:check
 
   # ============================================
-  # Job 3: Build
+  # Job 4: Build
   # ============================================
   build:
     name: Build Application
@@ -114,7 +155,7 @@ jobs:
           ADMIN_API_KEY: ci-test-key-with-32-chars-minimum!
 
   # ============================================
-  # Job 4: Unit Tests + Coverage
+  # Job 5: Unit Tests + Coverage
   # ============================================
   test:
     name: Unit Tests (Coverage 80%)
@@ -152,7 +193,7 @@ jobs:
           fail_ci_if_error: false
 
   # ============================================
-  # Job 5: E2E Tests
+  # Job 6: E2E Tests
   # ============================================
   test-e2e:
     name: E2E Tests (Playwright)
@@ -210,7 +251,7 @@ jobs:
           retention-days: 7
 
   # ============================================
-  # Job 6: Security Audit
+  # Job 7: Security Audit
   # ============================================
   security-audit:
     name: Security Audit (npm audit)
@@ -237,7 +278,7 @@ jobs:
         run: npm outdated || true
 
   # ============================================
-  # Job 7: Dependency Check (Supply Chain)
+  # Job 8: Dependency Check (Supply Chain)
   # ============================================
   dependency-check:
     name: Dependency Security Check
@@ -254,7 +295,7 @@ jobs:
           deny-licenses: GPL-3.0, AGPL-3.0
 
   # ============================================
-  # Job 8: Best Practices Check
+  # Job 9: Best Practices Check
   # ============================================
   best-practices:
     name: Security Best Practices
@@ -313,6 +354,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - typecheck
+      - verify-architecture
       - lint
       - build
       - test
@@ -325,6 +367,7 @@ jobs:
       - name: Check all jobs succeeded
         run: |
           if [[ "${{ needs.typecheck.result }}" != "success" ]] || \
+             [[ "${{ needs.verify-architecture.result }}" != "success" ]] || \
              [[ "${{ needs.lint.result }}" != "success" ]] || \
              [[ "${{ needs.build.result }}" != "success" ]] || \
              [[ "${{ needs.test.result }}" != "success" ]] || \

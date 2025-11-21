@@ -12,7 +12,7 @@
  */
 
 import { RawEvent } from '@/features/events/domain/entities/Event';
-import type { CrowderCard } from './AllAccessJsonScraper';
+import type { CrowderCard } from './AllAccessTypes';
 
 /**
  * Mapper para eventos de AllAccess (Crowder platform)
