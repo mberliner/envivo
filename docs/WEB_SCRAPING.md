@@ -800,4 +800,4 @@ console.log('Items found:', $items.length); // Ver cuántos items se encuentran
 
 ---
 
-**Última actualización**: Diciembre 2025
+**Última actualización**: Noviembre 2025

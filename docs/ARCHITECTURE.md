@@ -1097,4 +1097,4 @@ Migrar **solo si se cumplen 3+ de estos criterios**:
 
 ---
 
-**Última actualización**: Diciembre 2025
+**Última actualización**: Noviembre 2025

@@ -550,10 +550,10 @@ npm run db:e2e:studio         # Prisma Studio en BD E2E
 
 | Capa | Cobertura Objetivo | Estado Actual | Prioridad |
 |------|-------------------|---------------|-----------|
-| **Domain** (Business Rules) | >80% | 0% (Fase 2) | 🔴 CRÍTICO |
-| **Data** (Repositories) | >70% | 100% (Fase 1 ✅) | 🟡 IMPORTANTE |
-| **Data** (Scrapers) | >60% | 100% (Fase 1 ✅) | 🟡 IMPORTANTE |
-| **UI** (Componentes) | >60% | 0% (Fase 3+) | 🟢 DESEABLE |
+| **Domain** (Business Rules) | >80% | ✅ 91.89% | 🔴 CRÍTICO |
+| **Data** (Repositories) | >70% | ✅ 93.22% | 🟡 IMPORTANTE |
+| **Data** (Scrapers) | >60% | ✅ 92.66% | 🟡 IMPORTANTE |
+| **UI** (Componentes) | >60% | 0% (pendiente) | 🟢 DESEABLE |
 | **E2E** (Flujos críticos) | 100% happy paths | ✅ Implementado | 🔴 CRÍTICO |
 
 ### Organización de Tests
@@ -940,4 +940,4 @@ Cuando documentes código o features, sigue el principio **"Single Source of Tru
 
 ---
 
-**Última actualización**: Diciembre 2025
+**Última actualización**: Noviembre 2025

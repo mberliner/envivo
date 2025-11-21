@@ -296,13 +296,13 @@ Organizadas por valor entregado a usuarios. Cada fuente de datos es una user sto
 
 **Objetivo**: Los usuarios pueden descubrir eventos musicales de múltiples fuentes y encontrar exactamente lo que buscan.
 
-#### US1.0: Ver Eventos de APIs Argentinas (Fase 1)
+#### US1.0: Ver Eventos de Múltiples Fuentes (Fase 1)
 
 **Como** usuario
-**Quiero** ver eventos de conciertos y festivales de APIs argentinas
-**Para** descubrir shows internacionales y eventos en venues grandes
+**Quiero** ver eventos de conciertos y festivales de múltiples fuentes (APIs y scrapers)
+**Para** descubrir shows internacionales, locales y eventos en venues grandes
 
-**Valor**: Acceso a catálogo internacional de eventos musicales en Argentina
+**Valor**: Acceso a catálogo amplio de eventos musicales en Argentina (ver fuentes en [../README.md](../README.md#fuentes-de-datos-activas))
 
 **Criterios de Aceptación**:
 - [ ] Puedo ver lista de eventos de APIs argentinas en la página principal
@@ -578,4 +578,4 @@ Aplica a todas las historias de usuario del MVP.
 
 ---
 
-**Última actualización**: Diciembre 2025
+**Última actualización**: Noviembre 2025

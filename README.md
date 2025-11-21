@@ -39,9 +39,12 @@ Abrir [http://localhost:3000](http://localhost:3000)
 
 ## 🎯 Fuentes de Datos Activas
 
-- **LivePass** - Café Berlín y otros venues locales (web scraping)
-- **Movistar Arena** - Eventos de Movistar Arena Buenos Aires
-- **Teatro Coliseo** - Teatro, conciertos y festivales en Buenos Aires
+| Fuente             | Tipo        | Descripción                                               |
+| ------------------ | ----------- | --------------------------------------------------------- |
+| **AllAccess**      | API/Scraper | Eventos de ticketeras y venues argentinos (JSON scraping) |
+| **LivePass**       | Web Scraper | Café Berlín y otros venues locales                        |
+| **Movistar Arena** | Web Scraper | Eventos de Movistar Arena Buenos Aires                    |
+| **Teatro Coliseo** | Web Scraper | Teatro, conciertos y festivales en Buenos Aires           |
 
 > **💡 Agregar nuevas fuentes**: Ver [docs/ADDING_SCRAPERS.md](docs/ADDING_SCRAPERS.md)
 
@@ -146,4 +149,4 @@ Ver [docs/PRODUCT.md#roadmap](docs/PRODUCT.md#roadmap-de-implementación) para r
 
 ---
 
-**Última actualización**: Diciembre 2025
+**Última actualización**: Noviembre 2025

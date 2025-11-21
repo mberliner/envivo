@@ -295,4 +295,4 @@ Permite commits incrementales sin romper producción.
 
 ---
 
-**Última actualización**: Diciembre 2025
+**Última actualización**: Noviembre 2025

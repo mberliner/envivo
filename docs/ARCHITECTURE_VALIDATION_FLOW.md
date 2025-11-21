@@ -396,4 +396,4 @@ No es posible hacer bypass. Si falla:
 
 ---
 
-**Última actualización**: Diciembre 2025
+**Última actualización**: Noviembre 2025

@@ -275,4 +275,4 @@ curl -X DELETE http://localhost:3000/api/test/cleanup \
 
 ---
 
-**Última actualización:** Diciembre 2025
+**Última actualización:** Noviembre 2025

@@ -33,7 +33,7 @@
 
 ### Objetivos del MVP
 
-1. Scrapear eventos de APIs (AllAccess, EventBrite Argentina, LivePass) y sitios locales
+1. Scrapear eventos de múltiples fuentes (ver [README.md](README.md#fuentes-de-datos-activas) para lista completa)
 2. Búsqueda y filtrado de eventos musicales
 3. Validación y deduplicación automática
 4. Deploy en Vercel con scraping diario automático
@@ -206,7 +206,7 @@ ADMIN_API_KEY="..."  # 32+ caracteres (generar con: openssl rand -base64 32)
 
 ## Workflows Comunes
 
-> **💡 Estado actual**: Arquitectura completa con **4 fuentes activas**: Ticketmaster API, LivePass (Café Berlín), Movistar Arena y Teatro Coliseo. Sistema de scraping asíncrono, business rules y deduplicación funcionando.
+> **💡 Estado actual**: Arquitectura completa con **4 fuentes activas** (ver [README.md](README.md#fuentes-de-datos-activas)). Sistema de scraping asíncrono, business rules y deduplicación funcionando.
 
 ### Agregar Nueva Fuente de Datos
 
@@ -287,7 +287,7 @@ export default async function Page({ params }: PageProps) {
 
 ---
 
-**Última actualización**: Diciembre 2025
+**Última actualización**: Noviembre 2025
 
 ---
 
