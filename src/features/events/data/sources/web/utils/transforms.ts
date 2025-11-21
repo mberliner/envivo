@@ -877,6 +877,90 @@ export function extractMovistarDescription(rawDescription: string): string {
 }
 
 /**
+ * Parse fechas de Teatro Vorterix
+ *
+ * Soporta formatos:
+ * - "29 de Noviembre" (sin año, se infiere)
+ * - "12 de Diciembre 2025" (con año)
+ * - "21&nbsp;de Noviembre" (con &nbsp;)
+ * - "28 de Noviembre y 5 de Diciembre" (múltiples fechas, toma la primera)
+ *
+ * Para fechas sin año:
+ * - Si el mes ya pasó este año, asume año siguiente
+ * - Si es el mes actual pero el día ya pasó, asume año siguiente
+ * - Caso contrario, asume año actual
+ *
+ * @param dateString - String con la fecha
+ * @returns Date object o undefined si no se puede parsear
+ */
+export function parseTeatroVorterixDate(dateString: string): Date | undefined {
+  if (!dateString || typeof dateString !== 'string') {
+    return undefined;
+  }
+
+  // Normalizar: reemplazar &nbsp; por espacios, lowercase, trim
+  const normalized = dateString.replace(/&nbsp;/g, ' ').toLowerCase().trim();
+
+  // Si hay múltiples fechas separadas por "y", tomar solo la primera
+  // Ejemplo: "28 de Noviembre y 5 de Diciembre" → "28 de Noviembre"
+  const firstDate = normalized.split(/\s+y\s+/)[0];
+
+  // Intentar parsear formato con año: "12 de diciembre 2025"
+  const withYearMatch = firstDate.match(/(\d{1,2})\s+de\s+([a-z]+)(?:\s+de\s+)?(\d{4})/);
+  if (withYearMatch) {
+    const [, dayStr, monthName, yearStr] = withYearMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+    const year = parseInt(yearStr);
+
+    if (month !== undefined && !isNaN(day) && day >= 1 && day <= 31) {
+      const date = new Date(year, month, day);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+  }
+
+  // Intentar parsear formato sin año: "29 de noviembre"
+  const withoutYearMatch = firstDate.match(/(\d{1,2})\s+de\s+([a-z]+)/);
+  if (withoutYearMatch) {
+    const [, dayStr, monthName] = withoutYearMatch;
+    const day = parseInt(dayStr);
+    const month = SPANISH_MONTHS[monthName];
+
+    if (month === undefined || isNaN(day) || day < 1 || day > 31) {
+      return undefined;
+    }
+
+    // Inferir el año: usar año actual, pero si el mes ya pasó, usar año siguiente
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    // Si el mes del evento es anterior al mes actual, probablemente es del año siguiente
+    let year = currentYear;
+    if (month < currentMonth) {
+      year = currentYear + 1;
+    } else if (month === currentMonth && day < now.getDate()) {
+      // Si es el mismo mes pero el día ya pasó, también usar año siguiente
+      year = currentYear + 1;
+    }
+
+    const date = new Date(year, month, day);
+
+    // Validar que la fecha sea válida
+    if (isNaN(date.getTime())) {
+      return undefined;
+    }
+
+    return date;
+  }
+
+  // Fallback: intentar parseSpanishDate (formatos numéricos, ISO, etc.)
+  return parseSpanishDate(dateString);
+}
+
+/**
  * Mapeo de nombres de transformaciones a funciones
  *
  * Usado por GenericWebScraper para aplicar transformaciones por nombre.
@@ -892,6 +976,7 @@ export const TRANSFORM_FUNCTIONS: Record<string, (value: string, baseUrl?: strin
   cleanLivepassTitle: (value: string) => cleanLivepassTitle(value),
   extractLivepassVenue: (value: string) => extractLivepassVenue(value),
   parseTeatroColiseoDate: (value: string) => parseTeatroColiseoDate(value),
+  parseTeatroVorterixDate: (value: string) => parseTeatroVorterixDate(value),
   extractBackgroundImage: (value: string) => extractBackgroundImage(value),
   cleanMovistarDate: (value: string) => cleanMovistarDate(value),
   parseMovistarDate: (value: string) => parseMovistarDate(value),

@@ -39,12 +39,13 @@ Abrir [http://localhost:3000](http://localhost:3000)
 
 ## 🎯 Fuentes de Datos Activas
 
-| Fuente             | Tipo        | Descripción                                               |
-| ------------------ | ----------- | --------------------------------------------------------- |
-| **AllAccess**      | API/Scraper | Eventos de ticketeras y venues argentinos (JSON scraping) |
-| **LivePass**       | Web Scraper | Café Berlín y otros venues locales                        |
-| **Movistar Arena** | Web Scraper | Eventos de Movistar Arena Buenos Aires                    |
-| **Teatro Coliseo** | Web Scraper | Teatro, conciertos y festivales en Buenos Aires           |
+| Fuente              | Tipo        | Descripción                                               |
+| ------------------- | ----------- | --------------------------------------------------------- |
+| **AllAccess**       | API/Scraper | Eventos de ticketeras y venues argentinos (JSON scraping) |
+| **LivePass**        | Web Scraper | Café Berlín y otros venues locales                        |
+| **Movistar Arena**  | Web Scraper | Eventos de Movistar Arena Buenos Aires                    |
+| **Teatro Coliseo**  | Web Scraper | Teatro, conciertos y festivales en Buenos Aires           |
+| **Teatro Vorterix** | Web Scraper | Conciertos en Teatro Vorterix Buenos Aires (Colegiales)   |
 
 > **💡 Agregar nuevas fuentes**: Ver [docs/ADDING_SCRAPERS.md](docs/ADDING_SCRAPERS.md)
 

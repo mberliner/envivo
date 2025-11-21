@@ -72,6 +72,10 @@ export async function POST(req: NextRequest) {
     const allAccessScraper = new AllAccessJsonScraper();
     orchestrator.registerSource(allAccessScraper);
 
+    // Teatro Vorterix
+    const teatroVorterixScraper = await WebScraperFactory.create('teatrovorterix');
+    orchestrator.registerSource(teatroVorterixScraper);
+
     // TODO: Registrar más data sources cuando estén disponibles
     // Ejemplo:
     // const eventbriteSource = new EventBriteArgentinaSource();

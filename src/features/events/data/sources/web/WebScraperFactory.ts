@@ -25,6 +25,10 @@ const SCRAPER_CONFIGS: Record<string, () => Promise<ScraperConfig>> = {
     const { movistarArenaConfig } = await import('@/config/scrapers/movistararena.config');
     return movistarArenaConfig;
   },
+  teatrovorterix: async () => {
+    const { teatroVorterixConfig } = await import('@/config/scrapers/teatrovorterix.config');
+    return teatroVorterixConfig;
+  },
   // Agregar más scrapers aquí:
   // alternativa: async () => {
   //   const { alternativaConfig } = await import('@/config/scrapers/alternativa.config');
