@@ -899,7 +899,10 @@ export function parseTeatroVorterixDate(dateString: string): Date | undefined {
   }
 
   // Normalizar: reemplazar &nbsp; por espacios, lowercase, trim
-  const normalized = dateString.replace(/&nbsp;/g, ' ').toLowerCase().trim();
+  const normalized = dateString
+    .replace(/&nbsp;/g, ' ')
+    .toLowerCase()
+    .trim();
 
   // Si hay múltiples fechas separadas por "y", tomar solo la primera
   // Ejemplo: "28 de Noviembre y 5 de Diciembre" → "28 de Noviembre"
