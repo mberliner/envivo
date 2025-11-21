@@ -18,6 +18,7 @@ import {
   extractMovistarDescription,
   cleanMovistarDate,
   parseMovistarDate,
+  parseTeatroVorterixDate,
   applyTransform,
 } from './transforms';
 
@@ -1032,5 +1033,149 @@ describe('parseMovistarDate', () => {
 
     expect(result1?.getMonth()).toBe(0); // Enero
     expect(result2?.getMonth()).toBe(11); // Diciembre
+  });
+});
+
+describe('parseTeatroVorterixDate', () => {
+  describe('Format without year (inferred)', () => {
+    it('should parse "29 de Noviembre" and infer year', () => {
+      const result = parseTeatroVorterixDate('29 de Noviembre');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(10); // Noviembre = 10 (0-indexed)
+      expect(result?.getDate()).toBe(29);
+      // Year should be current or next year depending on current date
+      const now = new Date();
+      const expectedYear = result!.getFullYear();
+      expect([now.getFullYear(), now.getFullYear() + 1]).toContain(expectedYear);
+    });
+
+    it('should parse "12 de Diciembre" and infer year', () => {
+      const result = parseTeatroVorterixDate('12 de Diciembre');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(11); // Diciembre = 11
+      expect(result?.getDate()).toBe(12);
+    });
+
+    it('should parse "6 de Diciembre" (single digit day)', () => {
+      const result = parseTeatroVorterixDate('6 de Diciembre');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(11);
+      expect(result?.getDate()).toBe(6);
+    });
+  });
+
+  describe('Format with year explicit', () => {
+    it('should parse "12 de Diciembre 2025"', () => {
+      const result = parseTeatroVorterixDate('12 de Diciembre 2025');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getFullYear()).toBe(2025);
+      expect(result?.getMonth()).toBe(11); // Diciembre = 11
+      expect(result?.getDate()).toBe(12);
+    });
+
+    it('should parse "22 de Febrero 2026"', () => {
+      const result = parseTeatroVorterixDate('22 de Febrero 2026');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getFullYear()).toBe(2026);
+      expect(result?.getMonth()).toBe(1); // Febrero = 1
+      expect(result?.getDate()).toBe(22);
+    });
+  });
+
+  describe('Format with &nbsp; entities', () => {
+    it('should parse "21&nbsp;de Noviembre"', () => {
+      const result = parseTeatroVorterixDate('21&nbsp;de Noviembre');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(10); // Noviembre = 10
+      expect(result?.getDate()).toBe(21);
+    });
+
+    it('should parse "5&nbsp;de Diciembre"', () => {
+      const result = parseTeatroVorterixDate('5&nbsp;de Diciembre');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(11); // Diciembre = 11
+      expect(result?.getDate()).toBe(5);
+    });
+
+    it('should parse "20&nbsp;de Diciembre" with year', () => {
+      const result = parseTeatroVorterixDate('20&nbsp;de Diciembre 2025');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getFullYear()).toBe(2025);
+      expect(result?.getMonth()).toBe(11);
+      expect(result?.getDate()).toBe(20);
+    });
+  });
+
+  describe('Multiple dates (takes first)', () => {
+    it('should parse "28 de Noviembre y 5 de Diciembre" and take first date', () => {
+      const result = parseTeatroVorterixDate('28 de Noviembre y 5 de Diciembre');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(10); // Noviembre = 10 (first date)
+      expect(result?.getDate()).toBe(28);
+    });
+
+    it('should parse "12&nbsp;de Febrero y 15&nbsp;de Febrero" and take first', () => {
+      const result = parseTeatroVorterixDate('12&nbsp;de Febrero y 15&nbsp;de Febrero');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(1); // Febrero = 1
+      expect(result?.getDate()).toBe(12); // First date
+    });
+  });
+
+  describe('Edge cases', () => {
+    it('should handle empty string', () => {
+      const result = parseTeatroVorterixDate('');
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle undefined', () => {
+      const result = parseTeatroVorterixDate(undefined as any);
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle invalid date string', () => {
+      const result = parseTeatroVorterixDate('fecha inválida');
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle mixed case', () => {
+      const result = parseTeatroVorterixDate('29 DE NOVIEMBRE');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(10);
+      expect(result?.getDate()).toBe(29);
+    });
+
+    it('should handle extra whitespace', () => {
+      const result = parseTeatroVorterixDate('  29  de  Noviembre  ');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getMonth()).toBe(10);
+      expect(result?.getDate()).toBe(29);
+    });
+  });
+
+  describe('All Spanish months', () => {
+    it('should parse all month names correctly', () => {
+      const months = [
+        { name: 'enero', index: 0 },
+        { name: 'febrero', index: 1 },
+        { name: 'marzo', index: 2 },
+        { name: 'abril', index: 3 },
+        { name: 'mayo', index: 4 },
+        { name: 'junio', index: 5 },
+        { name: 'julio', index: 6 },
+        { name: 'agosto', index: 7 },
+        { name: 'septiembre', index: 8 },
+        { name: 'octubre', index: 9 },
+        { name: 'noviembre', index: 10 },
+        { name: 'diciembre', index: 11 },
+      ];
+
+      months.forEach(({ name, index }) => {
+        const result = parseTeatroVorterixDate(`15 de ${name} 2025`);
+        expect(result).toBeInstanceOf(Date);
+        expect(result?.getMonth()).toBe(index);
+        expect(result?.getDate()).toBe(15);
+      });
+    });
   });
 });
