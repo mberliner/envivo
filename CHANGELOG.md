@@ -27,6 +27,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Feedback inmediato en 45s vs 7 min
   - Ahorro de ~10-13 min de CI por cada fallo temprano
   - E2E tests solo se ejecutan si todos los checks previos pasan
+  - Eliminada redundancia en `ci-status`: solo depende de leaf jobs (test-e2e cubre dependencias transitivas)
   - Trade-off: +2 min cuando todos los jobs pasan (aceptable)
 - Ajuste de coverage thresholds a 77% después de formateo con Prettier
 - Refactorización de arquitectura de capas (Domain/Data/UI)

@@ -355,12 +355,9 @@ jobs:
   ci-status:
     name: CI Status Check
     runs-on: ubuntu-latest
+    # Solo depende de "leaf jobs" - las dependencias transitivas están cubiertas
+    # test-e2e cubre: build → test → [typecheck, lint, verify-architecture]
     needs:
-      - typecheck
-      - verify-architecture
-      - lint
-      - build
-      - test
       - test-e2e
       - security-audit
       - dependency-check
@@ -369,12 +366,7 @@ jobs:
     steps:
       - name: Check all jobs succeeded
         run: |
-          if [[ "${{ needs.typecheck.result }}" != "success" ]] || \
-             [[ "${{ needs.verify-architecture.result }}" != "success" ]] || \
-             [[ "${{ needs.lint.result }}" != "success" ]] || \
-             [[ "${{ needs.build.result }}" != "success" ]] || \
-             [[ "${{ needs.test.result }}" != "success" ]] || \
-             [[ "${{ needs.test-e2e.result }}" != "success" ]] || \
+          if [[ "${{ needs.test-e2e.result }}" != "success" ]] || \
              [[ "${{ needs.security-audit.result }}" != "success" ]] || \
              [[ "${{ needs.dependency-check.result }}" != "success" ]] || \
              [[ "${{ needs.best-practices.result }}" != "success" ]]; then
