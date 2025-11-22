@@ -10,7 +10,7 @@
 
 ## Datos del lugar unificados
 
-    Guardar en repositoria datos actyualizados del lugar y referenciar luego
+    Guardar en repositorio datos actualizados del lugar y referenciar luego, modelo normalizado
 
 ## Config dinamica de sitios a scrapear
 
@@ -30,3 +30,5 @@
 ## Revisar Flujo de Aplicación de Filtros en arquitectura
 
     Verificar si podemos usar este concepto activmente en scraping
+
+## Borrar datos pasados de fecha de forma masiva

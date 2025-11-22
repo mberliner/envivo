@@ -211,7 +211,16 @@ export function toAbsoluteUrl(relativeUrl: string, baseUrl: string): string {
     return relativeUrl;
   }
 
-  // Relativa
+  // Manejar URLs con ../
+  if (relativeUrl.startsWith('../')) {
+    const base = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    // Remover todos los ../ y normalizar
+    const cleanPath = relativeUrl.replace(/^\.\.\//g, '');
+    const path = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+    return `${base}${path}`;
+  }
+
+  // Relativa normal
   const base = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
   const path = relativeUrl.startsWith('/') ? relativeUrl : `/${relativeUrl}`;
 

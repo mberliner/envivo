@@ -45,8 +45,9 @@ export const teatroVorterixConfig: ScraperConfig = {
     // Imagen: <img> con src (no lazy loading, ya tiene el src directo)
     image: '.show-thumb img@src',
 
-    // Link: el href del <a> (relativo: ../event/nombre-evento)
-    link: '@href',
+    // Link: el href del <a> (el itemSelector ya es el <a>, así que extraemos su atributo directamente)
+    // NOTA: Como itemSelector es "a.col-sm-6.col-md-4", $item ya es el <a>, no necesitamos un selector
+    link: 'self@href',
 
     // Campos sin selector (usamos defaultValues)
     venue: undefined,
@@ -109,9 +110,9 @@ export const teatroVorterixConfig: ScraperConfig = {
   },
 
   // Configuración para scraping de página de detalles
-  // OPCIONAL: Habilitar si se necesita información adicional (precio, hora exacta, descripción)
+  // HABILITADO: Necesario para obtener precio, hora exacta y link de compra
   detailPage: {
-    enabled: false, // Deshabilitado por defecto (el listado tiene suficiente info)
+    enabled: true, // Habilitado para extraer datos completos desde JSON-LD
     delayBetweenRequests: 500, // 500ms entre requests de detalles
 
     selectors: {

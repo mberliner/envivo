@@ -169,9 +169,16 @@ export class GenericWebScraper implements IDataSource {
 
       // Extraer valor según el tipo de selector
       if (selector.includes('@')) {
-        // Atributo (ej: ".event-img@src", "a@href")
+        // Atributo (ej: ".event-img@src", "a@href", "self@href")
         const [cssSelector, attrName] = selector.split('@');
-        value = $item.find(cssSelector).attr(attrName);
+
+        if (cssSelector === 'self' || cssSelector === '') {
+          // Atributo del elemento actual (self@href o @href)
+          value = $item.attr(attrName);
+        } else {
+          // Atributo de un elemento hijo (.event-img@src)
+          value = $item.find(cssSelector).attr(attrName);
+        }
       } else {
         // Texto
         value = $item.find(selector).text().trim();
@@ -221,6 +228,7 @@ export class GenericWebScraper implements IDataSource {
           venue: detailData.venue,
           address: detailData.address,
           price: detailData.price,
+          priceMax: detailData.priceMax,
           description: detailData.description
             ? `${(detailData.description as string).substring(0, 50)}...`
             : undefined,
@@ -282,10 +290,100 @@ export class GenericWebScraper implements IDataSource {
         ? toAbsoluteUrl(transformedData.link, this.config.baseUrl)
         : undefined,
       description: transformedData.description,
+      priceMax: transformedData.priceMax,
       ticketUrl: transformedData.link
         ? toAbsoluteUrl(transformedData.link, this.config.baseUrl)
         : undefined,
     };
+  }
+
+  /**
+   * Extrae JSON-LD (schema.org) de una página HTML
+   */
+  private extractJsonLd(html: string): Record<string, unknown> | null {
+    // Buscar script tag con type="application/ld+json"
+    const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/i);
+
+    if (!match || !match[1]) {
+      return null;
+    }
+
+    try {
+      const jsonString = match[1].trim();
+      const data = JSON.parse(jsonString) as Record<string, unknown>;
+
+      // Validar que sea un Event
+      if (data['@type'] !== 'Event') {
+        return null;
+      }
+
+      return data;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.warn(`[${this.name}] Failed to parse JSON-LD: ${errorMessage}`);
+      return null;
+    }
+  }
+
+  /**
+   * Parsea JSON-LD de schema.org Event a formato EventData
+   */
+  private parseJsonLdToEventData(jsonLd: Record<string, unknown>): Record<string, unknown> {
+    const detailData: Record<string, unknown> = {};
+
+    // Extraer fecha/hora
+    if (typeof jsonLd.startDate === 'string') {
+      detailData.date = new Date(jsonLd.startDate);
+    }
+
+    // Extraer precio (mínimo y máximo de offers)
+    if (Array.isArray(jsonLd.offers)) {
+      const offers = jsonLd.offers as Array<{ price?: number }>;
+      const prices = offers
+        .map((offer) => offer.price)
+        .filter((price): price is number => typeof price === 'number');
+
+      if (prices.length > 0) {
+        detailData.price = Math.min(...prices);
+        detailData.priceMax = Math.max(...prices);
+      }
+    }
+
+    // Extraer venue
+    const location = jsonLd.location as
+      | {
+          name?: string;
+          address?: { streetAddress?: string; addressLocality?: string; postalCode?: string };
+        }
+      | undefined;
+
+    if (location?.name) {
+      detailData.venue = location.name;
+    }
+
+    // Extraer dirección
+    if (location?.address) {
+      const addr = location.address;
+      const parts = [addr.streetAddress, addr.addressLocality, addr.postalCode].filter(Boolean);
+      if (parts.length > 0) {
+        detailData.address = parts.join(', ');
+      }
+    }
+
+    // Extraer descripción
+    if (typeof jsonLd.description === 'string') {
+      detailData.description = jsonLd.description;
+    }
+
+    console.log(`[${this.name}]   📊 Extracted from JSON-LD:`, {
+      date: detailData.date instanceof Date ? detailData.date.toISOString() : undefined,
+      price: detailData.price,
+      priceMax: detailData.priceMax,
+      venue: detailData.venue,
+      address: detailData.address,
+    });
+
+    return detailData;
   }
 
   /**
@@ -301,6 +399,15 @@ export class GenericWebScraper implements IDataSource {
     // Fetch HTML de la página de detalles
     const html = await this.fetchWithRetry(url);
     const $ = cheerio.load(html);
+
+    // Intentar extraer JSON-LD primero (más confiable)
+    const jsonLd = this.extractJsonLd(html);
+    if (jsonLd) {
+      console.log(`[${this.name}]   ✅ JSON-LD found, extracting structured data...`);
+      return this.parseJsonLdToEventData(jsonLd);
+    }
+
+    console.log(`[${this.name}]   ⚠️  No JSON-LD found, using CSS selectors...`);
 
     const rawData: Record<string, string> = {};
 

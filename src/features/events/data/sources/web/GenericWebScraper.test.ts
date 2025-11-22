@@ -476,4 +476,123 @@ describe('GenericWebScraper', () => {
       expect(mockGet).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('JSON-LD extraction', () => {
+    const HTML_WITH_JSONLD = `
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org/",
+    "@type": "Event",
+    "name": "Metallica en vivo",
+    "startDate": "2025-03-15T21:00:00Z",
+    "endDate": "2025-03-15T23:00:00Z",
+    "location": {
+      "@type": "Place",
+      "name": "Teatro Vorterix",
+      "address": {
+        "streetAddress": "Av. Federico Lacroze 3455",
+        "addressLocality": "CABA",
+        "postalCode": "1427"
+      }
+    },
+    "offers": [
+      {
+        "@type": "Offer",
+        "price": 35000,
+        "priceCurrency": "ARS"
+      },
+      {
+        "@type": "Offer",
+        "price": 45000,
+        "priceCurrency": "ARS"
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <div class="event-card">
+    <h3 class="event-title">Metallica</h3>
+    <a href="/event/metallica" class="event-link">Ver más</a>
+  </div>
+</body>
+</html>
+`;
+
+    it('should extract and parse JSON-LD from detail page', async () => {
+      const config: ScraperConfig = {
+        ...BASE_CONFIG,
+        selectors: {
+          ...BASE_CONFIG.selectors,
+          link: '.event-link@href',
+        },
+        detailPage: {
+          enabled: true,
+          delayBetweenRequests: 0,
+          selectors: {},
+        },
+      };
+
+      const mockGet = vi
+        .fn()
+        .mockResolvedValueOnce({ data: MOCK_HTML_SINGLE_EVENT })
+        .mockResolvedValueOnce({ data: HTML_WITH_JSONLD });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(config);
+      const events = await scraper.fetch();
+
+      expect(events).toHaveLength(1);
+      expect(events[0].price).toBe(35000);
+      expect(events[0].priceMax).toBe(45000);
+      expect(events[0].venue).toBe('Teatro Vorterix');
+      expect(events[0].address).toBe('Av. Federico Lacroze 3455, CABA, 1427');
+    });
+
+    it('should handle missing JSON-LD gracefully', async () => {
+      const HTML_WITHOUT_JSONLD = `
+<!DOCTYPE html>
+<html>
+<body>
+  <div class="event-card">
+    <h3 class="event-title">Metallica</h3>
+  </div>
+</body>
+</html>
+`;
+
+      const config: ScraperConfig = {
+        ...BASE_CONFIG,
+        selectors: {
+          ...BASE_CONFIG.selectors,
+          link: '.event-link@href',
+        },
+        detailPage: {
+          enabled: true,
+          delayBetweenRequests: 0,
+          selectors: {},
+        },
+      };
+
+      const mockGet = vi
+        .fn()
+        .mockResolvedValueOnce({ data: MOCK_HTML_SINGLE_EVENT })
+        .mockResolvedValueOnce({ data: HTML_WITHOUT_JSONLD });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(config);
+      const events = await scraper.fetch();
+
+      expect(events).toHaveLength(1);
+      // Should still return event even without JSON-LD
+      expect(events[0].title).toBe('Metallica en vivo');
+    });
+  });
 });

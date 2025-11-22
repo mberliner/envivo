@@ -1129,6 +1129,7 @@ describe('parseTeatroVorterixDate', () => {
     });
 
     it('should handle undefined', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = parseTeatroVorterixDate(undefined as any);
       expect(result).toBeUndefined();
     });

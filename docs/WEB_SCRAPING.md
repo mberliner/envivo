@@ -47,16 +47,49 @@ El sistema de web scraping permite extraer eventos de sitios web HTML usando **c
 
 Existen **tres métodos** para ejecutar scraping manualmente en desarrollo o producción.
 
-### Método 1: API Endpoint - External API (curl)
+### Método 1: API Endpoint (curl) - Todas las Fuentes
 
-Ejecuta scraping de **APIs externas** únicamente.
+Ejecuta scraping de **todas las fuentes** o fuentes específicas.
 
 **Endpoint**: `POST /api/admin/scraper/sync`
 
+#### Scraping de Todas las Fuentes
+
 ```bash
 curl -X POST http://localhost:3000/api/admin/scraper/sync \
-  -H "x-api-key: YOUR_ADMIN_API_KEY"
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_ADMIN_API_KEY" \
+  -d '{}'
 ```
+
+#### Scraping Selectivo (Solo Fuentes Específicas)
+
+```bash
+# Solo Teatro Vorterix
+curl -X POST http://localhost:3000/api/admin/scraper/sync \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_ADMIN_API_KEY" \
+  -d '{"sources": ["teatrovorterix"]}'
+
+# Solo AllAccess
+curl -X POST http://localhost:3000/api/admin/scraper/sync \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_ADMIN_API_KEY" \
+  -d '{"sources": ["allaccess"]}'
+
+# Múltiples fuentes
+curl -X POST http://localhost:3000/api/admin/scraper/sync \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_ADMIN_API_KEY" \
+  -d '{"sources": ["teatrovorterix", "allaccess", "movistararena"]}'
+```
+
+**Fuentes disponibles**:
+- `teatrovorterix` - Teatro Vorterix (web scraper con JSON-LD)
+- `allaccess` - AllAccess homepage (JSON scraper)
+- `movistararena` - Movistar Arena (web scraper)
+- `teatrocoliseo` - Teatro Coliseo (web scraper)
+- `livepass` - LivePass/Café Berlín (web scraper)
 
 **Autenticación**: Header `x-api-key` con valor de `ADMIN_API_KEY` del `.env.local`
 
@@ -64,27 +97,29 @@ curl -X POST http://localhost:3000/api/admin/scraper/sync \
 ```json
 {
   "success": true,
+  "requestedSources": ["teatrovorterix"],
   "sources": [
     {
-      "name": "external_api",
+      "name": "teatrovorterix",
       "success": true,
-      "eventsCount": 45,
-      "duration": 2300
+      "eventsCount": 30,
+      "duration": 1773
     }
   ],
-  "totalEvents": 45,
-  "totalProcessed": 42,
-  "totalDuplicates": 3,
+  "totalEvents": 30,
+  "totalProcessed": 30,
+  "totalDuplicates": 0,
   "totalErrors": 0,
-  "duration": 2350,
-  "timestamp": "2025-11-11T16:30:00.000Z"
+  "duration": 5617,
+  "timestamp": "2025-11-21T21:45:01.800Z"
 }
 ```
 
 **Casos de uso**:
 - ✅ Poblar base de datos después de setup inicial
-- ✅ Actualizar eventos de APIs externas manualmente
-- ✅ Testing de integración en CI/CD
+- ✅ Actualizar eventos de fuentes específicas
+- ✅ Re-scrapear un venue sin afectar otros
+- ✅ Testing de scrapers individuales
 - ✅ Cron jobs automáticos (GitHub Actions, Vercel Cron)
 
 ---
@@ -793,10 +828,88 @@ console.log('Items found:', $items.length); // Ver cuántos items se encuentran
 ### Próximos Pasos
 
 1. ✅ Completado: Arquitectura base
-2. 🔄 En progreso: Actualizar selectores de LivePass
-3. ⏳ Pendiente: Integrar en `/api/admin/scraper/sync`
-4. ⏳ Pendiente: Agregar más sitios (Alternativa Teatral, PassLine)
-5. ⏳ Pendiente: Implementar Playwright para sitios JS-heavy
+2. ✅ Completado: Scraping selectivo por fuente
+3. ✅ Completado: JSON-LD extraction para GenericWebScraper
+4. 🔄 En progreso: Actualizar selectores de LivePass
+5. ⏳ Pendiente: Agregar más sitios (Alternativa Teatral, PassLine)
+6. ⏳ Pendiente: Implementar Playwright para sitios JS-heavy
+
+---
+
+## 🗑️ Utilidades de Mantenimiento
+
+### Borrado de Eventos
+
+Scripts para limpiar eventos de fuentes o venues específicos.
+
+#### Por Fuente (Source)
+
+Borra todos los eventos scrapeados desde una fuente específica:
+
+```bash
+# Borrar eventos de Teatro Vorterix
+./scripts/delete-source-events.sh teatrovorterix
+
+# Borrar eventos de AllAccess
+./scripts/delete-source-events.sh allaccess
+
+# Borrar eventos de Movistar Arena
+./scripts/delete-source-events.sh movistararena
+```
+
+**Ubicación**: `scripts/delete-source-events.sh`
+
+**Qué hace**:
+1. Cuenta eventos de la fuente especificada
+2. Muestra ejemplos de eventos que se borrarán
+3. Borra todos los eventos de esa fuente
+
+**⚠️ Advertencia**: El script NO pide confirmación. Los datos se borran inmediatamente.
+
+#### Por Venue
+
+Borra todos los eventos de un venue específico (independiente de la fuente):
+
+```bash
+# Borrar eventos de Teatro Vorterix (venue)
+./scripts/delete-venue-events.sh "Teatro Vorterix"
+
+# Borrar eventos de Movistar Arena (venue)
+./scripts/delete-venue-events.sh "Movistar Arena"
+
+# Borrar eventos de Café Berlín
+./scripts/delete-venue-events.sh "Café Berlín"
+```
+
+**Ubicación**: `scripts/delete-venue-events.sh`
+
+**Qué hace**:
+1. Cuenta eventos del venue especificado
+2. Muestra ejemplos de eventos que se borrarán
+3. Borra todos los eventos de ese venue
+
+**⚠️ Advertencia**: El script NO pide confirmación. Los datos se borran inmediatamente.
+
+**Casos de uso comunes**:
+- 🔄 Re-scrapear un venue desde cero
+- 🧹 Limpiar duplicados antes de re-scraping
+- 🧪 Testing de scrapers (borrar → scrapear → verificar)
+- 🔧 Mantenimiento de BD (remover datos obsoletos)
+
+**Ejemplo de workflow**:
+```bash
+# 1. Borrar eventos viejos de Teatro Vorterix
+./scripts/delete-source-events.sh teatrovorterix
+
+# 2. Re-scrapear Teatro Vorterix
+curl -X POST http://localhost:3000/api/admin/scraper/sync \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{"sources": ["teatrovorterix"]}'
+
+# 3. Verificar cantidad de eventos
+# (usar Prisma Studio o query directo)
+```
 
 ---
 

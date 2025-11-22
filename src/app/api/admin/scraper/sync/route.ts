@@ -43,38 +43,72 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Parsear parámetros opcionales del body (actualmente no se usan)
+    // 2. Parsear parámetros opcionales del body
+    let requestedSources: string[] = [];
     try {
-      await req.json();
-      // En el futuro, se podrían usar parámetros como country y city
+      const body = await req.json();
+      // Aceptar array de fuentes específicas a scrapear
+      // Ej: { "sources": ["teatrovorterix", "allaccess"] }
+      if (body.sources && Array.isArray(body.sources)) {
+        requestedSources = body.sources;
+      }
     } catch {
-      // Body vacío o inválido - usar defaults
+      // Body vacío o inválido - scrapear todas las fuentes
     }
 
     // 3. Configurar orchestrator
     const repository = createEventRepository();
     const orchestrator = new DataSourceOrchestrator(repository);
 
-    // Registrar web scrapers
-    // LivePass (Café Berlín)
-    const livepassScraper = await WebScraperFactory.create('livepass');
-    orchestrator.registerSource(livepassScraper);
+    // Fuentes disponibles
+    const availableSources = [
+      'livepass',
+      'teatrocoliseo',
+      'movistararena',
+      'allaccess',
+      'teatrovorterix',
+    ];
 
-    // Teatro Coliseo
-    const teatroColiseoScraper = await WebScraperFactory.create('teatrocoliseo');
-    orchestrator.registerSource(teatroColiseoScraper);
+    // Si no se especificaron fuentes, usar todas
+    const sourcesToScrape = requestedSources.length > 0 ? requestedSources : availableSources;
 
-    // Movistar Arena
-    const movistarArenaScraper = await WebScraperFactory.create('movistararena');
-    orchestrator.registerSource(movistarArenaScraper);
+    // Registrar solo las fuentes solicitadas
+    for (const sourceName of sourcesToScrape) {
+      switch (sourceName) {
+        case 'livepass':
+          // LivePass (Café Berlín)
+          const livepassScraper = await WebScraperFactory.create('livepass');
+          orchestrator.registerSource(livepassScraper);
+          break;
 
-    // AllAccess (JSON scraper)
-    const allAccessScraper = new AllAccessJsonScraper();
-    orchestrator.registerSource(allAccessScraper);
+        case 'teatrocoliseo':
+          // Teatro Coliseo
+          const teatroColiseoScraper = await WebScraperFactory.create('teatrocoliseo');
+          orchestrator.registerSource(teatroColiseoScraper);
+          break;
 
-    // Teatro Vorterix
-    const teatroVorterixScraper = await WebScraperFactory.create('teatrovorterix');
-    orchestrator.registerSource(teatroVorterixScraper);
+        case 'movistararena':
+          // Movistar Arena
+          const movistarArenaScraper = await WebScraperFactory.create('movistararena');
+          orchestrator.registerSource(movistarArenaScraper);
+          break;
+
+        case 'allaccess':
+          // AllAccess (JSON scraper)
+          const allAccessScraper = new AllAccessJsonScraper();
+          orchestrator.registerSource(allAccessScraper);
+          break;
+
+        case 'teatrovorterix':
+          // Teatro Vorterix
+          const teatroVorterixScraper = await WebScraperFactory.create('teatrovorterix');
+          orchestrator.registerSource(teatroVorterixScraper);
+          break;
+
+        default:
+          console.warn(`[API] Unknown source requested: ${sourceName}`);
+      }
+    }
 
     // TODO: Registrar más data sources cuando estén disponibles
     // Ejemplo:
@@ -88,6 +122,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
+        requestedSources: sourcesToScrape,
         sources: result.sources,
         totalEvents: result.totalEvents,
         totalProcessed: result.totalProcessed,
