@@ -7,6 +7,10 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Seguridad
+
+- Actualización de Next.js a 16.0.7 por razones de seguridad
+
 ### Agregado
 
 - **Architecture Validation**: Sistema automático de validación de Clean Architecture en 3 capas
@@ -20,6 +24,9 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Scraping de páginas de detalle para obtener información completa de eventos
   - Extracción de datos JSON embebidos en páginas AllAccess
   - Supresión de warnings de fecha cuando detail scraping está habilitado
+- **Teatro Vorterix scraper**:
+  - Nuevo scraper para Teatro Vorterix
+  - Corrección de extracción de fechas y datos
 
 ### Cambiado
 
