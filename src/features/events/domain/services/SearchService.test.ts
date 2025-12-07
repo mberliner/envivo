@@ -16,6 +16,7 @@ const mockRepository: IEventRepository = {
   findByFilters: vi.fn(),
   upsertMany: vi.fn(),
   deleteById: vi.fn(),
+  deleteBeforeDate: vi.fn(),
   deleteAll: vi.fn().mockResolvedValue(0),
   count: vi.fn().mockResolvedValue(0),
 };

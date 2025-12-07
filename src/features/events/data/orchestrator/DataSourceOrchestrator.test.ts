@@ -62,9 +62,10 @@ describe('DataSourceOrchestrator', () => {
       findAll: vi.fn(),
       findById: vi.fn(),
       findByFilters: vi.fn().mockResolvedValue([]),
-      upsertMany: vi.fn().mockResolvedValue(0),
+      upsertMany: vi.fn(),
       deleteById: vi.fn(),
-      deleteAll: vi.fn().mockResolvedValue(0),
+      deleteBeforeDate: vi.fn(),
+      deleteAll: vi.fn(),
       count: vi.fn().mockResolvedValue(0),
     };
 
