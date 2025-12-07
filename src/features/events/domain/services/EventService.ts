@@ -228,32 +228,6 @@ export class EventService {
   }
 
   /**
-   * Convierte Event a RawEvent (para guardar en BD)
-   * NOTA: Este método ya no se usa después de arreglar processEvents
-   */
-  private eventToRawEvent(event: Event): RawEvent {
-    return {
-      title: event.title,
-      description: event.description,
-      date: event.date,
-      endDate: event.endDate,
-      venue: event.venueName,
-      city: event.city,
-      country: event.country,
-      category: event.category,
-      genre: event.genre,
-      artists: event.artists,
-      imageUrl: event.imageUrl,
-      ticketUrl: event.ticketUrl,
-      price: event.price,
-      priceMax: event.priceMax,
-      currency: event.currency,
-      source: event.source,
-      externalId: event.externalId,
-    };
-  }
-
-  /**
    * Busca eventos aplicando filtros (pasa directo al repository)
    */
   async findByFilters(filters: EventFilters): Promise<Event[]> {

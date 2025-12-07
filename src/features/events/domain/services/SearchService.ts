@@ -4,7 +4,7 @@
  * Servicio de dominio para búsqueda y filtrado de eventos.
  *
  * Responsabilidades:
- * - Búsqueda por texto (título, descripción, venue, género)
+ * - Búsqueda por texto (título, nombre del venue)
  * - Filtrado por ciudad, categoría, rango de fechas
  * - Combinación de múltiples filtros
  * - Normalización de queries (case-insensitive, sin acentos)

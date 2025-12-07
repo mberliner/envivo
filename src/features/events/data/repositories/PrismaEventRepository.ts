@@ -67,13 +67,23 @@ export class PrismaEventRepository implements IEventRepository {
       }
     }
 
-    // Búsqueda simple en título (case-sensitive en SQLite)
+    // Búsqueda en título y nombre del venue (case-sensitive en SQLite)
     // TODO: Implementar FTS5 para búsqueda case-insensitive en Fase posterior
     if (filters.search) {
-      where.title = {
-        contains: filters.search,
-        // mode: 'insensitive' no soportado en SQLite
-      };
+      where.OR = [
+        {
+          title: {
+            contains: filters.search,
+            // mode: 'insensitive' no soportado en SQLite
+          },
+        },
+        {
+          venueName: {
+            contains: filters.search,
+            // mode: 'insensitive' no soportado en SQLite
+          },
+        },
+      ];
     }
 
     const events = await prisma.event.findMany({

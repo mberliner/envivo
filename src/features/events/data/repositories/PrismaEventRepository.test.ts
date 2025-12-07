@@ -11,6 +11,8 @@ vi.mock('@/shared/infrastructure/database/prisma', () => ({
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      deleteMany: vi.fn(),
+      count: vi.fn(),
     },
   },
 }));
@@ -162,16 +164,25 @@ describe('PrismaEventRepository', () => {
       });
     });
 
-    it('should filter events by search term', async () => {
+    it('should filter events by search term in title or venue name', async () => {
       mockPrismaEvent.findMany.mockResolvedValueOnce([]);
 
       await repository.findByFilters({ search: 'Metallica' });
 
       expect(mockPrismaEvent.findMany).toHaveBeenCalledWith({
         where: {
-          title: {
-            contains: 'Metallica',
-          },
+          OR: [
+            {
+              title: {
+                contains: 'Metallica',
+              },
+            },
+            {
+              venueName: {
+                contains: 'Metallica',
+              },
+            },
+          ],
         },
         orderBy: {
           date: 'asc',
@@ -322,6 +333,118 @@ describe('PrismaEventRepository', () => {
       expect(mockPrismaEvent.delete).toHaveBeenCalledWith({
         where: { id: 'event1' },
       });
+    });
+  });
+
+  describe('deleteAll', () => {
+    it('should delete all events', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockPrismaEvent.deleteMany = vi.fn().mockResolvedValueOnce({ count: 42 } as any);
+
+      const count = await repository.deleteAll();
+
+      expect(mockPrismaEvent.deleteMany).toHaveBeenCalledWith({});
+      expect(count).toBe(42);
+    });
+  });
+
+  describe('deleteBeforeDate', () => {
+    it('should delete events before a given date', async () => {
+      const cutoffDate = new Date('2025-01-01');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockPrismaEvent.deleteMany = vi.fn().mockResolvedValueOnce({ count: 10 } as any);
+
+      const count = await repository.deleteBeforeDate(cutoffDate);
+
+      expect(mockPrismaEvent.deleteMany).toHaveBeenCalledWith({
+        where: {
+          OR: [{ endDate: { lt: cutoffDate } }, { endDate: null, date: { lt: cutoffDate } }],
+        },
+      });
+      expect(count).toBe(10);
+    });
+  });
+
+  describe('count', () => {
+    it('should return total count of events', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockPrismaEvent.count = vi.fn().mockResolvedValueOnce(100 as any);
+
+      const count = await repository.count();
+
+      expect(mockPrismaEvent.count).toHaveBeenCalled();
+      expect(count).toBe(100);
+    });
+  });
+
+  describe('findByFilters - Advanced Filters', () => {
+    const mockEvent = {
+      id: 'event1',
+      title: 'Test Event',
+      date: new Date('2025-12-15'),
+      city: 'Buenos Aires',
+      country: 'Argentina',
+      category: 'Música',
+      currency: 'ARS',
+      source: 'allaccess',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    it('should filter events by country', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockPrismaEvent.findMany = vi.fn().mockResolvedValueOnce([mockEvent] as any);
+
+      const result = await repository.findByFilters({ country: 'Argentina' });
+
+      expect(mockPrismaEvent.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            country: 'Argentina',
+          }),
+        })
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0].country).toBe('Argentina');
+    });
+
+    it('should filter events by category', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockPrismaEvent.findMany = vi.fn().mockResolvedValueOnce([mockEvent] as any);
+
+      const result = await repository.findByFilters({ category: 'Música' });
+
+      expect(mockPrismaEvent.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            category: 'Música',
+          }),
+        })
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0].category).toBe('Música');
+    });
+
+    it('should combine multiple filters including country and category', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockPrismaEvent.findMany = vi.fn().mockResolvedValueOnce([mockEvent] as any);
+
+      const result = await repository.findByFilters({
+        country: 'Argentina',
+        category: 'Música',
+        city: 'Buenos Aires',
+      });
+
+      expect(mockPrismaEvent.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            country: 'Argentina',
+            category: 'Música',
+            city: 'Buenos Aires',
+          }),
+        })
+      );
+      expect(result).toHaveLength(1);
     });
   });
 });
