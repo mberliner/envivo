@@ -337,11 +337,19 @@ export class GenericWebScraper implements IDataSource {
     }
 
     // Extraer precio (mínimo y máximo de offers)
-    if (Array.isArray(jsonLd.offers)) {
-      const offers = jsonLd.offers as Array<{ price?: number }>;
+    // Soporta: array de offers, objeto único, precio como string o número
+    const offersRaw = jsonLd.offers;
+    if (offersRaw) {
+      const offersArray = Array.isArray(offersRaw) ? offersRaw : [offersRaw];
+      const offers = offersArray as Array<{ price?: number | string }>;
       const prices = offers
-        .map((offer) => offer.price)
-        .filter((price): price is number => typeof price === 'number');
+        .map((offer) => {
+          const p = offer.price;
+          if (typeof p === 'number') return p;
+          if (typeof p === 'string') return parseFloat(p);
+          return NaN;
+        })
+        .filter((price): price is number => !isNaN(price));
 
       if (prices.length > 0) {
         detailData.price = Math.min(...prices);

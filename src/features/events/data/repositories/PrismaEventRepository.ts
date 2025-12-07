@@ -140,6 +140,17 @@ export class PrismaEventRepository implements IEventRepository {
 
         if (existingEvent) {
           // Actualizar evento existente
+          // Preservar precio existente si el nuevo es null (evita perder datos por fallas de scraping)
+          if (eventData.price === null && existingEvent.price !== null) {
+            eventData.price = existingEvent.price;
+            console.log(
+              `[PrismaEventRepository] ⚠️  Preserving existing price: ${existingEvent.price}`
+            );
+          }
+          if (eventData.priceMax === null && existingEvent.priceMax !== null) {
+            eventData.priceMax = existingEvent.priceMax;
+          }
+
           await prisma.event.update({
             where: { id: existingEvent.id },
             data: {

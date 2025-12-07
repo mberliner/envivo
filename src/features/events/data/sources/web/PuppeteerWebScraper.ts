@@ -425,9 +425,9 @@ export class PuppeteerWebScraper implements IDataSource {
 
     try {
       // Navegar a la página de detalles
-      // Usar 'load' en lugar de 'networkidle2' para Blazor - más permisivo
+      // Usar 'networkidle2' para esperar que Blazor renderice contenido vía SignalR
       await page.goto(url, {
-        waitUntil: 'load',
+        waitUntil: 'networkidle2',
         timeout: this.config.detailPage.timeout || 30000,
       });
 
