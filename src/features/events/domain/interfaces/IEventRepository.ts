@@ -9,6 +9,7 @@ export interface IEventRepository {
   findByFilters(filters: EventFilters): Promise<Event[]>;
   upsertMany(events: Event[]): Promise<number>;
   deleteById(id: string): Promise<void>;
+  deleteBeforeDate(date: Date): Promise<number>;
   deleteAll(): Promise<number>;
   count(): Promise<number>;
 }

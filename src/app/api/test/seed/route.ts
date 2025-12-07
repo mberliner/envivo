@@ -48,18 +48,24 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const count = body.count || 3;
     const prefix = body.prefix || 'E2E-TEST';
+    const isPast = body.past === true;
 
     // Crear eventos de prueba con prefijo personalizado
     const events = [];
     const timestamp = Date.now();
 
     for (let i = 0; i < count; i++) {
+      // Si isPast=true, fechas en el pasado (-1 día, -2 días...)
+      // Si isPast=false, fechas en el futuro (+1 día, +2 días...)
+      const dayOffset = isPast ? -1 : 1;
+      const date = new Date(Date.now() + (i + 1) * dayOffset * 24 * 60 * 60 * 1000);
+
       const event = await prisma.event.create({
         data: {
           // Identificador único basado en timestamp
           title: `[${prefix}] Evento de Prueba ${timestamp}-${i}`,
           description: `Descripción del evento de prueba ${i}. Este evento fue creado automáticamente por el sistema de testing E2E.`,
-          date: new Date(Date.now() + (i + 1) * 24 * 60 * 60 * 1000), // i+1 días en el futuro
+          date: date,
 
           // Ubicación (sin venue - solo city/country)
           city: 'Buenos Aires',

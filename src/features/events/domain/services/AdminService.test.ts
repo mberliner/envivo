@@ -37,6 +37,7 @@ describe('AdminService', () => {
       findByFilters: vi.fn(),
       upsertMany: vi.fn(),
       deleteById: vi.fn(),
+      deleteBeforeDate: vi.fn(),
       deleteAll: vi.fn(),
       count: vi.fn(),
     };
@@ -155,6 +156,22 @@ describe('AdminService', () => {
         events: 0,
         blacklist: 0,
       });
+    });
+  });
+
+  describe('deletePastEvents', () => {
+    test('should delete events before today', async () => {
+      mockEventRepository.deleteBeforeDate = vi.fn().mockResolvedValue(10);
+
+      const result = await service.deletePastEvents();
+
+      expect(result).toBe(10);
+
+      // Verify called with today at 00:00:00
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      expect(mockEventRepository.deleteBeforeDate).toHaveBeenCalledWith(today);
     });
   });
 });

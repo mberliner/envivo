@@ -142,6 +142,17 @@ Ver [VERCEL_MIGRATION.md](VERCEL_MIGRATION.md) para migración completa (documen
 3. Consultar [PRODUCT.md](docs/PRODUCT.md) - Roadmap y user stories
 4. Escribir tests para nuevas features
 
+## 🧹 Mantenimiento
+
+### Limpieza de Eventos Pasados
+
+Para eliminar eventos anteriores al día actual (limpieza periódica):
+
+```bash
+curl -X POST http://localhost:3000/api/admin/events/cleanup \
+  -H "x-api-key: YOUR_ADMIN_API_KEY"
+```
+
 ## 📊 Estado del Proyecto
 
 **En desarrollo activo** siguiendo estrategia de **Vertical Slices** (features end-to-end).

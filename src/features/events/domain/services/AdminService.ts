@@ -111,4 +111,18 @@ export class AdminService {
       },
     };
   }
+
+  /**
+   * Elimina eventos pasados (anteriores a hoy a las 00:00)
+   * Útil para mantenimiento y limpieza de DB
+   *
+   * @returns Número de eventos eliminados
+   */
+  async deletePastEvents(): Promise<number> {
+    // Definir "pasado" como todo lo anterior al inicio del día actual
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return await this.eventRepository.deleteBeforeDate(today);
+  }
 }

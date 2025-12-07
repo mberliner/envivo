@@ -166,6 +166,26 @@ export class PrismaEventRepository implements IEventRepository {
   }
 
   /**
+   * Elimina todos los eventos cuya fecha de fin (o inicio si no tiene fin)
+   * sea anterior a la fecha dada.
+   * @param date Fecha límite (exclusiva)
+   * @returns Número de eventos eliminados
+   */
+  async deleteBeforeDate(date: Date): Promise<number> {
+    const result = await prisma.event.deleteMany({
+      where: {
+        OR: [
+          // Caso 1: Tiene fecha de fin, usar esa
+          { endDate: { lt: date } },
+          // Caso 2: No tiene fecha de fin, usar fecha de inicio
+          { endDate: null, date: { lt: date } },
+        ],
+      },
+    });
+    return result.count;
+  }
+
+  /**
    * Elimina todos los eventos
    * @returns Número de eventos eliminados
    */

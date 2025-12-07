@@ -58,7 +58,8 @@ interface CleanupResponse {
  */
 export async function seedTestData(
   count = 3,
-  prefix = 'E2E-TEST'
+  prefix = 'E2E-TEST',
+  past = false
 ): Promise<SeedResponse['events']> {
   const BASE_URL = getBaseUrl();
   const ADMIN_API_KEY = getAdminApiKey();
@@ -69,7 +70,7 @@ export async function seedTestData(
       'Content-Type': 'application/json',
       'x-api-key': ADMIN_API_KEY,
     },
-    body: JSON.stringify({ count, prefix }),
+    body: JSON.stringify({ count, prefix, past }),
   });
 
   if (!response.ok) {
@@ -139,14 +140,14 @@ export async function cleanupTestData(prefix = 'E2E-TEST'): Promise<CleanupRespo
  * @param count - Número de eventos a crear (default: 3)
  * @param prefix - Prefijo único para este suite de tests (default: 'E2E-TEST')
  */
-export async function setupTestData(count = 3, prefix = 'E2E-TEST') {
-  console.log(`[TEST FIXTURES] 🔧 Setting up test data (prefix: ${prefix})...`);
+export async function setupTestData(count = 3, prefix = 'E2E-TEST', past = false) {
+  console.log(`[TEST FIXTURES] 🔧 Setting up test data (prefix: ${prefix}, past: ${past})...`);
 
   // Limpiar datos previos (por si quedaron de tests anteriores)
   await cleanupTestData(prefix);
 
   // Crear datos frescos
-  const events = await seedTestData(count, prefix);
+  const events = await seedTestData(count, prefix, past);
 
   console.log('[TEST FIXTURES] ✅ Test data ready');
   return events;

@@ -1,0 +1,430 @@
+
+> envivo@0.1.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v2.1.9 /datum1/Descargas/Claudio/envivo
+      Coverage enabled with v8
+
+ ✓ src/features/events/domain/services/SearchService.test.ts (33 tests) 50ms
+ ✓ src/features/events/domain/services/EventBusinessRules.test.ts (39 tests) 60ms
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Validation > acepta eventos válidos
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from allaccess
+[EventService] ✅ ACCEPTED: "Metallica en Buenos Aires"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Validation > rechaza eventos sin título
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "" from allaccess
+[EventService] ⛔ REJECTED (business rules): "" - Campo requerido faltante: title
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Validation > rechaza eventos con título muy corto
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "AB" from allaccess
+[EventService] ⛔ REJECTED (business rules): "AB" - Título muy corto (mínimo 3 caracteres)
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Validation > rechaza eventos sin ciudad
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from allaccess
+[EventService] ⛔ REJECTED (business rules): "Metallica en Buenos Aires" - Ciudad es requerida
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Validation > rechaza eventos muy en el pasado
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from allaccess
+[EventService] ⛔ REJECTED (business rules): "Metallica en Buenos Aires" - Evento muy en el pasado (30 días atrás)
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Normalization > normaliza ciudad a Title Case
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from allaccess
+[EventService] ✅ ACCEPTED: "Metallica en Buenos Aires"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Normalization > normaliza país a código ISO
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from allaccess
+[EventService] ✅ ACCEPTED: "Metallica en Buenos Aires"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Normalization > normaliza categoría
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from allaccess
+[EventService] ✅ ACCEPTED: "Metallica en Buenos Aires"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Normalization > hace trim de título con espacios
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "  Metallica en Argentina  " from allaccess
+[EventService] ✅ ACCEPTED: "  Metallica en Argentina  "
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Deduplication > detecta duplicados exactos
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from allaccess
+[EventService] 🔁 DUPLICATE: "Metallica en Buenos Aires"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Deduplication > detecta duplicados con títulos similares (fuzzy matching)
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica World Tour 2025" from allaccess
+[EventService] 🔁 DUPLICATE: "Metallica World Tour 2025"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Deduplication > NO detecta duplicados si títulos muy diferentes
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from allaccess
+[EventService] ✅ ACCEPTED: "Metallica en Buenos Aires"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Deduplication > actualiza duplicado si evento entrante tiene más información
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from allaccess
+[EventService] 🔁 DUPLICATE: "Metallica en Buenos Aires"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Deduplication > NO actualiza duplicado si evento entrante proviene de fuente menos confiable
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from scraper_local
+[EventService] 🔁 DUPLICATE: "Metallica en Buenos Aires"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Batch Processing > procesa múltiples eventos en un solo batch
+[EventService] 📥 Processing 3 raw events...
+[EventService] 🔄 Processing: "Evento 1" from allaccess
+[EventService] ✅ ACCEPTED: "Evento 1"
+[EventService] 🔄 Processing: "Evento 2" from allaccess
+[EventService] ✅ ACCEPTED: "Evento 2"
+[EventService] 🔄 Processing: "Evento 3" from allaccess
+[EventService] ✅ ACCEPTED: "Evento 3"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Batch Processing > procesa mix de eventos válidos e inválidos
+[EventService] 📥 Processing 4 raw events...
+[EventService] 🔄 Processing: "Evento Válido 1" from allaccess
+[EventService] ✅ ACCEPTED: "Evento Válido 1"
+[EventService] 🔄 Processing: "" from allaccess
+[EventService] ⛔ REJECTED (business rules): "" - Campo requerido faltante: title
+[EventService] 🔄 Processing: "Evento Válido 2" from allaccess
+[EventService] ✅ ACCEPTED: "Evento Válido 2"
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from allaccess
+[EventService] ⛔ REJECTED (business rules): "Metallica en Buenos Aires" - Ciudad es requerida
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > processEvents - Batch Processing > continúa procesando aunque haya errores
+[EventService] 📥 Processing 3 raw events...
+[EventService] 🔄 Processing: "Evento Válido 1" from allaccess
+[EventService] ✅ ACCEPTED: "Evento Válido 1"
+[EventService] 🔄 Processing: "" from allaccess
+[EventService] ⛔ REJECTED (business rules): "" - Campo requerido faltante: title
+[EventService] 🔄 Processing: "Evento Válido 2" from allaccess
+[EventService] ✅ ACCEPTED: "Evento Válido 2"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > Real-World Scenarios > Scenario: Scraping inicial de AllAccess (sin duplicados)
+[EventService] 📥 Processing 3 raw events...
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from allaccess
+[EventService] ✅ ACCEPTED: "Metallica en Buenos Aires"
+[EventService] 🔄 Processing: "Iron Maiden en Córdoba" from allaccess
+[EventService] ✅ ACCEPTED: "Iron Maiden en Córdoba"
+[EventService] 🔄 Processing: "AC/DC en Rosario" from allaccess
+[EventService] ✅ ACCEPTED: "AC/DC en Rosario"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > Real-World Scenarios > Scenario: Segundo scraping detecta duplicados y actualiza
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica en Buenos Aires" from allaccess
+[EventService] 🔁 DUPLICATE: "Metallica en Buenos Aires"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > Real-World Scenarios > Scenario: Datos mal formateados se normalizan automáticamente
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "  Metallica  " from allaccess
+[EventService] ✅ ACCEPTED: "  Metallica  "
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > Real-World Scenarios > Scenario: Mismo evento en AllAccess y Eventbrite (cross-source deduplication)
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Metallica World Tour 2025" from eventbrite
+[EventService] 🔁 DUPLICATE: "Metallica World Tour 2025"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > Event Conversion - endDate Handling > should handle events with endDate as Date object
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Festival Múltiples Días" from allaccess
+[EventService] ✅ ACCEPTED: "Festival Múltiples Días"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > Event Conversion - endDate Handling > should handle events with endDate as string
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Festival con String EndDate" from allaccess
+[EventService] ✅ ACCEPTED: "Festival con String EndDate"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > Event Conversion - endDate Handling > should handle events without endDate
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Evento de Un Solo Día" from allaccess
+[EventService] ✅ ACCEPTED: "Evento de Un Solo Día"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > Event Conversion - endDate Handling > should convert date as string to Date object
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Evento con Date String" from allaccess
+[EventService] ✅ ACCEPTED: "Evento con Date String"
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > Event Conversion - endDate Handling > should handle processing errors gracefully
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Evento que Causa Error" from allaccess
+[EventService] ❌ ERROR: "Evento que Causa Error" - Business rules validation failed
+
+stdout | src/features/events/domain/services/EventService.test.ts > EventService > Event Conversion - endDate Handling > should log errors when processing fails
+[EventService] 📥 Processing 1 raw events...
+[EventService] 🔄 Processing: "Evento que Genera Error Personalizado" from allaccess
+[EventService] ❌ ERROR: "Evento que Genera Error Personalizado" - Custom validation error
+
+ ✓ src/features/events/domain/services/EventService.test.ts (30 tests) 75ms
+stdout | src/features/events/data/sources/AllAccessJsonScraper.test.ts > AllAccessJsonScraper > fetch > should extract events from bootstrapData
+[allaccess] Widget "Test Events": 2 event cards
+[allaccess] Total cards: 2, unique: 2
+[allaccess] ✅ Extracted 2 events from homepage
+
+stdout | src/features/events/data/sources/AllAccessJsonScraper.test.ts > AllAccessJsonScraper > fetch > should filter out mobile-only widgets to avoid duplicates
+[allaccess] Widget "desktop-widget": 1 event cards
+[allaccess] Skipping mobile-only widget: mobile-widget
+[allaccess] Total cards: 1, unique: 1
+[allaccess] ✅ Extracted 1 events from homepage
+
+stdout | src/features/events/data/sources/AllAccessJsonScraper.test.ts > AllAccessJsonScraper > fetch > should deduplicate events by link
+[allaccess] Widget "widget-1": 1 event cards
+[allaccess] Widget "widget-2": 1 event cards
+[allaccess] Total cards: 2, unique: 1
+[allaccess] ✅ Extracted 1 events from homepage
+
+stdout | src/features/events/data/sources/AllAccessJsonScraper.test.ts > AllAccessJsonScraper > fetch > should skip disabled widgets
+[allaccess] Widget "enabled-widget": 1 event cards
+[allaccess] Total cards: 1, unique: 1
+[allaccess] ✅ Extracted 1 events from homepage
+
+stdout | src/features/events/data/sources/AllAccessJsonScraper.test.ts > AllAccessJsonScraper > fetch > should skip non-Grid widgets
+[allaccess] Widget "grid-widget": 1 event cards
+[allaccess] Total cards: 1, unique: 1
+[allaccess] ✅ Extracted 1 events from homepage
+
+stdout | src/features/events/data/sources/AllAccessJsonScraper.test.ts > AllAccessJsonScraper > fetch > should handle empty bootstrapData gracefully
+[allaccess] ✅ Extracted 0 events from homepage
+
+stdout | src/features/events/data/sources/AllAccessJsonScraper.test.ts > AllAccessJsonScraper > detail scraping > should enrich events with detail page data when enabled
+[allaccess] Widget "test-widget": 1 event cards
+[allaccess] Total cards: 1, unique: 1
+[allaccess] ✅ Extracted 1 events from homepage
+[allaccess] 🔍 Scraping detail pages for 1 events...
+[allaccess]   [1/1] Scraping details: Test Event
+[allaccess] ✅ Detail scraping completed
+
+stdout | src/features/events/data/sources/AllAccessJsonScraper.test.ts > AllAccessJsonScraper > detail scraping > should continue on detail page errors
+[allaccess] Widget "test": 2 event cards
+[allaccess] Total cards: 2, unique: 2
+[allaccess] ✅ Extracted 2 events from homepage
+[allaccess] 🔍 Scraping detail pages for 2 events...
+[allaccess]   [1/2] Scraping details: Event 1
+[allaccess]   [2/2] Scraping details: Event 2
+[allaccess] ✅ Detail scraping completed
+
+stdout | src/features/events/data/sources/AllAccessJsonScraper.test.ts > AllAccessJsonScraper > detail scraping > should not scrape details when disabled
+[allaccess] Widget "test": 1 event cards
+[allaccess] Total cards: 1, unique: 1
+[allaccess] ✅ Extracted 1 events from homepage
+
+ ✓ src/features/events/data/sources/AllAccessJsonScraper.test.ts (14 tests) 52ms
+ ✓ src/features/events/data/orchestrator/DataSourceOrchestrator.test.ts (18 tests) 40ms
+ ✓ src/features/events/data/sources/web/utils/transforms.test.ts (166 tests) 212ms
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Scraping - Single Event > should extract single event correctly
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Scraping - Multiple Events > should extract multiple events correctly
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: Metallica
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: Iron Maiden
+[test-scraper] 🏛️  Building RawEvent: venue="Luna Park" (transformed="Luna Park", default="undefined")
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: AC/DC
+[test-scraper] 🏛️  Building RawEvent: venue="Estadio River" (transformed="Estadio River", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Scraping - Multiple Events > should parse different price formats
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: Metallica
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: Iron Maiden
+[test-scraper] 🏛️  Building RawEvent: venue="Luna Park" (transformed="Luna Park", default="undefined")
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: AC/DC
+[test-scraper] 🏛️  Building RawEvent: venue="Estadio River" (transformed="Estadio River", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Validation > should skip events with missing required fields
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: Evento Sin Fecha
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: Evento Sin Venue
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: undefined
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Validation > should validate title, date, and venue are required
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: Evento Sin Fecha
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: Evento Sin Venue
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: undefined
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Pagination > should scrape multiple pages
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Pagination > should scrape multiple pages
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Pagination > should respect maxPages limit
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Pagination > should respect maxPages limit
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/repositories/PrismaEventRepository.test.ts > PrismaEventRepository > upsertMany > should create new events if they do not exist
+[PrismaEventRepository] 💾 Saving event: "New Event" | event.venueName="Test Venue" | venueName="Test Venue"
+
+stdout | src/features/events/data/repositories/PrismaEventRepository.test.ts > PrismaEventRepository > upsertMany > should update existing events if they exist
+[PrismaEventRepository] 💾 Saving event: "Updated Event" | event.venueName="Test Venue" | venueName="Test Venue"
+
+stdout | src/features/events/data/repositories/PrismaEventRepository.test.ts > PrismaEventRepository > upsertMany > should continue with other events if one fails
+[PrismaEventRepository] 💾 Saving event: "Event 1" | event.venueName="Venue 1" | venueName="Venue 1"
+[PrismaEventRepository] 💾 Saving event: "Event 2" | event.venueName="Venue 2" | venueName="Venue 2"
+
+ ✓ src/features/events/data/repositories/PrismaPreferencesRepository.test.ts (12 tests) 30ms
+ ✓ src/features/events/data/sources/AllAccessMapper.test.ts (13 tests) 38ms
+ ✓ src/features/events/data/repositories/PrismaEventRepository.test.ts (10 tests) 42ms
+ ✓ src/features/events/domain/services/AdminService.test.ts (7 tests) 33ms
+ ✓ src/app/api/events/route.test.ts (21 tests) 169ms
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Pagination > should respect maxPages limit
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Error Handling > should skip failed events when configured
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: Metallica
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: Iron Maiden
+[test-scraper] 🏛️  Building RawEvent: venue="Luna Park" (transformed="Luna Park", default="undefined")
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: AC/DC
+[test-scraper] 🏛️  Building RawEvent: venue="Estadio River" (transformed="Estadio River", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > External ID Generation > should use link as external ID when available
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > External ID Generation > should generate external ID from title+date+venue when no link
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] ⚠️  No link found for event: Metallica en vivo
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Transformations > should apply date transformation
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Transformations > should apply price transformation
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Transformations > should convert relative URLs to absolute
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Selectors > should extract text from CSS selectors
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Selectors > should extract attributes with @ syntax
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > Rate Limiting > should respect rate limit configuration
+[test-scraper] ⚠️  Detail page scraping is DISABLED
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > JSON-LD extraction > should extract and parse JSON-LD from detail page
+[test-scraper] 🔍 Scraping detail page: https://example.com/eventos/metallica-123
+[test-scraper]   ✅ JSON-LD found, extracting structured data...
+[test-scraper]   📊 Extracted from JSON-LD: {
+  date: '2025-03-15T21:00:00.000Z',
+  price: 35000,
+  priceMax: 45000,
+  venue: 'Teatro Vorterix',
+  address: 'Av. Federico Lacroze 3455, CABA, 1427'
+}
+[test-scraper] ✅ Detail data scraped: {
+  date: 2025-03-15T21:00:00.000Z,
+  venue: 'Teatro Vorterix',
+  address: 'Av. Federico Lacroze 3455, CABA, 1427',
+  price: 35000,
+  priceMax: 45000,
+  description: undefined
+}
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > JSON-LD extraction > should extract and parse JSON-LD from detail page
+[test-scraper] 🏛️  Building RawEvent: venue="Teatro Vorterix" (transformed="Teatro Vorterix", default="undefined")
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > JSON-LD extraction > should handle missing JSON-LD gracefully
+[test-scraper] 🔍 Scraping detail page: https://example.com/eventos/metallica-123
+[test-scraper]   ⚠️  No JSON-LD found, using CSS selectors...
+[test-scraper]   Trying 0 selectors...
+[test-scraper] ✅ Detail data scraped: {
+  date: undefined,
+  venue: undefined,
+  address: undefined,
+  price: undefined,
+  priceMax: undefined,
+  description: undefined
+}
+
+stdout | src/features/events/data/sources/web/GenericWebScraper.test.ts > GenericWebScraper > JSON-LD extraction > should handle missing JSON-LD gracefully
+[test-scraper] 🏛️  Building RawEvent: venue="Café Berlín" (transformed="Café Berlín", default="undefined")
+
+ ✓ src/features/events/data/sources/web/GenericWebScraper.test.ts (21 tests) 4362ms
+   ✓ GenericWebScraper > Pagination > should scrape multiple pages 1015ms
+   ✓ GenericWebScraper > Pagination > should respect maxPages limit 2016ms
+   ✓ GenericWebScraper > JSON-LD extraction > should extract and parse JSON-LD from detail page 513ms
+   ✓ GenericWebScraper > JSON-LD extraction > should handle missing JSON-LD gracefully 510ms
+ ✓ src/features/events/data/repositories/PrismaBlacklistRepository.test.ts (10 tests) 33ms
+ ✓ src/features/events/domain/entities/GlobalPreferences.test.ts (4 tests) 16ms
+ ✓ src/shared/utils/sanitize.test.ts (36 tests) 106ms
+ ✓ src/shared/infrastructure/factories/service-factory.test.ts (6 tests) 10ms
+ ✓ src/features/events/domain/entities/Event.test.ts (3 tests) 8ms
+ ✓ src/features/events/ui/components/EventDetail.test.tsx (27 tests) 2674ms
+   ✓ EventDetail > Rendering > should render ticket purchase button 794ms
+
+ Test Files  18 passed (18)
+      Tests  470 passed (470)
+   Start at  21:40:58
+   Duration  8.99s (transform 1.88s, setup 3.49s, collect 4.68s, tests 8.01s, environment 25.66s, prepare 3.97s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |      81 |    82.38 |   88.54 |      81 |                   
+ ...a/orchestrator |    91.3 |    86.66 |     100 |    91.3 |                   
+  ...chestrator.ts |    91.3 |    86.66 |     100 |    91.3 | 164-171           
+ ...a/repositories |   90.34 |    69.84 |   85.71 |   90.34 |                   
+  ...Repository.ts |     100 |      100 |     100 |     100 |                   
+  ...Repository.ts |   87.17 |    57.14 |   66.66 |   87.17 | ...93-195,202-203 
+  ...Repository.ts |    90.9 |    73.07 |     100 |    90.9 | ...69-170,175-176 
+ ...s/data/sources |   92.66 |    83.33 |   93.75 |   92.66 |                   
+  ...sonScraper.ts |   92.89 |    83.78 |      90 |   92.89 | ...77-278,312-313 
+  ...cessMapper.ts |    92.3 |    82.35 |     100 |    92.3 | ...81-186,229-230 
+ ...ta/sources/web |   68.82 |    72.64 |     100 |   68.82 |                   
+  ...WebScraper.ts |   68.82 |    72.64 |     100 |   68.82 | ...58-561,618,622 
+ ...rces/web/types |     100 |      100 |     100 |     100 |                   
+  ScraperConfig.ts |     100 |      100 |     100 |     100 |                   
+ ...rces/web/utils |   63.95 |    91.46 |   71.42 |   63.95 |                   
+  transforms.ts    |   63.95 |    91.46 |   71.42 |   63.95 | ...44-945,965-966 
+ ...omain/entities |     100 |      100 |     100 |     100 |                   
+  ...references.ts |     100 |      100 |     100 |     100 |                   
+ ...omain/services |   91.97 |    84.39 |   96.66 |   91.97 |                   
+  AdminService.ts  |     100 |      100 |     100 |     100 |                   
+  ...inessRules.ts |   96.55 |    85.71 |     100 |   96.55 | 170-175,185-186   
+  EventService.ts  |   80.12 |    70.27 |    87.5 |   80.12 | ...,92-93,232-251 
+  SearchService.ts |     100 |      100 |     100 |     100 |                   
+ ...cture/database |   85.71 |        0 |     100 |   85.71 |                   
+  prisma.ts        |   85.71 |        0 |     100 |   85.71 | 14-15,26          
+ ...ture/factories |     100 |      100 |     100 |     100 |                   
+  ...ce-factory.ts |     100 |      100 |     100 |     100 |                   
+ shared/utils      |     100 |      100 |     100 |     100 |                   
+  sanitize.ts      |     100 |      100 |     100 |     100 |                   
+-------------------|---------|----------|---------|---------|-------------------

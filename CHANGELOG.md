@@ -27,6 +27,9 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Teatro Vorterix scraper**:
   - Nuevo scraper para Teatro Vorterix
   - Corrección de extracción de fechas y datos
+- **API Mantenimiento**:
+  - Endpoint `POST /api/admin/events/cleanup` para eliminar eventos pasados (anteriores al día actual)
+  - Documentación en README.md
 
 ### Cambiado
 
