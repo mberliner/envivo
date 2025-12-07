@@ -361,7 +361,7 @@ describe('GenericWebScraper', () => {
 
       const events = await scraper.fetch();
 
-      expect(events[0].externalId).toBe('/eventos/metallica-123');
+      expect(events[0].externalId).toBe('https://example.com/eventos/metallica-123');
     });
 
     it('should generate external ID from title+date+venue when no link', async () => {

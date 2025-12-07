@@ -537,7 +537,20 @@ export class GenericWebScraper implements IDataSource {
   private generateExternalId(data: Record<string, any>): string {
     // Usar link si existe, sino combinar title + date + venue
     if (data.link) {
-      return data.link;
+      try {
+        // 1. Resolver URL relativa a absoluta para consistencia (ej: /event/x -> https://base.com/event/x)
+        // Esto permite que el mismo evento scrapeado de dos fuentes (una absoluta, otra relativa) genere el mismo ID
+        const absoluteLink = toAbsoluteUrl(data.link, this.config.baseUrl);
+
+        // 2. Intentar parsear URL para remover query params (estabilizar ID)
+        const url = new URL(absoluteLink);
+        // IMPORTANTE: Incluir origin para coincidir con IDs de otros scrapers (ej: AllAccess usa https://...)
+        // Antes devolvíamos solo pathname, lo que causaba mismatch con IDs absolutos.
+        return url.origin + url.pathname + url.hash;
+      } catch {
+        // Si falla, usar link raw pero intentando limpiar query params si es posible
+        return data.link.split('?')[0];
+      }
     }
 
     const parts = [data.title, data.date?.toISOString?.() || data.date, data.venue]

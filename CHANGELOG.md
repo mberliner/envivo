@@ -60,6 +60,10 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Resueltos fallos de build en entorno CI
 - Corrección de warnings de lint y errores de TypeScript
 - Triggers de CI corregidos
+- **Deduplicación de Eventos**:
+  - Solución definitiva a duplicados generados por scraping
+  - Normalización de URLs absolutas en GenericWebScraper
+  - Mejora en lógica de propago de IDs en fuzzy matching
 
 ### Documentación
 

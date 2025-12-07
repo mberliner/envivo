@@ -124,6 +124,9 @@ export class EventService {
 
           // Decidir si actualizar
           if (this.businessRules.shouldUpdate(normalizedEvent, duplicate)) {
+            // IMPORTANT: Propagar el ID del duplicado encontrado para que el repositorio sepa que es un UPDATE
+            normalizedEvent.id = duplicate.id;
+
             eventsToUpsert.push(normalizedEvent);
             result.updated++;
           }

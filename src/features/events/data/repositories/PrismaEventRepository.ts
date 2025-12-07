@@ -95,15 +95,23 @@ export class PrismaEventRepository implements IEventRepository {
 
     for (const event of events) {
       try {
-        // Buscar evento existente por externalId + source
-        const existingEvent = event.externalId
-          ? await prisma.event.findFirst({
-              where: {
-                externalId: event.externalId,
-                // TODO: agregar source cuando tengamos múltiples fuentes
-              },
-            })
-          : null;
+        // 1. Si el evento ya tiene un ID real (no temp-...), usarlo directamenente (viene de fuzzy dedup)
+        let existingEvent = null;
+        if (event.id && !event.id.startsWith('temp-')) {
+          existingEvent = await prisma.event.findUnique({
+            where: { id: event.id },
+          });
+        }
+
+        // 2. Si no se encontró por ID, buscar por externalId + source
+        if (!existingEvent && event.externalId) {
+          existingEvent = await prisma.event.findFirst({
+            where: {
+              externalId: event.externalId,
+              // TODO: agregar source cuando tengamos múltiples fuentes
+            },
+          });
+        }
 
         const venueName = event.venueName || null;
         console.log(
