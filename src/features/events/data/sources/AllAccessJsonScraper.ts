@@ -202,10 +202,18 @@ export class AllAccessJsonScraper implements IDataSource {
       }
 
       // Extraer precio (mínimo y máximo)
-      if (jsonLd.offers && Array.isArray(jsonLd.offers)) {
-        const prices = jsonLd.offers
-          .map((offer) => offer.price)
-          .filter((price): price is number => typeof price === 'number');
+      // Soporta: array de offers, objeto único, precio como string o número
+      const offersRaw = jsonLd.offers;
+      if (offersRaw) {
+        const offersArray = Array.isArray(offersRaw) ? offersRaw : [offersRaw];
+        const prices = offersArray
+          .map((offer) => {
+            const p = offer.price;
+            if (typeof p === 'number') return p;
+            if (typeof p === 'string') return parseFloat(p);
+            return NaN;
+          })
+          .filter((price): price is number => !isNaN(price));
 
         if (prices.length > 0) {
           detailData.price = Math.min(...prices);
