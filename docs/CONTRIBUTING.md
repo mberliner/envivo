@@ -53,7 +53,6 @@ La documentación de EnVivo sigue el principio **"Single Source of Truth"** para
 | **Debugging Guide** | `DEVELOPMENT.md` | - |
 | **Performance Tips** | `DEVELOPMENT.md` | - |
 | **Code Examples** | Inline en documentación | `ARCHITECTURE.md`, `SECURITY.md`, `WEB_SCRAPING.md` |
-| **Implementation Tracking** | `roadmap_imple.md` | NO REFERENCIAR EN DOCS |
 
 ### Cómo Actualizar Documentación
 

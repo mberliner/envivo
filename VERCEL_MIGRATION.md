@@ -920,9 +920,9 @@ turso db show envivo-restore --url
 
 ## Próximos Pasos Después de Deploy
 
-### Completar Fase 6 del Roadmap
+### Completar Fase 8 del Roadmap (Producción)
 
-Según `roadmap_imple.md`, faltan:
+Según PRODUCT.md, pendientes para producción:
 
 1. **GitHub Action para scraping automático** (Fase 6, componente 3)
    - Crear `.github/workflows/scrape.yml`

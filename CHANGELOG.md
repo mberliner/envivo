@@ -7,9 +7,13 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+_Sin cambios pendientes._
+
+## [0.3.0] - 2025-12-08
+
 ### Seguridad
 
-- Actualización de Next.js a 16.0.7 por razones de seguridad
+- Actualización de Next.js a 15.1.3 por razones de seguridad
 
 ### Agregado
 
