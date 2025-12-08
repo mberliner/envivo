@@ -18,7 +18,6 @@
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Setup, testing, debugging, best practices
 - **[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)** - Git workflow, SSOT registry, code review
 - **[docs/SECURITY.md](docs/SECURITY.md)** - Security best practices, attack vectors
-- **[docs/examples/](docs/examples/)** - Código de referencia listo para copiar
 
 > **🚧 Deploy a Producción**: Ver [VERCEL_MIGRATION.md](VERCEL_MIGRATION.md) para guía completa de migración a Vercel + Turso. **Documento temporal** - eliminar después de completar implementación.
 
@@ -121,35 +120,16 @@ import { env } from '@/shared/infrastructure/config/env';
 
 ## Architecture Validation
 
-🏗️ **Validación Automática de Clean Architecture** implementada en 3 capas:
+🏗️ **Validación Automática de Clean Architecture** en 3 capas: IDE → Pre-commit → CI
 
-1. **IDE Feedback (ESLint Boundaries)**: Errores instantáneos al violar reglas de arquitectura
-2. **Pre-commit Hook (Husky)**: Bloquea commits con violaciones
-3. **CI Validation (Dependency Cruiser)**: Validación exhaustiva + gráfico de dependencias
-
-**Comandos de validación:**
+**Comandos rápidos:**
 
 ```bash
-# Validar arquitectura (ESLint boundaries)
-npm run lint:arch
-
-# Validar dependencias (más exhaustivo)
-npm run validate:deps
-
-# Generar gráfico de arquitectura (requiere Graphviz)
-npm run validate:deps:graph
+npm run lint:arch      # Validar arquitectura
+npm run validate:deps  # Validar dependencias
 ```
 
-**Reglas aplicadas automáticamente:**
-
-- ✅ **Domain Isolation**: Domain NO puede importar de Data ni UI
-- ✅ **No Circular Dependencies**: Dependencias circulares están prohibidas
-- ✅ **Dependency Inversion**: Data implementa interfaces de Domain
-
-**Referencias:**
-
-- **[docs/ARCHITECTURE_VALIDATION_FLOW.md](docs/ARCHITECTURE_VALIDATION_FLOW.md)** - Flujo completo: cuándo se ejecuta cada validación (IDE → Pre-commit → CI)
-- **[docs/DEVELOPMENT.md#architecture-validation](docs/DEVELOPMENT.md#architecture-validation)** - Guía completa, interpretación de errores y troubleshooting
+**Ver [docs/ARCHITECTURE_VALIDATION_FLOW.md](docs/ARCHITECTURE_VALIDATION_FLOW.md) para flujo completo y troubleshooting.**
 
 ---
 
@@ -171,7 +151,7 @@ npm run validate:deps:graph
 - Rate limiting en endpoints públicos
 - Headers de seguridad (CSP, HSTS, X-Frame-Options)
 
-**Ver [docs/SECURITY.md](docs/SECURITY.md) para guía completa y [docs/examples/security-example.ts](docs/examples/security-example.ts) para implementación.**
+**Ver [docs/SECURITY.md](docs/SECURITY.md) para guía completa.**
 
 ---
 
@@ -185,7 +165,7 @@ npm run validate:deps:graph
 
 ## Variables de Entorno
 
-**Ver [docs/DEVELOPMENT.md#variables-de-entorno](docs/DEVELOPMENT.md#setup-de-variables-de-entorno) para setup completo, validación Zod y lista completa de variables.**
+**Ver [docs/DEVELOPMENT.md#setup-de-variables-de-entorno](docs/DEVELOPMENT.md#setup-de-variables-de-entorno) para setup completo, validación Zod y lista completa de variables.**
 
 **Mínimas requeridas** (`.env.local`):
 
@@ -217,7 +197,7 @@ ADMIN_API_KEY="..."  # 32+ caracteres (generar con: openssl rand -base64 32)
 5. Agregar API key en `.env.local` (opcional)
 6. Escribir tests
 
-**Ver [docs/examples/scraper-example.ts](docs/examples/scraper-example.ts) para implementación completa.**
+**Ver [docs/ADDING_SCRAPERS.md](docs/ADDING_SCRAPERS.md) para guía completa de implementación.**
 
 ### Agregar Regla de Negocio
 
@@ -226,7 +206,7 @@ ADMIN_API_KEY="..."  # 32+ caracteres (generar con: openssl rand -base64 32)
 3. Llamar en método `isAcceptable()`
 4. Escribir test
 
-**Ver [docs/examples/business-rules-example.ts](docs/examples/business-rules-example.ts) para ejemplos.**
+**Ver [docs/ARCHITECTURE.md#business-rules](docs/ARCHITECTURE.md#business-rules) para ejemplos.**
 
 ---
 
@@ -239,7 +219,7 @@ R: SIEMPRE segregada (ISP). Ver [docs/ARCHITECTURE.md#interfaces-y-extensibilida
 R: En `EventBusinessRules` (capa Domain), NO en scrapers.
 
 **P: ¿Cómo manejo errores de scrapers?**
-R: `DataSourceOrchestrator` usa `Promise.allSettled()` para que un fallo no detenga los demás. Ver [docs/examples/error-handling-example.ts](docs/examples/error-handling-example.ts).
+R: `DataSourceOrchestrator` usa `Promise.allSettled()` para que un fallo no detenga los demás. Ver [docs/ARCHITECTURE.md#scraping-asíncrono](docs/ARCHITECTURE.md#scraping-asíncrono).
 
 **P: ¿Puedo usar SQL raw con Prisma?**
 R: Solo con `$queryRaw` y parámetros (NUNCA interpolación). Preferir query builder.

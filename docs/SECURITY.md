@@ -200,12 +200,12 @@ module.exports = {
 
 ## 4. Implementation Examples
 
-Ver `docs/examples/security-example.ts` para código completo de:
-- Validación de inputs con Zod
-- Sanitización de HTML con DOMPurify
-- Rate limiting con LRU cache y Upstash Redis
-- Middleware de autenticación
-- Logging seguro con Pino
+Los ejemplos de implementación están inline en la sección anterior (Defense in Depth Strategy).
+
+**Archivos de referencia en el código**:
+- Validación de inputs: `src/shared/infrastructure/config/env.ts`
+- Rate limiting: Ver sección Capa 4 arriba
+- Logging seguro: `src/shared/infrastructure/logging/logger.ts`
 
 ---
 
@@ -298,7 +298,6 @@ ALLACCESS_API_KEY=abc123 // Solo en servidor
 
 ### Internal Documentation
 - [Architecture](ARCHITECTURE.md) - Arquitectura de seguridad
-- [Examples](examples/security-example.ts) - Código de implementación
 - [Contributing](CONTRIBUTING.md) - Code review de seguridad
 
 ### External Resources

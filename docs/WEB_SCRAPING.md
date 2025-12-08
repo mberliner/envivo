@@ -259,7 +259,7 @@ Los filtros se configuran mediante **Global Preferences** (ver [ARCHITECTURE.md]
 
 Para scraping automático diario en producción, usar:
 
-- **GitHub Actions** con cron jobs (ver `docs/examples/cicd-example.yml`)
+- **GitHub Actions** con cron jobs (ver ejemplo abajo)
 - **Vercel Cron** (requiere plan Pro)
 
 Ejemplo GitHub Actions:

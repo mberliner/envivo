@@ -52,7 +52,7 @@ La documentación de EnVivo sigue el principio **"Single Source of Truth"** para
 | **Database Setup (Prisma)** | `DEVELOPMENT.md` | `ARCHITECTURE.md` (schema design) |
 | **Debugging Guide** | `DEVELOPMENT.md` | - |
 | **Performance Tips** | `DEVELOPMENT.md` | - |
-| **Code Examples** | `docs/examples/` | `CLAUDE.md` (references) |
+| **Code Examples** | Inline en documentación | `ARCHITECTURE.md`, `SECURITY.md`, `WEB_SCRAPING.md` |
 | **Implementation Tracking** | `roadmap_imple.md` | NO REFERENCIAR EN DOCS |
 
 ### Cómo Actualizar Documentación
@@ -137,71 +137,25 @@ Usamos un **enfoque híbrido** que combina trunk-based development para cambios 
 
 ### ⛔ REGLA CRÍTICA: TESTS FALLANDO = INADMISIBLE
 
-**TODOS los tests DEBEN pasar antes de hacer commit.**
+**TODOS los tests DEBEN pasar antes de hacer commit** (0 errores TypeScript, 100% tests passing, 0 lint warnings).
 
+**Antes de CADA Commit:**
 ```bash
-# Estado REQUERIDO para commit
-✅ TypeScript: 0 errors
-✅ Tests: X/X passing (100%)
-✅ Lint: 0 warnings
+npm run type-check  # TypeScript
+npm test            # Tests unitarios
+npm run lint        # ESLint
+npm run test:e2e    # Solo si tocaste UI
 ```
 
-**❌ NUNCA commitear con:**
-- Tests fallando (aunque sea 1)
-- Errores de TypeScript
-- Tests comentados o skipeados (`test.skip`, `it.skip`)
-- Tests con `.only` (que ignoran otros tests)
-
-**Si un test falla:**
-1. ARREGLÁ el código hasta que pase
-2. Si es un test viejo que ya no aplica, ELIMINALO (no lo skipees)
-3. Si necesitás commitear urgente, ARREGLÁ el test primero
-
-**No hay excepciones a esta regla.**
-
-### Antes de CADA Commit
-
-```bash
-# 1. Type check (OBLIGATORIO)
-npm run type-check
-# Resultado esperado: 0 errors
-
-# 2. Tests unitarios (OBLIGATORIO)
-npm test
-# Resultado esperado: X/X passing (100%)
-
-# 3. Lint (OBLIGATORIO)
-npm run lint
-# Resultado esperado: 0 warnings
-
-# 4. Tests E2E (si tocaste UI)
-npm run test:e2e
-```
-
-**Si ANY de estos comandos falla, NO commitear.**
-
-### Cobertura Mínima
-
-| Capa | Coverage Requerido | Estado Actual |
-|------|--------------------|--------------|
-| Domain (business rules) | >80% | ✅ 83.3% |
-| Data (repositories) | >70% | ✅ 100% (activos) |
-| Data (scrapers) | >60% | ✅ 100% |
-| UI (componentes) | >60% | ⏸️ Pendiente |
-
-**Comando**: `npm run test:coverage`
+**Ver [DEVELOPMENT.md#testing](DEVELOPMENT.md#testing) para:**
+- Stack de testing completo
+- Comandos disponibles
+- Objetivos de cobertura por capa
+- Patrones y organización de tests
 
 ### Git Hooks (Automático)
 
-El proyecto puede configurar git hooks para prevenir commits con tests fallando:
-
-```bash
-# .git/hooks/pre-commit (opcional, recomendado)
-#!/bin/bash
-npm run type-check && npm test
-```
-
-Si el hook falla, el commit se bloquea automáticamente.
+El pre-commit hook ejecuta automáticamente validaciones. Si falla, el commit se bloquea.
 
 ---
 

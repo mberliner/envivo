@@ -317,24 +317,9 @@ EnVivo implementa **validación automatizada de Clean Architecture** en 3 capas 
 
 ### 📐 Reglas de Clean Architecture
 
-El proyecto sigue **Clean Architecture de 3 capas**:
+El proyecto sigue **Clean Architecture de 3 capas** (UI → Domain → Data).
 
-```
-┌─────────────────────────────────┐
-│      UI LAYER (App Router)      │  ← Depende de Domain
-│   Server/Client Components      │
-└───────────────┬─────────────────┘
-                ↓
-┌───────────────▼─────────────────┐
-│   DOMAIN LAYER (Business Logic) │  ← NO depende de nadie
-│   Entities, Services, Rules     │     (capa pura)
-└───────────────┬─────────────────┘
-                ↑
-┌───────────────┴─────────────────┐
-│      DATA LAYER (I/O)           │  ← Implementa interfaces
-│   Repositories, Sources, DB     │     de Domain
-└─────────────────────────────────┘
-```
+**Ver [ARCHITECTURE.md#clean-architecture](ARCHITECTURE.md#clean-architecture) para diagrama completo y explicación detallada.**
 
 **Reglas validadas automáticamente:**
 
@@ -664,8 +649,6 @@ src/
 | **Components** | PascalCase | `EventCard`, `SearchBar` |
 | **Hooks** | Prefijo `use` | `useEvents`, `useSearch` |
 
-**Ver [../CLAUDE.md#naming-conventions](../CLAUDE.md#naming-conventions) para convenciones completas.**
-
 ---
 
 ## Setup de Variables de Entorno
@@ -738,8 +721,6 @@ export const env = envSchema.parse(process.env);
 - ✅ Usar `NEXT_PUBLIC_*` SOLO para variables que DEBEN ser públicas
 - ❌ NUNCA commitear `.env.local` a Git
 - ❌ NUNCA usar `NEXT_PUBLIC_*` para secretos o API keys
-
-**Ver [docs/examples/env-example.ts](examples/env-example.ts) para lista completa de variables.**
 
 ---
 
@@ -925,7 +906,10 @@ npm run build
 
 ### Ejemplos de Código
 
-- **[examples/](examples/)** - Ejemplos de implementación (scrapers, business rules, testing, security)
+Los ejemplos de implementación están inline en la documentación:
+- **Scrapers**: Ver [WEB_SCRAPING.md](WEB_SCRAPING.md) y [ADDING_SCRAPERS.md](ADDING_SCRAPERS.md)
+- **Business Rules**: Ver [ARCHITECTURE.md#business-rules](ARCHITECTURE.md#business-rules)
+- **Security**: Ver [SECURITY.md](SECURITY.md#defense-in-depth-strategy)
 
 ---
 

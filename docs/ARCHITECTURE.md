@@ -100,7 +100,7 @@ const result = await orchestrator.fetchAll({
 console.log(result.successful, result.failed, result.totalEvents);
 ```
 
-**Ver código completo**: `docs/examples/scraper-example.ts`
+**Ver implementación completa**: `src/features/events/data/orchestrator/DataSourceOrchestrator.ts`
 
 ---
 
@@ -353,7 +353,7 @@ isDuplicate(incoming: Event, existing: Event): boolean {
 }
 ```
 
-**Ver código completo**: `docs/examples/business-rules-example.ts`
+**Ver implementación completa**: `src/features/events/domain/services/EventBusinessRules.ts`
 
 ---
 
