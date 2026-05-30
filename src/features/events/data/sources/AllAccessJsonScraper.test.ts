@@ -336,6 +336,44 @@ describe('AllAccessJsonScraper', () => {
       await expect(scraper.fetch()).rejects.toThrow('Failed to parse bootstrapData JSON');
     });
 
+    it('should not truncate JSON on ");" inside string values', async () => {
+      // Regresión: el sitio real embebe CSS como "url(...png);\n background: ..."
+      // dentro de strings del JSON. El extractor previo (regex non-greedy hasta
+      // el primer ");") cortaba el JSON en ese punto y fallaba con
+      // "Unterminated string in JSON".
+      const mockHtml = `
+        <script>
+          App.bootstrapData({
+            "model": {
+              "data": {
+                "widgetComponents": [
+                  {
+                    "id": "w1",
+                    "widgetType": "Grid",
+                    "state": {
+                      "enabled": true,
+                      "config": { "style": "background: url(https://cdn.x/img.png);\\n  repeat: no-repeat;" },
+                      "cards": [
+                        { "title": "Evento Real", "link": "/event/real-event" }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          });
+          App.start();
+        </script>
+      `;
+
+      mockGet.mockResolvedValue({ data: mockHtml });
+
+      const events = await scraper.fetch();
+
+      expect(events).toHaveLength(1);
+      expect(events[0].title).toBe('Evento Real');
+    });
+
     it('should handle HTTP errors', async () => {
       mockGet.mockRejectedValue(new Error('Network error'));
 

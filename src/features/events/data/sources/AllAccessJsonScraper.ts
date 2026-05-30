@@ -112,24 +112,80 @@ export class AllAccessJsonScraper implements IDataSource {
    * Extrae el JSON de App.bootstrapData() del HTML
    */
   private extractBootstrapData(html: string): CrowderBootstrapData {
-    // Buscar patrón: App.bootstrapData({...});
-    // Usar [\s\S] en lugar de . con flag /s para compatibilidad con ES2017
-    const match = html.match(/App\.bootstrapData\(([\s\S]*?)\);(?:\s*App\.start\(\))?/);
+    const marker = 'App.bootstrapData(';
+    const markerIdx = html.indexOf(marker);
 
-    if (!match || !match[1]) {
+    if (markerIdx === -1) {
       throw new Error('Could not find App.bootstrapData() in HTML');
     }
 
-    try {
-      // Parsear JSON (el contenido entre paréntesis)
-      const jsonString = match[1].trim();
-      const data = JSON.parse(jsonString) as CrowderBootstrapData;
+    // Localizar el inicio del objeto JSON (primer '{' luego del marcador)
+    const objStart = html.indexOf('{', markerIdx + marker.length);
 
-      return data;
+    if (objStart === -1) {
+      throw new Error('Could not find App.bootstrapData() in HTML');
+    }
+
+    // Extraer el objeto por balanceo de llaves respetando strings.
+    // El regex non-greedy previo cortaba en el primer ");" del HTML, que
+    // aparece dentro de strings del JSON (ej. CSS "url(...png);"), truncando
+    // el JSON y produciendo "Unterminated string in JSON".
+    const jsonString = this.extractBalancedObject(html, objStart);
+
+    if (jsonString === null) {
+      throw new Error('Failed to parse bootstrapData JSON: unbalanced braces');
+    }
+
+    try {
+      return JSON.parse(jsonString) as CrowderBootstrapData;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(`Failed to parse bootstrapData JSON: ${errorMessage}`);
     }
+  }
+
+  /**
+   * Extrae un objeto JSON balanceado desde la posición de su '{' inicial.
+   *
+   * Cuenta llaves respetando strings (con sus escapes) para no cortar en
+   * llaves o paréntesis que aparezcan dentro de valores string.
+   *
+   * @param text - HTML completo
+   * @param start - índice del '{' de apertura del objeto
+   * @returns el substring del objeto JSON, o null si las llaves no balancean
+   */
+  private extractBalancedObject(text: string, start: number): string | null {
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+
+    for (let i = start; i < text.length; i++) {
+      const char = text[i];
+
+      if (inString) {
+        if (escaped) {
+          escaped = false;
+        } else if (char === '\\') {
+          escaped = true;
+        } else if (char === '"') {
+          inString = false;
+        }
+        continue;
+      }
+
+      if (char === '"') {
+        inString = true;
+      } else if (char === '{') {
+        depth++;
+      } else if (char === '}') {
+        depth--;
+        if (depth === 0) {
+          return text.slice(start, i + 1);
+        }
+      }
+    }
+
+    return null;
   }
 
   /**
