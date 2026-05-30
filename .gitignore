@@ -54,3 +54,7 @@ yarn-error.log*
 next-env.d.ts
 .claude/settings.local.json
 test_error.log
+.claude/skills/
+.claude/rules/
+.claude/commands/
+.claude/agents/
