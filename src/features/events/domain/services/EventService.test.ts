@@ -572,9 +572,15 @@ describe('EventService', () => {
     });
 
     test('should convert date as string to Date object', async () => {
+      // Fecha futura dinámica como string: el propósito del test es verificar la
+      // conversión string→Date, no debe romperse al avanzar el tiempo real.
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 30);
+      const futureDateString = futureDate.toISOString().slice(0, 10); // YYYY-MM-DD
+
       const rawEvent = createRawEvent({
         title: 'Evento con Date String',
-        date: '2025-12-20' as unknown as Date,
+        date: futureDateString as unknown as Date,
       });
 
       const result = await service.processEvents([rawEvent]);
