@@ -917,8 +917,10 @@ export function parseTeatroVorterixDate(dateString: string): Date | undefined {
   // Ejemplo: "28 de Noviembre y 5 de Diciembre" → "28 de Noviembre"
   const firstDate = normalized.split(/\s+y\s+/)[0];
 
-  // Intentar parsear formato con año: "12 de diciembre 2025"
-  const withYearMatch = firstDate.match(/(\d{1,2})\s+de\s+([a-z]+)(?:\s+de\s+)?(\d{4})/);
+  // Intentar parsear formato con año: "12 de diciembre 2025" o "12 de diciembre de 2025"
+  // El "de" antes del año es opcional, pero el separador de espacio antes del año
+  // siempre existe (de lo contrario el año explícito se ignoraba y se infería mal).
+  const withYearMatch = firstDate.match(/(\d{1,2})\s+de\s+([a-z]+)(?:\s+de)?\s+(\d{4})/);
   if (withYearMatch) {
     const [, dayStr, monthName, yearStr] = withYearMatch;
     const day = parseInt(dayStr);
