@@ -12,7 +12,7 @@
 import * as cheerio from 'cheerio';
 import type { AnyNode } from 'domhandler';
 import pLimit from 'p-limit';
-import type { Browser } from 'puppeteer';
+import type { Browser, Page } from 'puppeteer';
 import { IDataSource } from '@/features/events/domain/interfaces/IDataSource';
 import { RawEvent } from '@/features/events/domain/entities/Event';
 import { ScraperConfig, DEFAULT_SCRAPER_CONFIG } from './types/ScraperConfig';
@@ -418,19 +418,89 @@ export class PuppeteerWebScraper implements IDataSource {
       return {};
     }
 
-    const { selectors, transforms, defaultValues } = this.config.detailPage;
+    const navTimeout = this.config.detailPage.timeout || 30000;
+    const maxRenderRetries = this.config.detailPage.maxRenderRetries ?? 0;
 
     // Crear nueva página
     const page = await browser.newPage();
 
     try {
-      // Navegar a la página de detalles
-      // Usar 'networkidle2' para esperar que Blazor renderice contenido vía SignalR
-      await page.goto(url, {
-        waitUntil: 'networkidle2',
-        timeout: this.config.detailPage.timeout || 30000,
-      });
+      let lastData: Record<string, unknown> = {};
 
+      // Bucle de reintentos: sitios Blazor Server entregan el contenido por WebSocket
+      // de forma intermitente. Si la zona crítica (ej: tarjeta de precio) no renderiza,
+      // recargamos en vez de quedarnos con datos incompletos.
+      for (let attempt = 0; attempt <= maxRenderRetries; attempt++) {
+        // Navegar (primer intento) o recargar (reintentos)
+        // Usar 'networkidle2' para esperar que Blazor renderice contenido vía SignalR
+        // Navegar/extraer dentro de try: Blazor puede desconectar el frame durante el
+        // render (navegación SignalR → "detached Frame"). En ese caso tratamos el intento
+        // como fallido y reintentamos en vez de abortar todo el scrape del detalle.
+        let data: Record<string, unknown>;
+        let criticalRendered: boolean;
+        try {
+          if (attempt === 0) {
+            await page.goto(url, { waitUntil: 'networkidle2', timeout: navTimeout });
+          } else {
+            console.warn(
+              `[${this.name}]   🔄 Reintento ${attempt}/${maxRenderRetries}: recargando (render incompleto)...`
+            );
+            await page.reload({ waitUntil: 'networkidle2', timeout: navTimeout });
+          }
+
+          ({ data, criticalRendered } = await this.renderAndExtractDetail(page));
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.warn(`[${this.name}]   ⚠️  Intento ${attempt} falló: ${errorMessage}`);
+          continue;
+        }
+        lastData = data;
+
+        const hasPrice = typeof data.price === 'number';
+
+        // Éxito: ya tenemos precio
+        if (hasPrice) {
+          return data;
+        }
+
+        // La zona de compra renderizó pero sin precio → sin precio publicado
+        // (agotado / próximamente / venta externa). No tiene sentido reintentar.
+        if (criticalRendered) {
+          console.log(
+            `[${this.name}]   ℹ️  Sin precio publicado (zona de compra renderizó sin precio)`
+          );
+          return data;
+        }
+
+        // Render incompleto y aún quedan reintentos → el bucle recargará
+      }
+
+      console.warn(
+        `[${this.name}]   ❌ Precio no obtenido tras ${maxRenderRetries + 1} intento(s) (render incompleto)`
+      );
+      return lastData;
+    } finally {
+      // Siempre cerrar la página
+      await page.close();
+    }
+  }
+
+  /**
+   * Espera el render de Blazor en la página de detalle y extrae los campos configurados.
+   *
+   * @returns data extraída y `criticalRendered`: si la zona crítica (criticalSelector)
+   *          apareció con contenido. Se usa para decidir si reintentar.
+   */
+  private async renderAndExtractDetail(
+    page: Page
+  ): Promise<{ data: Record<string, unknown>; criticalRendered: boolean }> {
+    if (!this.config.detailPage) {
+      return { data: {}, criticalRendered: false };
+    }
+
+    const { selectors, transforms, defaultValues } = this.config.detailPage;
+
+    {
       // CRÍTICO para Blazor: Delay fijo para que Blazor Server inicialice SignalR/WebSocket
       const blazorInitDelay = 5000; // 5 segundos para inicialización de Blazor
       console.log(`[${this.name}]   Waiting ${blazorInitDelay}ms for Blazor initialization...`);
@@ -472,6 +542,31 @@ export class PuppeteerWebScraper implements IDataSource {
         );
         await new Promise((resolve) => setTimeout(resolve, additionalWaitTime));
         console.log(`[${this.name}]   ✅ Additional wait completed`);
+      }
+
+      // Esperar a que la "zona crítica" (ej: tarjeta de precio) aparezca CON contenido.
+      // En Blazor Server el título puede renderizar antes que el precio; sin esto leeríamos
+      // el DOM demasiado pronto. `criticalRendered` distingue "render incompleto" de
+      // "sin precio publicado" para el bucle de reintentos en scrapeDetailPage().
+      let criticalRendered = true;
+      const criticalSelector = this.config.detailPage.criticalSelector;
+      if (criticalSelector) {
+        const criticalTimeout = this.config.detailPage.waitForTimeout || 30000;
+        console.log(`[${this.name}]   Waiting for critical zone: ${criticalSelector}`);
+        try {
+          await page.waitForFunction(
+            (sel: string) => {
+              const el = document.querySelector(sel);
+              return !!el && (el.textContent || '').trim().length > 0;
+            },
+            { timeout: criticalTimeout, polling: 500 },
+            criticalSelector
+          );
+          console.log(`[${this.name}]   ✅ Critical zone rendered: ${criticalSelector}`);
+        } catch {
+          criticalRendered = false;
+          console.warn(`[${this.name}]   ⚠️  Critical zone never rendered: ${criticalSelector}`);
+        }
       }
 
       // Obtener HTML renderizado
@@ -604,10 +699,7 @@ export class PuppeteerWebScraper implements IDataSource {
         });
       }
 
-      return transformedData;
-    } finally {
-      // Siempre cerrar la página
-      await page.close();
+      return { data: transformedData, criticalRendered };
     }
   }
 

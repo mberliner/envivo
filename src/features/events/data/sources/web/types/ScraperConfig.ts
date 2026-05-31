@@ -128,6 +128,23 @@ export interface DetailPageConfig {
    * Default: 0 (sin espera adicional)
    */
   additionalWaitTime?: number;
+  /**
+   * Selector CSS de la "zona crítica" cuyo render confirma que el contenido dinámico
+   * (ej: tarjeta de precio/compra) terminó de cargar.
+   *
+   * Se espera a que aparezca CON contenido antes de extraer, y permite distinguir:
+   * - render incompleto (la zona nunca apareció) → se reintenta recargando
+   * - sin precio publicado (la zona apareció pero sin precio) → NO se reintenta
+   *
+   * Pensado para Blazor Server, donde el contenido llega por WebSocket de forma intermitente.
+   */
+  criticalSelector?: string;
+  /**
+   * Cantidad de recargas adicionales si la zona crítica NO renderizó.
+   * Solo aplica cuando criticalSelector está configurado.
+   * Default: 0 (sin reintentos)
+   */
+  maxRenderRetries?: number;
 }
 
 /**

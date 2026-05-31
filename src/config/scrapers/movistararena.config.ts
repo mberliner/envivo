@@ -118,6 +118,13 @@ export const movistarArenaConfig: ScraperConfig = {
     waitForTimeout: 30000, // 30 segundos máximo
     additionalWaitTime: 3000, // CRÍTICO: Blazor tarda 3s más en renderizar descripción después de título
 
+    // Zona crítica: la tarjeta de compra/precio. En Blazor Server el título puede
+    // renderizar antes que el precio, por eso esperamos explícitamente esta zona.
+    // Si NO renderiza → render incompleto (se reintenta). Si renderiza sin "$" →
+    // sin precio publicado (agotado/próximamente), no se reintenta.
+    criticalSelector: 'aside .card',
+    maxRenderRetries: 2, // Recargar hasta 2 veces si la tarjeta de compra no renderizó
+
     selectors: {
       // Título completo del evento
       title: '.evento-titulo',
