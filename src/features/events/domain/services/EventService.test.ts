@@ -138,7 +138,7 @@ describe('EventService', () => {
     });
 
     test('rechaza eventos con título muy corto', async () => {
-      const rawEvents = [createRawEvent({ title: 'AB' })];
+      const rawEvents = [createRawEvent({ title: 'A' })];
 
       const result = await service.processEvents(rawEvents);
 

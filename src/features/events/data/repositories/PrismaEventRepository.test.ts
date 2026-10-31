@@ -164,30 +164,47 @@ describe('PrismaEventRepository', () => {
       });
     });
 
-    it('should filter events by search term in title or venue name', async () => {
-      mockPrismaEvent.findMany.mockResolvedValueOnce([]);
+    it('should filter events by search term in title or venue name (case and accent insensitive)', async () => {
+      mockPrismaEvent.findMany.mockResolvedValueOnce([
+        {
+          id: 'event1',
+          title: 'Sofía Viola en Vivo',
+          venueName: 'Café Berlín',
+          date: new Date('2025-12-01'),
+          city: 'Buenos Aires',
+          country: 'AR',
+          category: 'Concierto',
+          currency: 'ARS',
+          source: 'livepass',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: 'event2',
+          title: 'Metallica Live',
+          venueName: 'Estadio River Plate',
+          date: new Date('2025-12-02'),
+          city: 'Buenos Aires',
+          country: 'AR',
+          category: 'Concierto',
+          currency: 'ARS',
+          source: 'allaccess',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ] as any[]);
 
-      await repository.findByFilters({ search: 'Metallica' });
+      const result = await repository.findByFilters({ search: 'sofia' });
 
       expect(mockPrismaEvent.findMany).toHaveBeenCalledWith({
-        where: {
-          OR: [
-            {
-              title: {
-                contains: 'Metallica',
-              },
-            },
-            {
-              venueName: {
-                contains: 'Metallica',
-              },
-            },
-          ],
-        },
+        where: {},
         orderBy: {
           date: 'asc',
         },
       });
+      expect(result).toHaveLength(1);
+      expect(result[0].title).toBe('Sofía Viola en Vivo');
     });
   });
 

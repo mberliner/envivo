@@ -8,7 +8,7 @@
     "requiredLocation": true
   },
   "contentRules": {
-    "minTitleLength": 3,
+    "minTitleLength": 2,
     "requiredFields": ["title", "date"]
   },
   "duplicateRules": {

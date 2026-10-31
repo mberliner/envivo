@@ -73,8 +73,14 @@ describe('EventBusinessRules', () => {
       expect(result.reason).toContain('Campo requerido faltante: title');
     });
 
+    test('acepta evento con título de 2 caracteres (ej: U2)', async () => {
+      const event = createValidEvent({ title: 'U2' });
+      const result = await rules.isAcceptable(event);
+      expect(result.valid).toBe(true);
+    });
+
     test('rechaza evento con título muy corto', async () => {
-      const event = createValidEvent({ title: 'AB' }); // Mínimo 3 caracteres
+      const event = createValidEvent({ title: 'A' }); // Mínimo 2 caracteres
       const result = await rules.isAcceptable(event);
       expect(result.valid).toBe(false);
       expect(result.reason).toContain('Título muy corto');

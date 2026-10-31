@@ -32,7 +32,7 @@ export interface BusinessRulesConfig {
     requiredLocation: boolean; // Si city/country son obligatorios
   };
   contentRules: {
-    minTitleLength: number; // Ej: 3
+    minTitleLength: number; // Ej: 2
     requiredFields: string[]; // Ej: ["title", "date", "venue"]
   };
   duplicateRules: {
@@ -55,7 +55,7 @@ export const DEFAULT_BUSINESS_RULES: BusinessRulesConfig = {
     requiredLocation: true, // Ciudad y país son obligatorios
   },
   contentRules: {
-    minTitleLength: 3,
+    minTitleLength: 2,
     requiredFields: ['title', 'date'], // Mínimos requeridos
   },
   duplicateRules: {

@@ -67,25 +67,6 @@ export class PrismaEventRepository implements IEventRepository {
       }
     }
 
-    // Búsqueda en título y nombre del venue (case-sensitive en SQLite)
-    // TODO: Implementar FTS5 para búsqueda case-insensitive en Fase posterior
-    if (filters.search) {
-      where.OR = [
-        {
-          title: {
-            contains: filters.search,
-            // mode: 'insensitive' no soportado en SQLite
-          },
-        },
-        {
-          venueName: {
-            contains: filters.search,
-            // mode: 'insensitive' no soportado en SQLite
-          },
-        },
-      ];
-    }
-
     const events = await prisma.event.findMany({
       where,
       orderBy: {
@@ -93,7 +74,33 @@ export class PrismaEventRepository implements IEventRepository {
       },
     });
 
-    return events.map(this.toDomainEvent);
+    const domainEvents = events.map(this.toDomainEvent);
+
+    // Búsqueda en título y nombre del venue (case-insensitive y sin acentos en memoria,
+    // ya que SQLite LIKE no soporta normalización de acentos ni case-insensitivity Unicode)
+    if (filters.search) {
+      const normalizedSearch = this.normalizeForSearch(filters.search);
+      return domainEvents.filter((event) => {
+        const titleMatch = this.normalizeForSearch(event.title).includes(normalizedSearch);
+        const venueMatch = event.venueName
+          ? this.normalizeForSearch(event.venueName).includes(normalizedSearch)
+          : false;
+        return titleMatch || venueMatch;
+      });
+    }
+
+    return domainEvents;
+  }
+
+  /**
+   * Normaliza un texto para búsqueda (minúsculas y sin acentos/diacríticos)
+   */
+  private normalizeForSearch(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 
   /**
