@@ -594,5 +594,105 @@ describe('GenericWebScraper', () => {
       // Should still return event even without JSON-LD
       expect(events[0].title).toBe('Metallica en vivo');
     });
+
+    it('should extract lowPrice and highPrice from AggregateOffer in JSON-LD', async () => {
+      const HTML_AGGREGATE_OFFER = `
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": "Sofía Viola en Café Berlín",
+    "startDate": "2026-11-20T23:00-03:00",
+    "offers": {
+      "@type": "AggregateOffer",
+      "lowPrice": "28000.0",
+      "highPrice": "35000.0",
+      "priceCurrency": "ARS"
+    }
+  }
+  </script>
+</head>
+<body></body>
+</html>
+`;
+
+      const config: ScraperConfig = {
+        ...BASE_CONFIG,
+        selectors: {
+          ...BASE_CONFIG.selectors,
+          link: '.event-link@href',
+        },
+        detailPage: {
+          enabled: true,
+          delayBetweenRequests: 0,
+          selectors: {},
+        },
+      };
+
+      const mockGet = vi
+        .fn()
+        .mockResolvedValueOnce({ data: MOCK_HTML_SINGLE_EVENT })
+        .mockResolvedValueOnce({ data: HTML_AGGREGATE_OFFER });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(config);
+      const events = await scraper.fetch();
+
+      expect(events).toHaveLength(1);
+      expect(events[0].price).toBe(28000);
+      expect(events[0].priceMax).toBe(35000);
+    });
+
+    it('should fallback to CSS selector or description when JSON-LD has no price', async () => {
+      const HTML_FALLBACK_DESC = `
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": "Sofía Viola en Café Berlín",
+    "startDate": "2026-11-20T23:00-03:00",
+    "description": "ENTRADAPRECIOPlanta Baja$25.000*Palcos$25.000*"
+  }
+  </script>
+</head>
+<body></body>
+</html>
+`;
+
+      const config: ScraperConfig = {
+        ...BASE_CONFIG,
+        selectors: {
+          ...BASE_CONFIG.selectors,
+          link: '.event-link@href',
+        },
+        detailPage: {
+          enabled: true,
+          delayBetweenRequests: 0,
+          selectors: {},
+        },
+      };
+
+      const mockGet = vi
+        .fn()
+        .mockResolvedValueOnce({ data: MOCK_HTML_SINGLE_EVENT })
+        .mockResolvedValueOnce({ data: HTML_FALLBACK_DESC });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (mockedAxios.create as any).mockReturnValue({ get: mockGet });
+
+      const scraper = new GenericWebScraper(config);
+      const events = await scraper.fetch();
+
+      expect(events).toHaveLength(1);
+      expect(events[0].price).toBe(25000);
+    });
   });
 });

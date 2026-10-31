@@ -12,7 +12,12 @@ import pRetry from 'p-retry';
 import { IDataSource } from '@/features/events/domain/interfaces/IDataSource';
 import { RawEvent } from '@/features/events/domain/entities/Event';
 import { ScraperConfig, DEFAULT_SCRAPER_CONFIG } from './types/ScraperConfig';
-import { applyTransform, cleanWhitespace, toAbsoluteUrl } from './utils/transforms';
+import {
+  applyTransform,
+  cleanWhitespace,
+  extractMovistarPrice,
+  toAbsoluteUrl,
+} from './utils/transforms';
 
 /**
  * Options para fetch (override de parámetros del config)
@@ -337,19 +342,31 @@ export class GenericWebScraper implements IDataSource {
     }
 
     // Extraer precio (mínimo y máximo de offers)
-    // Soporta: array de offers, objeto único, precio como string o número
+    // Soporta: array de offers, objeto único, Offer (price) y AggregateOffer (lowPrice / highPrice)
     const offersRaw = jsonLd.offers;
     if (offersRaw) {
       const offersArray = Array.isArray(offersRaw) ? offersRaw : [offersRaw];
-      const offers = offersArray as Array<{ price?: number | string }>;
-      const prices = offers
-        .map((offer) => {
-          const p = offer.price;
-          if (typeof p === 'number') return p;
-          if (typeof p === 'string') return parseFloat(p);
-          return NaN;
-        })
-        .filter((price): price is number => !isNaN(price));
+      const offers = offersArray as Array<{
+        price?: number | string;
+        lowPrice?: number | string;
+        highPrice?: number | string;
+      }>;
+      const prices: number[] = [];
+
+      offers.forEach((offer) => {
+        const candidates = [offer.price, offer.lowPrice, offer.highPrice];
+        candidates.forEach((candidate) => {
+          const parsed =
+            typeof candidate === 'number'
+              ? candidate
+              : typeof candidate === 'string'
+                ? parseFloat(candidate)
+                : NaN;
+          if (!isNaN(parsed) && parsed > 0) {
+            prices.push(parsed);
+          }
+        });
+      });
 
       if (prices.length > 0) {
         detailData.price = Math.min(...prices);
@@ -408,11 +425,42 @@ export class GenericWebScraper implements IDataSource {
     const html = await this.fetchWithRetry(url);
     const $ = cheerio.load(html);
 
-    // Intentar extraer JSON-LD primero (más confiable)
+    // Nivel 1: Intentar extraer JSON-LD primero (más confiable)
     const jsonLd = this.extractJsonLd(html);
     if (jsonLd) {
       console.log(`[${this.name}]   ✅ JSON-LD found, extracting structured data...`);
-      return this.parseJsonLdToEventData(jsonLd);
+      const jsonLdData = this.parseJsonLdToEventData(jsonLd);
+
+      // Nivel 2 de fallback: si falta el precio en JSON-LD, intentar selector CSS de detailPage
+      if (jsonLdData.price === undefined && selectors.price) {
+        const priceSelector = selectors.price;
+        let rawPrice: string | undefined;
+        if (priceSelector.includes('@')) {
+          const [cssSel, attrName] = priceSelector.split('@');
+          rawPrice = $(cssSel).attr(attrName);
+        } else {
+          rawPrice = $(priceSelector).text().trim();
+        }
+        if (rawPrice) {
+          const transformName = transforms?.price || 'extractPrice';
+          const parsedPrice = applyTransform(transformName, rawPrice, this.config.baseUrl);
+          if (typeof parsedPrice === 'number' && !isNaN(parsedPrice) && parsedPrice > 0) {
+            jsonLdData.price = parsedPrice;
+            console.log(`[${this.name}]   🔄 Fallback price from CSS selector: ${parsedPrice}`);
+          }
+        }
+      }
+
+      // Nivel 3 de fallback: si aún falta el precio, buscar en el texto de la descripción
+      if (jsonLdData.price === undefined && typeof jsonLdData.description === 'string') {
+        const descPrice = extractMovistarPrice(jsonLdData.description);
+        if (descPrice !== undefined && descPrice > 0) {
+          jsonLdData.price = descPrice;
+          console.log(`[${this.name}]   🔄 Fallback price from description: ${descPrice}`);
+        }
+      }
+
+      return jsonLdData;
     }
 
     console.log(`[${this.name}]   ⚠️  No JSON-LD found, using CSS selectors...`);
@@ -533,6 +581,15 @@ export class GenericWebScraper implements IDataSource {
           }
         }
       });
+    }
+
+    // Fallback: si no se obtuvo precio por selector directo, buscar en el texto de la descripción
+    if (transformedData.price === undefined && typeof transformedData.description === 'string') {
+      const descPrice = extractMovistarPrice(transformedData.description);
+      if (descPrice !== undefined && descPrice > 0) {
+        transformedData.price = descPrice;
+        console.log(`[${this.name}]   🔄 Fallback price from description: ${descPrice}`);
+      }
     }
 
     return transformedData;

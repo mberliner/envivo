@@ -37,15 +37,14 @@ export const movistarArenaConfig: ScraperConfig = {
   },
 
   selectors: {
-    // Título: <h5>BILLY IDOL</h5>
-    title: 'h5',
+    // Título: <h3>EL PLAN DE LA MARIPOSA</h3>
+    title: 'h3',
 
-    // Fecha: <span>15 noviembre 2025</span> o <span>20 noviembre 2025 y 2 fechas más</span>
-    date: '.descripcion span',
+    // Fecha: <span class="fecha">15 noviembre 2025</span> o <span class="fecha">20 noviembre 2025 y 2 fechas más</span>
+    date: '.descripcion span.fecha',
 
-    // Imagen: background-image en el atributo style de .box-img
-    // Necesita transform extractBackgroundImage
-    image: '.box-img@style',
+    // Imagen: <img src="..."> dentro de .box-img
+    image: '.box-img img@src',
 
     // Link: href del primer <a> dentro de .box-img o .acciones
     // Usamos .box-img a porque aparece primero
@@ -56,7 +55,7 @@ export const movistarArenaConfig: ScraperConfig = {
     city: undefined,
     country: undefined,
     address: undefined,
-    price: undefined,
+    price: '.descripcion span.precio-desde',
     category: undefined,
     description: undefined,
   },
@@ -74,14 +73,17 @@ export const movistarArenaConfig: ScraperConfig = {
     // Parsear fecha: "15 noviembre 2025" o "20 noviembre 2025 y 2 fechas más"
     date: 'parseMovistarDate',
 
-    // Extraer URL de background-image: url('...')
-    image: 'extractBackgroundImage',
+    // Convertir URL de imagen a absoluta
+    image: 'toAbsoluteUrl',
 
     // Convertir URLs relativas a absolutas
     link: 'toAbsoluteUrl',
 
     // Limpiar título (normalizar espacios)
     title: 'cleanWhitespace',
+
+    // Precio base desde el listado ("Desde $75.000" → 75000)
+    price: 'extractMovistarPrice',
   },
 
   rateLimit: {
@@ -114,7 +116,7 @@ export const movistarArenaConfig: ScraperConfig = {
     delayBetweenRequests: 3000, // 3 segundos entre requests (evitar throttling de Blazor Server)
 
     // CRÍTICO: Esperar a que Blazor cargue el contenido antes de scrapear
-    waitForSelector: '.evento-titulo', // Esperar título del evento
+    waitForSelector: '.artista, .evento-titulo', // Esperar artista o título del evento
     waitForTimeout: 30000, // 30 segundos máximo
     additionalWaitTime: 3000, // CRÍTICO: Blazor tarda 3s más en renderizar descripción después de título
 
@@ -126,8 +128,9 @@ export const movistarArenaConfig: ScraperConfig = {
     maxRenderRetries: 2, // Recargar hasta 2 veces si la tarjeta de compra no renderizó
 
     selectors: {
-      // Título completo del evento
-      title: '.evento-titulo',
+      // Preservar el título del artista extraído de <h3> en el listado
+      // (.evento-titulo en detalle suele ser solo el subtítulo de la gira)
+      title: undefined,
 
       // Descripción: todos los párrafos dentro de .box-descipcion (typo intencional del HTML)
       // El transform extractMovistarDescription filtrará contenido irrelevante
